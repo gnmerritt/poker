@@ -28,7 +28,8 @@ class Card:
     FACES = [None,None] + range(2, 11) + ["J", "Q", "K", "A"]
 
     def __init__(self, value, suit):
-        assert value > 1 and value < len(self.FACES)
+        assert value > 1
+        assert value < len(self.FACES)
         assert isinstance(suit, Suit)
 
         self.value = value
@@ -82,11 +83,27 @@ class Hand:
 
 class Game:
     """Memory for a full hand of poker"""
-    pass
+    def __init__(self):
+        self.table_cards = []
+        self.pot = 0
 
 class Match:
     """Container for information about a group of games"""
-    pass
+    def __init__(self):
+        self.round = 0
+        self.big_blind = 0
+        self.small_blind = 0
+
+    def __repr__(self):
+        pass
+
+class Player:
+    def __init__(self, name):
+        self.name = name
+        self.is_me = False
+        self.is_dealer = False
+        self.chips = None
+        self.seat = None
 
 class Constants:
     CLUBS = Suit(0)
@@ -94,6 +111,7 @@ class Constants:
     HEARTS = Suit(2)
     SPADES = Suit(3)
 
+    # Can use real numbers for everything else
     JACK = 11
     QUEEN = 12
     KING = 13

@@ -13,9 +13,10 @@ class ChenScore:
         self.hand = hand
 
     def score(self):
+        """Scores a hand based on the Chen system"""
         points = self.points_for_card(self.hand.high)
 
-        # For a pair, return double the high cards' value
+        # For a pair, return double the high cards value
         if self.hand.is_pair():
             return max(points * 2, 5)
 
@@ -36,8 +37,7 @@ class ChenScore:
                 self.hand.is_connected() or self.hand.card_gap() == 1:
             points = points + 1
 
-        points = math.ceil(points)
-        return points
+        return math.ceil(points)
 
     def points_for_card(self, card):
         points = self.CARD_TO_POINTS.get(card.value)
