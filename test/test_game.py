@@ -42,12 +42,16 @@ class CardTest(unittest.TestCase):
                 self.fail('value {i} allowed'.format(i=i))
 
     def test_eq(self):
-        for i in range(0, 3):
+        """Tests the card equals function, and that we can make a full deck"""
+        cards = 0
+        for i in range(0, 4):
             suit = Suit(i)
-            for j in range(2, 14):
+            for j in range(2, 15):
                 card1 = Card(j, suit)
                 card2 = Card(j, suit)
+                cards = cards + 1
                 self.assertEqual(card1, card2)
+        self.assertEqual(cards, 52)
 
 if __name__ == '__main__':
     unittest.main()

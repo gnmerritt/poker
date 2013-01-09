@@ -25,8 +25,7 @@ class Suit:
 
 class Card:
     """Card value"""
-
-    FACES = [None,None] + range(2,10) + ["J", "Q", "K", "A"]
+    FACES = [None,None] + range(2, 11) + ["J", "Q", "K", "A"]
 
     def __init__(self, value, suit):
         assert value > 1 and value < len(self.FACES)
