@@ -34,6 +34,12 @@ class Card:
         self.value = value
         self.suit = suit
 
+    def is_pair(self, other):
+        return self.value == other.value
+
+    def is_suited(self, other):
+        return self.suit == other.suit
+
     def __repr__(self):
         return '{value}-{suit}'.format(value=self.FACES[self.value], suit=str(self.suit))
 
@@ -50,12 +56,29 @@ class Card:
 
 class Hand:
     """Player's hand of cards"""
-    def __init__(self, cards):
-        self.cards = cards
+    def __init__(self, card1, card2):
+        if card1.value > card2.value:
+            self.high = card1
+            self.low = card2
+        else:
+            self.high = card2
+            self.low = card1
 
-    def score(self):
-        """Calculates the score of this hand"""
-        return 0
+    def is_pair(self):
+        """Returns true if hand is a pair, false otherwise"""
+        return self.high.value == self.low.value
+
+    def is_suited(self):
+        """Returns true if other and self are the same suit, false otherwise"""
+        return self.high.suit == self.low.suit
+
+    def card_gap(self):
+        """Returns the gap between high & low"""
+        return (self.high.value - self.low.value) - 1
+
+    def is_connected(self):
+        """Returns whether the hand is connected"""
+        return self.card_gap() < 1
 
 class Game:
     """Memory for a full hand of poker"""
@@ -64,3 +87,14 @@ class Game:
 class Match:
     """Container for information about a group of games"""
     pass
+
+class Constants:
+    CLUBS = Suit(0)
+    DIAMONDS = Suit(1)
+    HEARTS = Suit(2)
+    SPADES = Suit(3)
+
+    JACK = 11
+    QUEEN = 12
+    KING = 13
+    ACE = 14
