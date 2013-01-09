@@ -6,6 +6,7 @@ class Suit:
     SUITS = ["Clubs", "Diamonds", "Hearts", "Spades"]
 
     def __init__(self, suit):
+        assert suit >= 0 and suit < len(self.SUITS)
         self.suit = suit
 
     def __repr__(self):
@@ -28,8 +29,8 @@ class Card:
     FACES = [None,None] + range(2,10) + ["J", "Q", "K", "A"]
 
     def __init__(self, value, suit):
-        assert value > 1
-        assert value < len(self.FACES)
+        assert value > 1 and value < len(self.FACES)
+        assert isinstance(suit, Suit)
 
         self.value = value
         self.suit = suit
