@@ -17,3 +17,44 @@ class CardBuilder:
         mapped_suit = self.SUIT_MAP.get(suit)
 
         return Card(mapped_value, mapped_suit)
+
+class SettingsParser:
+    """
+    Parses the following lines from an input stream
+      Settings gameType NLHE
+      Settings gameMode tournament
+      Settings timeBank 5000
+      Settings timePerMove 500
+      Settings handsPerLevel 10
+      Settings yourBot bot_0
+
+    """
+    def handled_line(self, line):
+        pass
+
+class RoundParser:
+    """
+    For Info at the start of every hand
+      Match round 1
+      Match smallBlind 10
+      Match bigBlind 20
+      Match onButton bot_0
+      bot_0 stack 1500
+      bot_1 stack 1500
+      bot_0 post 10
+      bot_1 post 20
+      bot_0 hand [6c,Jc]
+    """
+    pass
+
+class TurnParser:
+    """
+    Info before we have to make a decision
+      bot_0 stack 1490
+      bot_1 stack 1480
+      Match pot 20
+      Match sidepots [10]
+      go 5000
+    """
+
+    pass

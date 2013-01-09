@@ -81,7 +81,7 @@ class Hand:
         """Returns whether the hand is connected"""
         return self.card_gap() < 1
 
-class Game:
+class Round:
     """Memory for a full hand of poker"""
     def __init__(self):
         self.table_cards = []
