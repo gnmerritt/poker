@@ -26,6 +26,16 @@ class Parser:
 
     def handle_line(self, line):
         """Return whether this parser fully handled the input line"""
+        if not line:
+            return False
+
+        # Special case: make 'go 5000 -> go go 5000'
+        if line.startswith('go '):
+            line = 'go ' + line
+
+        return self._handle_line(line)
+
+    def _handle_line(self, line):
         return False
 
 class SettingsParser(Parser):
@@ -33,26 +43,24 @@ class SettingsParser(Parser):
     Parses the following lines from an input stream
       Settings gameType NLHE (ignored)
       Settings gameMode tournament (ignored)
-      Settings timeBank 5000
-      Settings timePerMove 500
-      Settings handsPerLevel 10
+      Settings timeBank 5000 (ignored)
+      Settings timePerMove 500 (ignored)
+      Settings handsPerLevel 10 (ignored)
+
       Settings yourBot bot_0
 
     """
     START_TOKEN = 'Settings'
     YOUR_BOT = 'yourBot'
 
-    def handle_line(self, line):
-        if not line:
-            return False
-
+    def _handle_line(self, line):
         token, key, value = line.split()
         if token != self.START_TOKEN:
             return False
 
         # For now, only car about name of yourBot
         if key == self.YOUR_BOT:
-            self._data[self.YOUR_BOT] = value
+            self._data[key] = value
 
         # No other parsers need these lines
         return True
@@ -65,22 +73,44 @@ class RoundParser(Parser):
       Match smallBlind 10
       Match bigBlind 20
       Match onButton bot_0
-      bot_0 stack 1500
-      bot_1 stack 1500
-      bot_0 post 10
-      bot_1 post 20
-      bot_0 hand [6c,Jc]
     """
-    pass
+    TOKEN = 'Match'
+    KEYS = ['round', 'smallBlind', 'bigBlind', 'onButton']
+
+    def _handle_line(self, line):
+        token, key, value = line.split()
+        if token != self.TOKEN:
+            return False
+
+        if not key or not key in self.KEYS:
+            return False
+
+        self._data[key] = value
+        return True
 
 class TurnParser(Parser):
     """
     Info before we have to make a decision
-      bot_0 stack 1490
-      bot_1 stack 1480
+      bot_0 stack 1500 (ignored)
+      bot_1 stack 1500 (ignored)
+      bot_0 post 10 (ignored)
+      bot_1 post 20 (ignored)
+      Match sidepots [10] (ignored)
+
+      bot_0 hand [6c,Jc]
       Match pot 20
-      Match sidepots [10]
-      go 5000
       Match table [Tc,8d,9c]
+      go 5000 (transformed into go go 5000)
     """
-    pass
+    def _handle_line(self, line):
+        if not line:
+            return False
+
+        token, key, value = line.split()
+        if token.startswith('bot_') and key == 'hand' \
+                or token == 'Match' \
+                or token == 'go':
+            self._data[key] = value
+            return True
+
+        return False

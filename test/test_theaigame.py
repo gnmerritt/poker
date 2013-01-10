@@ -25,7 +25,7 @@ class SettingsParserTest(unittest.TestCase):
                  'Settings yourBot bot_0']
 
         data = {}
-        parser = SettingsParser(sys.stdout, data)
+        parser = SettingsParser(data)
 
         for line in lines:
             handled = parser.handle_line(line)
@@ -39,15 +39,33 @@ class RoundParserTest(unittest.TestCase):
         lines = [ 'Match round 1',
                   'Match smallBlind 10',
                   'Match bigBlind 20',
-                  'Match onButton bot_0',
-                  'bot_0 stack 1500',
-                  'bot_1 stack 1500',
-                  'bot_0 post 10',
-                  'bot_1 post 20',
-                  'bot_0 hand [6c,Jc]' ]
+                  'Match onButton bot_0']
 
         data = {}
         parser = RoundParser(data)
 
         for line in lines:
             self.assertTrue(parser.handle_line(line))
+
+        self.assertEqual(str(10), data['smallBlind'])
+        self.assertEqual(str(20), data['bigBlind'])
+        self.assertEqual('bot_0', data['onButton'])
+
+class TurnParserTest(unittest.TestCase):
+    def test_parse_settings(self):
+        """Tests parsing info that indicates we need to make a decision"""
+        lines = [ 'Match pot 20',
+                  'bot_0 hand [6c,Jc]',
+                  'go 5000',
+                  'Match table [Tc,8d,9c]']
+
+        data = {}
+        parser = TurnParser(data)
+
+        for line in lines:
+            self.assertTrue(parser.handle_line(line), 'didnt handle: ' + line)
+
+        self.assertEqual(data['go'], str(5000))
+        self.assertEqual(data['table'], '[Tc,8d,9c]')
+        self.assertEqual(data['pot'], str(20))
+        self.assertEqual(data['hand'], '[6c,Jc]')
