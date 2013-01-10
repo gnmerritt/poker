@@ -81,21 +81,21 @@ class Hand:
         """Returns whether the hand is connected"""
         return self.card_gap() < 1
 
+class Match:
+    """Container for information about a group of games"""
+    def __init__(self):
+        self.round = 0
+
+    def __repr__(self):
+        pass
+
 class Round:
     """Memory for a full hand of poker"""
     def __init__(self):
         self.table_cards = []
         self.pot = 0
-
-class Match:
-    """Container for information about a group of games"""
-    def __init__(self):
-        self.round = 0
         self.big_blind = 0
         self.small_blind = 0
-
-    def __repr__(self):
-        pass
 
 class Player:
     def __init__(self, name):

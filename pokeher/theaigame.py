@@ -18,21 +18,53 @@ class CardBuilder:
 
         return Card(mapped_value, mapped_suit)
 
-class SettingsParser:
+class Parser:
+    CARD_REGEXP = r'/\[(.*)\]/';
+
+    def __init__(self, writer, data):
+        self._writer = writer
+        self._data = data
+
+    def write_line(self, line):
+        if line:
+            _writer.write(line)
+            _writer.flush()
+
+    def handle_line(self, line):
+        """Return whether this parser fully handled the input line"""
+        return False
+
+class SettingsParser(Parser):
     """
     Parses the following lines from an input stream
-      Settings gameType NLHE
-      Settings gameMode tournament
+      Settings gameType NLHE (ignored)
+      Settings gameMode tournament (ignored)
       Settings timeBank 5000
       Settings timePerMove 500
       Settings handsPerLevel 10
       Settings yourBot bot_0
 
     """
-    def handled_line(self, line):
-        pass
+    START_TOKEN = 'Settings'
+    YOUR_BOT = 'yourBot'
 
-class RoundParser:
+    def handle_line(self, line):
+        if not line:
+            return False
+
+        token, key, value = line.split()
+        if token != self.START_TOKEN:
+            return False
+
+        # For now, only car about name of yourBot
+        if key == self.YOUR_BOT:
+            self._data[self.YOUR_BOT] = value
+
+        # No other parsers need these lines
+        return True
+
+
+class RoundParser(Parser):
     """
     For Info at the start of every hand
       Match round 1
@@ -47,7 +79,7 @@ class RoundParser:
     """
     pass
 
-class TurnParser:
+class TurnParser(Parser):
     """
     Info before we have to make a decision
       bot_0 stack 1490
@@ -55,6 +87,6 @@ class TurnParser:
       Match pot 20
       Match sidepots [10]
       go 5000
+      Match table [Tc,8d,9c]
     """
-
     pass
