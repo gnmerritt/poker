@@ -21,14 +21,8 @@ class CardBuilder:
 class Parser:
     CARD_REGEXP = r'/\[(.*)\]/';
 
-    def __init__(self, writer, data):
-        self._writer = writer
+    def __init__(self, data):
         self._data = data
-
-    def write_line(self, line):
-        if line:
-            _writer.write(line)
-            _writer.flush()
 
     def handle_line(self, line):
         """Return whether this parser fully handled the input line"""

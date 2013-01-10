@@ -32,3 +32,22 @@ class SettingsParserTest(unittest.TestCase):
             self.assertTrue(handled)
 
         self.assertEqual(data['yourBot'], 'bot_0')
+
+class RoundParserTest(unittest.TestCase):
+    def test_parse_settings(self):
+        """Tests round by round parsing settings"""
+        lines = [ 'Match round 1',
+                  'Match smallBlind 10',
+                  'Match bigBlind 20',
+                  'Match onButton bot_0',
+                  'bot_0 stack 1500',
+                  'bot_1 stack 1500',
+                  'bot_0 post 10',
+                  'bot_1 post 20',
+                  'bot_0 hand [6c,Jc]' ]
+
+        data = {}
+        parser = RoundParser(data)
+
+        for line in lines:
+            self.assertTrue(parser.handle_line(line))
