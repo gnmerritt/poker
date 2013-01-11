@@ -9,10 +9,34 @@ class CardBuilderTest(unittest.TestCase):
         """Tests building our cards from theaigame text strings"""
         b = CardBuilder()
 
-        self.assertEqual(b.from_string('Th'), Card(10, C.HEARTS))
-        self.assertEqual(b.from_string('9s'), Card(9, C.SPADES))
-        self.assertEqual(b.from_string('Ad'), Card(C.ACE, C.DIAMONDS))
-        self.assertEqual(b.from_string('2c'), Card(2, C.CLUBS))
+        self.assertFalse(b.from_2char(None))
+        self.assertFalse(b.from_2char('Thh'))
+        self.assertFalse(b.from_2char('T'))
+
+        self.assertEqual(b.from_2char('Th'), Card(10, C.HEARTS))
+        self.assertEqual(b.from_2char('9s'), Card(9, C.SPADES))
+        self.assertEqual(b.from_2char('Ad'), Card(C.ACE, C.DIAMONDS))
+        self.assertEqual(b.from_2char('2c'), Card(2, C.CLUBS))
+
+    def test_from_list(self):
+        """Tests building a list of cards from a theaigame hand or table token"""
+        b = CardBuilder()
+
+        self.assertFalse(b.from_list(None))
+        self.assertFalse(b.from_list('asdf2njks92'))
+
+        answer1 = [Card(10, C.HEARTS), Card(3, C.DIAMONDS)]
+        self.assertEqual(b.from_list('[Th,3d]'), answer1)
+        answer1.reverse()
+        self.assertEqual(b.from_list('[3d,Th]'), answer1)
+
+        answer2 = [Card(10, C.CLUBS), Card(8, C.DIAMONDS), Card(9, C.CLUBS)]
+        self.assertEqual(b.from_list(' [Tc,8d,9c]   '), answer2)
+
+    def test_is_card_list(self):
+        b = CardBuilder()
+        self.assertTrue(b.is_card_list('[Th,3d]'))
+        self.assertFalse(b.is_card_list('3nkjnxu903'))
 
 class SettingsParserTest(unittest.TestCase):
     def test_parse_settings(self):
@@ -69,7 +93,7 @@ class TurnParserTest(unittest.TestCase):
         for line in lines:
             self.assertTrue(parser.handle_line(line), 'didnt handle: ' + line)
 
-        self.assertEqual(data['table'], '[Tc,8d,9c]')
+        self.assertEqual(data['table'], [Card(10, C.CLUBS), Card(8, C.DIAMONDS), Card(9, C.CLUBS)])
         self.assertEqual(data['pot'], str(20))
-        self.assertEqual(data['hand'], '[6c,Jc]')
+        self.assertEqual(data['hand_0'], [Card(6, C.CLUBS), Card(C.JACK, C.CLUBS)])
         self.assertEqual(self.goTime, 5000)

@@ -1,3 +1,4 @@
+import re
 from pokeher.game import *
 from pokeher.game import Constants as C
 
@@ -7,8 +8,12 @@ class CardBuilder:
     VALUE_MAP = { 'T': 10, 'J' : C.JACK, 'Q' : C.QUEEN, 'K' : C.KING, 'A' : C.ACE }
     SUIT_MAP = { 'c' : C.CLUBS, 'd' : C.DIAMONDS, 'h' : C.HEARTS, 's' : C.SPADES }
 
-    def from_string(self, string):
-        assert len(string) == 2
+    CARD_REGEXP = r'.*\[([2-9TJQKAcdhs,]+)\].*'
+
+    def from_2char(self, string):
+        """Returns a Card from a 2-char token like 9c"""
+        if not string or len(string) != 2:
+            return None
 
         value, suit = string[0], string[1]
         mapped_value = self.VALUE_MAP.get(value)
@@ -18,9 +23,30 @@ class CardBuilder:
 
         return Card(mapped_value, mapped_suit)
 
-class Parser:
-    CARD_REGEXP = r'/\[(.*)\]/';
+    def from_list(self, token_string):
+        """Returns a list of Cards from a string token like [Ah,9d]"""
+        if not token_string:
+            return None
 
+        match = re.match(self.CARD_REGEXP, (token_string))
+        if not match or not match.group(1):
+            return None
+        cards = match.group(1).split(',')
+
+        results = []
+        for card in cards:
+            result = self.from_2char(card)
+            if result:
+                results.append(result)
+        return results
+
+    def is_card_list(self, string):
+        """Returns true if the string matches the card regexp, false otherwise"""
+        if not string:
+            return False
+        return re.match(self.CARD_REGEXP, string) is not None
+
+class Parser:
     def __init__(self, data):
         self._data = data
 
@@ -106,11 +132,19 @@ class TurnParser(Parser):
         self._goCallback = goCallback
 
     def _handle_line(self, token, key, value):
-        if token.startswith('bot_') and key == 'hand' \
-                or token == 'Match':
+        parser = CardBuilder()
+        if parser.is_card_list(value):
+            value = parser.from_list(value)
+
+        # Save the hand as hand_{number} = [Card, Card]
+        if token.startswith('bot_') and key == 'hand':
+            bot_hand = 'hand_' + token[len('bot_')]
+            self._data[bot_hand] = value
+            return True
+        elif token == 'Match':
             self._data[key] = value
             return True
-        if token == 'go':
+        elif token == 'go':
             if self._goCallback:
                 self._goCallback(int(value))
                 return True
