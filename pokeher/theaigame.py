@@ -1,6 +1,7 @@
 import re
 from cards import *
 from cards import Constants as C
+from wiring import Parser,GameParserDelegate
 
 class CardBuilder:
     """Creates our internal cards from text strings"""
@@ -46,11 +47,8 @@ class CardBuilder:
             return False
         return re.match(self.CARD_REGEXP, string) is not None
 
-class Parser:
+class AiGameParser(Parser):
     """Base class for the other STDIN parsers"""
-    def __init__(self, data):
-        self._data = data
-
     def handle_line(self, line):
         """Return whether this parser fully handled the input line"""
         if not line:
@@ -71,7 +69,7 @@ class Parser:
            return True
         return False
 
-class SettingsParser(Parser):
+class SettingsParser(AiGameParser):
     """
     Parses the following lines from an input stream
       Settings gameType NLHE (ignored)
@@ -102,7 +100,7 @@ class SettingsParser(Parser):
         return True
 
 
-class RoundParser(Parser):
+class RoundParser(AiGameParser):
     """
     For Info at the start of every hand
       Match round 1
@@ -123,7 +121,7 @@ class RoundParser(Parser):
         self._data[key] = value
         return True
 
-class TurnParser(Parser):
+class TurnParser(AiGameParser):
     """
     Info before we have to make a decision
       bot_0 stack 1500 (ignored)
@@ -170,3 +168,10 @@ class TurnParser(Parser):
                 return True
 
         return False
+
+class TheAiGameParserDelegate(GameParserDelegate):
+    def set_up(self, data, turn_callback):
+        self.workers = [ SettingsParser(data),
+                         RoundParser(data),
+                         TurnParser(data, turn_callback) ]
+        return self

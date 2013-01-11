@@ -1,14 +1,12 @@
-from theaigame import *
+from theaigame import TheAiGameParserDelegate
 from game import *
 
 class Brain:
     """The brain: combines data classes from game.py to make decisions"""
-    def __init__(self, input_output):
-        self.io = input_output
+    def __init__(self, input_output, parser):
         self.sharedData = {}
-        self.parsers = [ SettingsParser(self.sharedData),
-                         RoundParser(self.sharedData),
-                         TurnParser(self.sharedData, self.do_turn) ]
+        self.io = input_output
+        self.parser = parser.set_up(self.sharedData, self.do_turn)
 
         # Null-out the data
         self.match = Match(self.sharedData)
@@ -17,10 +15,9 @@ class Brain:
 
     def parse_line(self, line):
         """Feeds a line to the parsers"""
-        for parser in self.parsers:
-            if parser.handle_line(line):
-                return
-        self.io.log("didn't handle line: " + line + "\n")
+        success = self.parser.handle_line(line)
+        if not success:
+            self.io.log("didn't handle line: " + line + "\n")
 
     def do_turn(self, timeLeft):
         """Callback for when the brain has to make a decision"""

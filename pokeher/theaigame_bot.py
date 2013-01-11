@@ -1,10 +1,11 @@
 import sys
 from brain import Brain
+from theaigame import TheAiGameParserDelegate
 
 class TheAiGameBot:
     """ Bot for TheAiGame.com """
     def __init__(self, output, error):
-        self.brain = Brain(self)
+        self.brain = Brain(self, TheAiGameParserDelegate())
         self.output = output
         self.log = error
 
