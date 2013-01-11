@@ -66,6 +66,11 @@ class Parser:
     def _handle_line(self, token, key, line):
         return False
 
+    def is_bot_directive(self, token):
+        if token.startswith('bot_'):
+           return True
+        return False
+
 class SettingsParser(Parser):
     """
     Parses the following lines from an input stream
@@ -74,6 +79,8 @@ class SettingsParser(Parser):
       Settings timeBank 5000 (ignored)
       Settings timePerMove 500 (ignored)
       Settings handsPerLevel 10 (ignored)
+      bot_0 seat 0 (ignored)
+      bot_1 seat 1 (ignored)
 
       Settings yourBot bot_0
     """
@@ -81,6 +88,9 @@ class SettingsParser(Parser):
     YOUR_BOT = 'yourBot'
 
     def _handle_line(self, token, key, value):
+        if self.is_bot_directive(token) and key == 'seat':
+            return True
+
         if token != self.START_TOKEN:
             return False
 
@@ -137,7 +147,7 @@ class TurnParser(Parser):
             value = parser.from_list(value)
 
         # Save the hand as (hand, bot_x) = [Card, Card]
-        if token.startswith('bot_') and key == 'hand':
+        if self.is_bot_directive(token) and key == 'hand':
             self._data[('hand', token)] = value
             return True
         elif token == 'Match':

@@ -46,7 +46,9 @@ class SettingsParserTest(unittest.TestCase):
                  'Settings timeBank 5000',
                  'Settings timePerMove 500',
                  'Settings handsPerLevel 10',
-                 'Settings yourBot bot_0']
+                 'Settings yourBot bot_0',
+                 'bot_0 seat 0',
+                 'bot_1 seat 1']
 
         data = {}
         parser = SettingsParser(data)

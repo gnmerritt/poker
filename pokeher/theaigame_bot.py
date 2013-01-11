@@ -32,7 +32,7 @@ class TheAiGameBot(object):
         for parser in self.parsers:
             if parser.handle_line(line):
                 return
-        self.write_error("didn't handle line: " + line)
+        self.write_error("didn't handle line: " + line + "\n")
 
     def write_out(self, line):
         """Writes a line to the output"""
