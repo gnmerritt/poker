@@ -140,7 +140,7 @@ class TurnParser(Parser):
       Match table [Tc,8d,9c]
       go 5000 (transformed into go go 5000)
     """
-    BOT_DATA = ['raise', 'call', 'wins', 'check' 'hand']
+    BOT_DATA = ['raise', 'call', 'wins', 'check', 'hand']
     IGNORED_ACTIONS = ['fold']
 
     def __init__(self, data, goCallback):
