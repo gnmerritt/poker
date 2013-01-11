@@ -33,9 +33,10 @@ class Parser:
         if line.startswith('go '):
             line = 'go ' + line
 
-        return self._handle_line(line)
+        token, key, value = line.split()
+        return self._handle_line(token, key, value)
 
-    def _handle_line(self, line):
+    def _handle_line(self, token, key, line):
         return False
 
 class SettingsParser(Parser):
@@ -53,8 +54,7 @@ class SettingsParser(Parser):
     START_TOKEN = 'Settings'
     YOUR_BOT = 'yourBot'
 
-    def _handle_line(self, line):
-        token, key, value = line.split()
+    def _handle_line(self, token, key, value):
         if token != self.START_TOKEN:
             return False
 
@@ -77,8 +77,7 @@ class RoundParser(Parser):
     TOKEN = 'Match'
     KEYS = ['round', 'smallBlind', 'bigBlind', 'onButton']
 
-    def _handle_line(self, line):
-        token, key, value = line.split()
+    def _handle_line(self, token, key, value):
         if token != self.TOKEN:
             return False
 
@@ -102,15 +101,18 @@ class TurnParser(Parser):
       Match table [Tc,8d,9c]
       go 5000 (transformed into go go 5000)
     """
-    def _handle_line(self, line):
-        if not line:
-            return False
+    def __init__(self, data, goCallback):
+        self._data = data
+        self._goCallback = goCallback
 
-        token, key, value = line.split()
+    def _handle_line(self, token, key, value):
         if token.startswith('bot_') and key == 'hand' \
-                or token == 'Match' \
-                or token == 'go':
+                or token == 'Match':
             self._data[key] = value
             return True
+        if token == 'go':
+            if self._goCallback:
+                self._goCallback(int(value))
+                return True
 
         return False

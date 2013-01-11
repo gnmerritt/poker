@@ -60,12 +60,16 @@ class TurnParserTest(unittest.TestCase):
                   'Match table [Tc,8d,9c]']
 
         data = {}
-        parser = TurnParser(data)
+        self.goTime = 0
+        def goCallback(time):
+            self.goTime = time
+
+        parser = TurnParser(data, goCallback)
 
         for line in lines:
             self.assertTrue(parser.handle_line(line), 'didnt handle: ' + line)
 
-        self.assertEqual(data['go'], str(5000))
         self.assertEqual(data['table'], '[Tc,8d,9c]')
         self.assertEqual(data['pot'], str(20))
         self.assertEqual(data['hand'], '[6c,Jc]')
+        self.assertEqual(self.goTime, 5000)
