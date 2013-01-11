@@ -1,6 +1,6 @@
 import re
-from pokeher.game import *
-from pokeher.game import Constants as C
+from game import *
+from game import Constants as C
 
 class CardBuilder:
     """Creates our internal cards from text strings"""
@@ -47,6 +47,7 @@ class CardBuilder:
         return re.match(self.CARD_REGEXP, string) is not None
 
 class Parser:
+    """Base class for the other STDIN parsers"""
     def __init__(self, data):
         self._data = data
 
@@ -75,7 +76,6 @@ class SettingsParser(Parser):
       Settings handsPerLevel 10 (ignored)
 
       Settings yourBot bot_0
-
     """
     START_TOKEN = 'Settings'
     YOUR_BOT = 'yourBot'
@@ -136,10 +136,9 @@ class TurnParser(Parser):
         if parser.is_card_list(value):
             value = parser.from_list(value)
 
-        # Save the hand as hand_{number} = [Card, Card]
+        # Save the hand as (hand, bot_x) = [Card, Card]
         if token.startswith('bot_') and key == 'hand':
-            bot_hand = 'hand_' + token[len('bot_')]
-            self._data[bot_hand] = value
+            self._data[('hand', token)] = value
             return True
         elif token == 'Match':
             self._data[key] = value

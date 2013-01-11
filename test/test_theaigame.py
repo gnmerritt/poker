@@ -95,5 +95,5 @@ class TurnParserTest(unittest.TestCase):
 
         self.assertEqual(data['table'], [Card(10, C.CLUBS), Card(8, C.DIAMONDS), Card(9, C.CLUBS)])
         self.assertEqual(data['pot'], str(20))
-        self.assertEqual(data['hand_0'], [Card(6, C.CLUBS), Card(C.JACK, C.CLUBS)])
+        self.assertEqual(data[('hand', 'bot_0')], [Card(6, C.CLUBS), Card(C.JACK, C.CLUBS)])
         self.assertEqual(self.goTime, 5000)

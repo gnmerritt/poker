@@ -97,13 +97,16 @@ class Round:
         self.big_blind = 0
         self.small_blind = 0
 
+    def update(self, data):
+        pass
+
 class Player:
+    """Player info"""
     def __init__(self, name):
         self.name = name
         self.is_me = False
         self.is_dealer = False
         self.chips = None
-        self.seat = None
 
 class Constants:
     CLUBS = Suit(0)
