@@ -47,8 +47,6 @@ class TheAiGameBot(object):
             dest.write(line)
             dest.flush()
 
-# Following comment needed to make the bot run:
-#  __poker_main__
 if __name__ == '__main__':
     bot = TheAiGameBot(sys.stdout, sys.stderr)
     bot.run()

@@ -19,8 +19,6 @@ class MyBot(object):
         def __init__(self):
                 pass
 
-# Following comment needed to make the bot run:
-#  __poker_main__
 if __name__ == '__main__':
         bot = MyBot()
         bot.run()
