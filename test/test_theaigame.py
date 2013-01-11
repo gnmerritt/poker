@@ -83,7 +83,9 @@ class TurnParserTest(unittest.TestCase):
         lines = [ 'Match pot 20',
                   'bot_0 hand [6c,Jc]',
                   'go 5000',
-                  'Match table [Tc,8d,9c]']
+                  'Match table [Tc,8d,9c]',
+                  'bot_1 fold 0',
+                  'bot_0 wins 30' ]
 
         data = {}
         self.goTime = 0
@@ -99,3 +101,4 @@ class TurnParserTest(unittest.TestCase):
         self.assertEqual(data['pot'], str(20))
         self.assertEqual(data[('hand', 'bot_0')], [Card(6, C.CLUBS), Card(C.JACK, C.CLUBS)])
         self.assertEqual(self.goTime, 5000)
+        self.assertEqual(data[('wins', 'bot_0'), str(30))

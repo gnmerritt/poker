@@ -131,12 +131,18 @@ class TurnParser(Parser):
       bot_0 post 10 (ignored)
       bot_1 post 20 (ignored)
       Match sidepots [10] (ignored)
+      bot_1 fold 0 (ignored)
+      bot_0 wins 30 (ignored)
 
+      bot_0 raise 20
       bot_0 hand [6c,Jc]
       Match pot 20
       Match table [Tc,8d,9c]
       go 5000 (transformed into go go 5000)
     """
+    BOT_DATA = ['raise', 'call', 'wins', 'check' 'hand']
+    IGNORED_ACTIONS = ['fold']
+
     def __init__(self, data, goCallback):
         self._data = data
         self._goCallback = goCallback
@@ -146,10 +152,15 @@ class TurnParser(Parser):
         if parser.is_card_list(value):
             value = parser.from_list(value)
 
-        # Save the hand as (hand, bot_x) = [Card, Card]
-        if self.is_bot_directive(token) and key == 'hand':
-            self._data[('hand', token)] = value
+        # Save the data as (key, bot_x) = value
+        if self.is_bot_directive(token) and key in self.BOT_DATA:
+            self._data[(key, token)] = value
             return True
+
+        # Ignored stuff
+        elif self.is_bot_directive(token) and key in self.IGNORED_ACTIONS:
+            return True
+
         elif token == 'Match':
             self._data[key] = value
             return True
