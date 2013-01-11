@@ -1,6 +1,6 @@
 import math
-from game import *
-from game import Constants as C
+from cards import *
+from cards import Constants as C
 
 class ChenScore:
     """ Scores a hand according to the Chen forumula.

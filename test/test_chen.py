@@ -1,7 +1,7 @@
 import unittest
 from pokeher.chen import *
-from pokeher.game import *
-from pokeher.game import Constants as C
+from pokeher.cards import *
+from pokeher.cards import Constants as C
 
 class ChenScoreTest(unittest.TestCase):
 
@@ -32,3 +32,6 @@ class ChenScoreTest(unittest.TestCase):
         """Tests that negative scores are reported correctly"""
         two_seven = Hand(Card(2, C.CLUBS), Card(7, C.HEARTS))
         self.assertEquals(ChenScore(two_seven).score(), -1)
+
+if __name__ == '__main__':
+    unittest.main()

@@ -1,12 +1,12 @@
 import sys
 from brain import Brain
 
-class TheAiGameBot(object):
+class TheAiGameBot:
     """ Bot for TheAiGame.com """
     def __init__(self, output, error):
         self.brain = Brain(self)
         self.output = output
-        self.error = error
+        self.log = error
 
     def run(self):
         """ Main run loop """
@@ -20,15 +20,15 @@ class TheAiGameBot(object):
             except EOFError:
                 return
 
-    def write_out(self, line):
-        """Writes a line to the output"""
-        self.write_line(line, self.output)
+    def say(self, line):
+        """Writes a line where the game controller can see it"""
+        self.__write_line(line, self.output)
 
     def log(self, line):
-        """Writes a line to the error"""
-        self.write_line(line, self.error)
+        """Writes a line somewhere we can log it"""
+        self.__write_line(line, self.log)
 
-    def write_line(self, line, dest):
+    def __write_line(self, line, dest):
         if line and dest:
             dest.write(line)
             dest.flush()

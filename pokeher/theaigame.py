@@ -1,6 +1,6 @@
 import re
-from game import *
-from game import Constants as C
+from cards import *
+from cards import Constants as C
 
 class CardBuilder:
     """Creates our internal cards from text strings"""

@@ -1,7 +1,7 @@
 import sys
 import unittest
-from pokeher.game import *
-from pokeher.game import Constants as C
+from pokeher.cards import *
+from pokeher.cards import Constants as C
 from pokeher.theaigame import *
 
 class CardBuilderTest(unittest.TestCase):
@@ -102,3 +102,6 @@ class TurnParserTest(unittest.TestCase):
         self.assertEqual(data[('hand', 'bot_0')], [Card(6, C.CLUBS), Card(C.JACK, C.CLUBS)])
         self.assertEqual(self.goTime, 5000)
         self.assertEqual(data[('wins', 'bot_0')], str(30))
+
+if __name__ == '__main__':
+    unittest.main()

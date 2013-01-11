@@ -1,121 +1,31 @@
 """
-Stuff to play the actual game of poker
+Data classes relating to the game of poker
 """
 
-class Suit:
-    SUITS = ["Clubs", "Diamonds", "Hearts", "Spades"]
+class Data:
+    def __init__(self, sharedData):
+        self.data = sharedData
 
-    def __init__(self, suit):
-        assert suit >= 0 and suit < len(self.SUITS)
-        self.suit = suit
-
-    def __repr__(self):
-        return self.SUITS[self.suit]
-
-    def __eq__(self, other):
-        if isinstance(other, Suit):
-            return self.suit == other.suit
-        return NotImplemented
-
-    def __ne__(self, other):
-        result = self.__eq__(other)
-        if result is NotImplemented:
-            return result
-        return not result
-
-class Card:
-    """Card value"""
-    FACES = [None,None] + range(2, 11) + ["J", "Q", "K", "A"]
-
-    def __init__(self, value, suit):
-        assert value > 1
-        assert value < len(self.FACES)
-        assert isinstance(suit, Suit)
-
-        self.value = value
-        self.suit = suit
-
-    def is_pair(self, other):
-        return self.value == other.value
-
-    def is_suited(self, other):
-        return self.suit == other.suit
-
-    def __repr__(self):
-        return '{value}-{suit}'.format(value=self.FACES[self.value], suit=str(self.suit))
-
-    def __eq__(self, other):
-        if isinstance(other, Card):
-            return self.value == other.value and self.suit == other.suit
-        return NotImplemented
-
-    def __ne__(self, other):
-        result = self.__eq__(other)
-        if result is NotImplemented:
-            return result
-        return not result
-
-class Hand:
-    """Player's hand of cards"""
-    def __init__(self, card1, card2):
-        if card1.value > card2.value:
-            self.high = card1
-            self.low = card2
-        else:
-            self.high = card2
-            self.low = card1
-
-    def is_pair(self):
-        """Returns true if hand is a pair, false otherwise"""
-        return self.high.value == self.low.value
-
-    def is_suited(self):
-        """Returns true if other and self are the same suit, false otherwise"""
-        return self.high.suit == self.low.suit
-
-    def card_gap(self):
-        """Returns the gap between high & low"""
-        return (self.high.value - self.low.value) - 1
-
-    def is_connected(self):
-        """Returns whether the hand is connected"""
-        return self.card_gap() < 1
-
-class Match:
+class Match(Data):
     """Container for information about a group of games"""
-    def __init__(self):
+    def update(self):
         self.round = 0
+        self.opponents = []
+        self.me = None
 
-    def __repr__(self):
-        pass
-
-class Round:
+class Round(Data):
     """Memory for a full hand of poker"""
-    def __init__(self):
+    def update(self):
         self.table_cards = []
+        self.hand = None
         self.pot = 0
         self.big_blind = 0
         self.small_blind = 0
 
-    def update(self, data):
-        pass
-
-class Player:
+class Player(Data):
     """Player info"""
-    def __init__(self, name):
-        self.name = name
+    def update(self):
+        self.name = None
         self.is_me = False
         self.is_dealer = False
         self.chips = None
-
-class Constants:
-    CLUBS = Suit(0)
-    DIAMONDS = Suit(1)
-    HEARTS = Suit(2)
-    SPADES = Suit(3)
-
-    # Can use real numbers for everything else
-    JACK = 11
-    QUEEN = 12
-    KING = 13
-    ACE = 14
