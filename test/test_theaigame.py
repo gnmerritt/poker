@@ -1,7 +1,5 @@
 import sys
 import unittest
-from pokeher.cards import *
-from pokeher.cards import Constants as C
 from pokeher.theaigame import *
 
 class CardBuilderTest(unittest.TestCase):

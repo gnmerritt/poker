@@ -3,7 +3,7 @@ from cards import *
 from cards import Constants as C
 from wiring import Parser,GameParserDelegate
 
-class CardBuilder:
+class CardBuilder(object):
     """Creates our internal cards from text strings"""
 
     VALUE_MAP = { 'T': 10, 'J' : C.JACK, 'Q' : C.QUEEN, 'K' : C.KING, 'A' : C.ACE }

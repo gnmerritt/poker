@@ -1,4 +1,4 @@
-class Suit:
+class Suit(object):
     SUITS = ["Clubs", "Diamonds", "Hearts", "Spades"]
 
     def __init__(self, suit):
@@ -19,7 +19,7 @@ class Suit:
             return result
         return not result
 
-class Card:
+class Card(object):
     """Card value"""
     FACES = [None,None] + range(2, 11) + ["J", "Q", "K", "A"]
 
@@ -51,7 +51,7 @@ class Card:
             return result
         return not result
 
-class Hand:
+class Hand(object):
     """Player's hand of cards"""
     def __init__(self, card1, card2):
         if card1.value > card2.value:
@@ -77,7 +77,7 @@ class Hand:
         """Returns whether the hand is connected"""
         return self.card_gap() < 1
 
-class Constants:
+class Constants(object):
     CLUBS = Suit(0)
     DIAMONDS = Suit(1)
     HEARTS = Suit(2)

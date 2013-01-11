@@ -1,8 +1,8 @@
 import math
-from cards import *
+import cards
 from cards import Constants as C
 
-class ChenScore:
+class ChenScore(object):
     """ Scores a hand according to the Chen forumula.
     See: http://www.thepokerbank.com/strategy/basic/starting-hand-selection/chen-formula/
     """

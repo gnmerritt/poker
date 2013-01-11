@@ -2,7 +2,7 @@
 Data classes relating to the game of poker
 """
 
-class Data:
+class Data(object):
     def __init__(self, sharedData):
         self.data = sharedData
 

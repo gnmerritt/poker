@@ -1,4 +1,4 @@
-class Action:
+class Action(object):
     """Base class for actions our bot can take"""
     pass
 
