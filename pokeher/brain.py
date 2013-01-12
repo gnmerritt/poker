@@ -16,12 +16,13 @@ class Brain:
     def parse_line(self, line):
         """Feeds a line to the parsers"""
         success = self.parser.handle_line(line)
-        if not success:
+        if success:
+            self.update()
+        else:
             self.io.log("didn't handle line: " + line + "\n")
 
     def do_turn(self, timeLeft):
         """Callback for when the brain has to make a decision"""
-        self.update()
         self.io.say('call 0')
 
     def update(self):
