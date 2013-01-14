@@ -77,6 +77,7 @@ class HandTest(unittest.TestCase):
         h2 = Hand(Card(5, C.HEARTS), Card(7, C.HEARTS))
         self.assertTrue(h2.is_suited())
         self.assertFalse(h2.is_connected())
+        self.assertFalse(h2.is_pair())
 
     def test_hand_negs(self):
         """Tests an unsuited, unconnected hand"""
@@ -89,6 +90,36 @@ class HandTest(unittest.TestCase):
         self.assertFalse(h.is_connected())
         self.assertFalse(h.is_pair())
         self.assertEqual(h.card_gap(), 2)
+
+class HandBuilderTest(unittest.TestCase):
+    def test_flush_finder_empty(self):
+        """Tests that select_flush_suit degrades gracefully"""
+        hb = HandBuilder([])
+        self.assertEqual(None, hb.select_flush_suit())
+
+    def test_flush_finder(self):
+        """Tests the flush finder"""
+        cards1 = [Card(7, C.CLUBS),
+                  Card(8, C.CLUBS),
+                  Card(9, C.CLUBS),
+                  Card(10, C.CLUBS) ]
+
+        hb = HandBuilder(cards1)
+        self.assertFalse(hb.select_flush_suit())
+
+        cards2 = cards1 + [Card(6, C.CLUBS)]
+        hb2 = HandBuilder(cards2)
+        self.assertEqual(C.CLUBS.suit, hb2.select_flush_suit())
+
+        cards3 = cards1 + [Card(6, C.SPADES), Card(2, C.DIAMONDS), Card(C.ACE, C.HEARTS)]
+        hb3 = HandBuilder(cards3)
+        self.assertFalse(hb3.select_flush_suit())
+
+        cards4 = cards3 + [Card(3, C.CLUBS)]
+        hb4 = HandBuilder(cards4)
+        self.assertEqual(C.CLUBS.suit, hb4.select_flush_suit())
+
+
 
 
 if __name__ == '__main__':

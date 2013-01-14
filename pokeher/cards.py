@@ -77,6 +77,39 @@ class Hand(object):
         """Returns whether the hand is connected"""
         return self.card_gap() < 1
 
+class HandBuilder(object):
+    """Makes the best hand from a given set of cards, scores hands
+    """
+    HIGH_CARD = 0
+    PAIR = 1
+    TWO_PAIR = 2
+    TRIPS = 3
+    STRAIGHT = 4
+    FLUSH = 5
+    FULL_HOUSE = 6
+    QUADS = 7
+    STRAIGHT_FLUSH = 8
+    def __init__(self, cards):
+        self.cards = cards
+
+    def find_hand(self):
+        pass
+
+    def select_flush_suit(self):
+        """Returns the suit that has 5+ cards, or None otherwise"""
+        counts = {}
+        for i in range(0, 4):
+            counts[i] = 0
+
+        for card in self.cards:
+            value = card.suit.suit
+            counts[value] = counts[value] + 1
+
+        for suit, count in counts.iteritems():
+            if count >= 5:
+                return suit
+        return None
+
 class Constants(object):
     CLUBS = Suit(0)
     DIAMONDS = Suit(1)
