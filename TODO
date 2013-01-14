@@ -1,0 +1,41 @@
+PokeHer TODO list:
+
+* Compare hands
+
+** Build the best hand from table
+
+** calculate outs?
+
+* Pot odds
+
+* Initial hand win % table
+
+** hook up to actions
+
+* Set up actions
+
+** converter for thepokeraigame.com
+
+** background thread for picking actions
+
+* Automated bot vs bot framework
+
+** reporting
+
+** jenkins?
+
+* Notes
+
+A "Hand Type" is an integer representing the type of poker hand
+you have, where 0= no pair, 1=pair, 2=two pair, 3=trips, 4=straight,
+5=flush, 6=full house, 7=quads, 8=straight flush.
+
+SB: The ideal raise from the small-blind is to 2-3 big-blinds, but
+with the changes (and loose play) that online poker has brought, I
+suggest raising it to 2.5-4 big-blinds.
+
+BB: . You want to either end the hand pre-flop, or end it with a solid
+continuation-bet on the flop should your opponent call your pre-flop
+bet. I'd suggest a range of 3-5 big-blinds on top of your
+already-posted blind. A raise of that size gives your opponent at best
+1.67:1 odds
