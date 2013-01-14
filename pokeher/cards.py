@@ -1,3 +1,6 @@
+import functools
+
+@functools.total_ordering
 class Suit(object):
     SUITS = ["Clubs", "Diamonds", "Hearts", "Spades"]
 
@@ -13,12 +16,10 @@ class Suit(object):
             return self.suit == other.suit
         return NotImplemented
 
-    def __ne__(self, other):
-        result = self.__eq__(other)
-        if result is NotImplemented:
-            return result
-        return not result
+    def __lt__(self, other):
+        return self.suit < other.suit
 
+@functools.total_ordering
 class Card(object):
     """Card value"""
     FACES = [None,None] + range(2, 11) + ["J", "Q", "K", "A"]
@@ -45,11 +46,10 @@ class Card(object):
             return self.value == other.value and self.suit == other.suit
         return NotImplemented
 
-    def __ne__(self, other):
-        result = self.__eq__(other)
-        if result is NotImplemented:
-            return result
-        return not result
+    def __lt__(self, other):
+        """Implements compare for Cards. Check value, then suit"""
+        return ((self.value, self.suit) <
+                (other.value, other.suit))
 
 class Hand(object):
     """Player's hand of cards"""
@@ -94,6 +94,9 @@ class HandBuilder(object):
 
     def find_hand(self):
         pass
+
+    def score_hand(self):
+        """Scores a 5-card hand"""
 
     def select_flush_suit(self):
         """Returns the suit that has 5+ cards, or None otherwise"""

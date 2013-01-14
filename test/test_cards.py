@@ -57,6 +57,18 @@ class CardTest(unittest.TestCase):
                 self.assertEqual(card1, card2)
         self.assertEqual(cards, 52)
 
+    def test_comparisons(self):
+        """Tests that lt, lte, gt, gte all work on Card"""
+        aceH = Card(C.ACE, C.HEARTS)
+        aceS = Card(C.ACE, C.SPADES)
+        threeC = Card(3, C.CLUBS)
+
+        self.assertTrue(aceS > aceH)
+        self.assertTrue(threeC < aceS)
+        self.assertTrue(aceH >= threeC)
+        self.assertTrue(aceH == aceH)
+        self.assertFalse(aceH == aceS)
+
 class HandTest(unittest.TestCase):
     aceH = Card(C.ACE, C.HEARTS)
     aceS = Card(C.ACE, C.SPADES)
@@ -92,6 +104,14 @@ class HandTest(unittest.TestCase):
         self.assertEqual(h.card_gap(), 2)
 
 class HandBuilderTest(unittest.TestCase):
+    cards1 = [Card(7, C.CLUBS),
+              Card(8, C.CLUBS),
+              Card(9, C.CLUBS),
+              Card(10, C.CLUBS) ]
+    cards2 = cards1 + [Card(6, C.CLUBS)]
+    cards3 = cards1 + [Card(6, C.SPADES), Card(2, C.DIAMONDS), Card(C.ACE, C.HEARTS)]
+    cards4 = cards3 + [Card(3, C.CLUBS)]
+
     def test_flush_finder_empty(self):
         """Tests that select_flush_suit degrades gracefully"""
         hb = HandBuilder([])
@@ -99,28 +119,17 @@ class HandBuilderTest(unittest.TestCase):
 
     def test_flush_finder(self):
         """Tests the flush finder"""
-        cards1 = [Card(7, C.CLUBS),
-                  Card(8, C.CLUBS),
-                  Card(9, C.CLUBS),
-                  Card(10, C.CLUBS) ]
-
-        hb = HandBuilder(cards1)
+        hb = HandBuilder(self.cards1)
         self.assertFalse(hb.select_flush_suit())
 
-        cards2 = cards1 + [Card(6, C.CLUBS)]
-        hb2 = HandBuilder(cards2)
+        hb2 = HandBuilder(self.cards2)
         self.assertEqual(C.CLUBS.suit, hb2.select_flush_suit())
 
-        cards3 = cards1 + [Card(6, C.SPADES), Card(2, C.DIAMONDS), Card(C.ACE, C.HEARTS)]
-        hb3 = HandBuilder(cards3)
+        hb3 = HandBuilder(self.cards3)
         self.assertFalse(hb3.select_flush_suit())
 
-        cards4 = cards3 + [Card(3, C.CLUBS)]
-        hb4 = HandBuilder(cards4)
+        hb4 = HandBuilder(self.cards4)
         self.assertEqual(C.CLUBS.suit, hb4.select_flush_suit())
-
-
-
 
 if __name__ == '__main__':
     unittest.main()
