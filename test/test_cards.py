@@ -117,6 +117,9 @@ class HandBuilderTest(unittest.TestCase):
         hb = HandBuilder([])
         self.assertEqual(None, hb.select_flush_suit())
 
+        hb = HandBuilder(None)
+        self.assertEqual(None, hb.select_flush_suit())
+
     def test_flush_finder(self):
         """Tests the flush finder"""
         hb = HandBuilder(self.cards1)
@@ -130,6 +133,30 @@ class HandBuilderTest(unittest.TestCase):
 
         hb4 = HandBuilder(self.cards4)
         self.assertEqual(C.CLUBS.suit, hb4.select_flush_suit())
+
+    def test_score_hand_empty(self):
+        """Tests that the HB doesn't explode for bad entries"""
+        hb = HandBuilder([])
+        self.assertEqual(HandBuilder.NO_SCORE, hb.score_hand())
+
+        hb2 = HandBuilder(None)
+        self.assertEqual(HandBuilder.NO_SCORE, hb2.score_hand())
+
+    def test_score_hand_flush(self):
+        """Tests finding flushes and straight flushes"""
+        flush = self.cards1 + [Card(C.ACE, C.CLUBS)]
+        hb_flush = HandBuilder(flush)
+        self.assertEqual(HandBuilder.FLUSH, hb_flush.score_hand(), "didn't find flush")
+
+        hb_s_flush = HandBuilder(self.cards2)
+        self.assertEqual(HandBuilder.STRAIGHT_FLUSH, hb_s_flush.score_hand(), "didn't find straight flush")
+
+    def test_score_hand_straight(self):
+        """Tests finding a straight"""
+        straight = self.cards1 + [Card(C.JACK, C.SPADES)]
+        hb = HandBuilder(straight)
+        print str(straight)
+        self.assertEqual(HandBuilder.STRAIGHT, hb.score_hand(), "didn't score the straight")
 
 if __name__ == '__main__':
     unittest.main()
