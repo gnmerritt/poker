@@ -1,4 +1,6 @@
 import functools
+import itertools
+from wiring import Callable
 
 @functools.total_ordering
 class Suit(object):
@@ -102,18 +104,37 @@ class HandBuilder(object):
     QUADS = 7
     STRAIGHT_FLUSH = 8
 
+    HAND_LENGTH = 5
+
     def __init__(self, cards):
         self.cards = cards
 
     def find_hand(self):
-        pass
+        """Returns the best hand of length HAND_LENGTH"""
+        if not self.cards or len(self.cards) < self.HAND_LENGTH:
+            return None
+        if len(self.cards) == self.HAND_LENGTH:
+            return self.cards
+
+        self.__sort_hand()
+        best_hand_score = self.NO_SCORE
+        best_hand = None
+        for hand_tup in itertools.combinations(self.cards, self.HAND_LENGTH):
+            hand = list(hand_tup)
+            score = HandBuilder(hand).score_hand()
+
+            if score > best_hand_score:
+                print "{hand} is new best with {score}".format(hand=hand, score=score)
+                best_hand_score = score
+                best_hand = hand
+        return best_hand
 
     def score_hand(self):
         """Returns the score of a 5-card hand"""
         score = self.NO_SCORE
 
         # Drop invalid hands
-        if not self.cards or len(self.cards) != 5:
+        if not self.cards or len(self.cards) != self.HAND_LENGTH:
             return score
 
         self.__sort_hand()
@@ -136,9 +157,10 @@ class HandBuilder(object):
             return score
 
         pairs, trips, quads = self.find_pairs_trips_quads()
-        score = self.HIGH_CARD
 
         # Go from least to most valuable hands
+        score = self.HIGH_CARD
+
         if pairs:
             score = self.PAIR
         if len(pairs) > 1:
@@ -205,7 +227,7 @@ class HandBuilder(object):
             counts[value] += 1
 
         for suit, count in counts.iteritems():
-            if count >= 5:
+            if count >= self.HAND_LENGTH:
                 return suit
         return None
 

@@ -200,5 +200,31 @@ class HandBuilderTest(unittest.TestCase):
         hb = HandBuilder(quads)
         self.assertEqual(HandBuilder.QUADS, hb.score_hand(), "didn't find quads")
 
+class HandFinderTest(unittest.TestCase):
+    """Tests edge cases of the find_hand function"""
+
+    def test_easy_find_hand(self):
+        full_house = [Card(2, C.DIAMONDS), Card(C.ACE, C.SPADES),
+                      Card(2, C.CLUBS), Card(C.ACE, C.HEARTS),
+                      Card(C.ACE, C.CLUBS)]
+        hb = HandBuilder(full_house)
+        best_hand = hb.find_hand()
+
+        self.assertEqual(len(full_house), len(best_hand), "hands not the same length")
+        for card in best_hand:
+            self.assertTrue(card in full_house, "card missing from best hand")
+
+    def test_6_card_hand(self):
+        full_house = [Card(2, C.DIAMONDS), Card(C.ACE, C.SPADES),
+                      Card(2, C.CLUBS), Card(C.ACE, C.HEARTS),
+                      Card(C.ACE, C.CLUBS), Card(4, C.DIAMONDS)]
+        answer = full_house[:len(full_house) - 1]
+        hb = HandBuilder(full_house)
+        best_hand = hb.find_hand()
+
+        self.assertTrue(len(answer), len(best_hand))
+        for card in best_hand:
+            self.assertTrue(card in answer)
+
 if __name__ == '__main__':
     unittest.main()
