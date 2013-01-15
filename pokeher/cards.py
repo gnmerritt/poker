@@ -130,7 +130,47 @@ class HandBuilder(object):
             else:
                 score = self.STRAIGHT
 
+        # At this point, return since we can't have any pairs
+        # at the same time as a straight or flush
+        if score > self.NO_SCORE:
+            return score
+
+        pairs, trips, quads = self.find_pairs_trips_quads()
+        score = self.HIGH_CARD
+
+        # Go from least to most valuable hands
+        if pairs:
+            score = self.PAIR
+        if len(pairs) > 1:
+            score = self.TWO_PAIR
+        if trips:
+            score = self.TRIPS
+        if trips and pairs:
+            score = self.FULL_HOUSE
+        if quads:
+            score = self.QUADS
+
         return score
+
+    def find_pairs_trips_quads(self):
+        """Finds pairs and trips, returns a list of pairs & a list of trips"""
+        pairs = []
+        trips = []
+        quads = []
+        seen = [None,None] + [0]*13
+
+        for card in self.cards:
+            seen[card.value] += 1
+
+        for i, val in enumerate(seen):
+            if val == 2:
+                pairs.append(i)
+            elif val == 3:
+                trips.append(i)
+            elif val == 4:
+                quads.append(i)
+
+        return (pairs, trips, quads)
 
     def is_straight(self):
         """returns True if this hand is a straight, false otherwise"""

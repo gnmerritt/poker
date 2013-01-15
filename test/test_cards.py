@@ -158,5 +158,49 @@ class HandBuilderTest(unittest.TestCase):
         print str(straight)
         self.assertEqual(HandBuilder.STRAIGHT, hb.score_hand(), "didn't score the straight")
 
+    def test_score_hand_high(self):
+        """Score a hand with only a high card"""
+        aceHigh = [Card(2, C.DIAMONDS), Card(4, C.SPADES), Card(C.JACK, C.CLUBS),
+                   Card(7, C.HEARTS), Card(C.ACE, C.CLUBS)]
+        hb = HandBuilder(aceHigh)
+        self.assertEqual(HandBuilder.HIGH_CARD, hb.score_hand(), "didn't score an ace high")
+
+    def test_score_hand_pair(self):
+        """Scores a hand with a pair"""
+        pairAces = [Card(2, C.DIAMONDS), Card(4, C.SPADES), Card(C.JACK, C.CLUBS),
+                   Card(C.ACE, C.HEARTS), Card(C.ACE, C.CLUBS)]
+        hb = HandBuilder(pairAces)
+        self.assertEqual(HandBuilder.PAIR, hb.score_hand(), "didn't find a pair")
+
+    def test_score_hand_two_pair(self):
+        """Finds two pairs"""
+        twoPair = [Card(2, C.DIAMONDS), Card(2, C.SPADES), Card(C.JACK, C.CLUBS),
+                   Card(C.ACE, C.HEARTS), Card(C.ACE, C.CLUBS)]
+        hb = HandBuilder(twoPair)
+        self.assertEqual(HandBuilder.TWO_PAIR, hb.score_hand(), "didn't find two pair")
+
+    def test_score_hand_trips(self):
+        """Finds 3 of a kinds"""
+        trips = [Card(2, C.DIAMONDS), Card(C.ACE, C.SPADES), Card(C.JACK, C.CLUBS),
+                 Card(C.ACE, C.HEARTS), Card(C.ACE, C.CLUBS)]
+        hb = HandBuilder(trips)
+        self.assertEqual(HandBuilder.TRIPS, hb.score_hand(), "didn't find trips")
+
+    def test_score_hand_full_house(self):
+        """Finds a full house"""
+        full_house = [Card(2, C.DIAMONDS), Card(C.ACE, C.SPADES),
+                      Card(2, C.CLUBS), Card(C.ACE, C.HEARTS),
+                      Card(C.ACE, C.CLUBS)]
+        hb = HandBuilder(full_house)
+        self.assertEqual(HandBuilder.FULL_HOUSE, hb.score_hand(), "didn't find full house")
+
+    def test_score_hand_quads(self):
+        """Finds 4 of a kind"""
+        quads = [Card(C.ACE, C.DIAMONDS), Card(C.ACE, C.SPADES),
+                 Card(2, C.CLUBS), Card(C.ACE, C.HEARTS),
+                 Card(C.ACE, C.CLUBS)]
+        hb = HandBuilder(quads)
+        self.assertEqual(HandBuilder.QUADS, hb.score_hand(), "didn't find quads")
+
 if __name__ == '__main__':
     unittest.main()
