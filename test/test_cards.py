@@ -3,7 +3,6 @@ from pokeher.cards import *
 from pokeher.cards import Constants as C
 
 class SuitTest(unittest.TestCase):
-
     def test_eq(self):
         """Makes two instances of each suit and makes sure they're equal"""
         for i in range(0, 3):
@@ -22,7 +21,6 @@ class SuitTest(unittest.TestCase):
                 self.fail('Suit({value}) allowed'.format(value=i))
 
 class CardTest(unittest.TestCase):
-
     def test_card_not_suit(self):
         """Tests that the card constructor requires a Suit"""
         try:

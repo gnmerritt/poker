@@ -157,7 +157,7 @@ class HandBuilder(object):
         pairs = []
         trips = []
         quads = []
-        seen = [None,None] + [0]*13
+        seen = [None,None] + [0]*13 # card values run 2-15 instead of 0-13
 
         for card in self.cards:
             seen[card.value] += 1
