@@ -142,26 +142,29 @@ class HandBuilderTest(unittest.TestCase):
 
     def test_score_hand_flush(self):
         """Tests finding flushes and straight flushes"""
-        flush = self.cards1 + [Card(C.ACE, C.CLUBS)]
+        high_card = Card(C.ACE, C.CLUBS)
+        flush = self.cards1 + [high_card]
         hb_flush = HandBuilder(flush)
         self.assertEqual(HandBuilder.FLUSH, hb_flush.score_hand(), "didn't find flush")
 
-        hb_s_flush = HandBuilder(self.cards2)
-        self.assertEqual(HandBuilder.STRAIGHT_FLUSH, hb_s_flush.score_hand(), "didn't find straight flush")
+        hb_s_flush = HandBuilder(self.cards2) # 10-high flush
+        high_card = Card(10, C.CLUBS)
+        self.assertEqual(HandBuilder.STRAIGHT_FLUSH + high_card.score_value(), hb_s_flush.score_hand(), "didn't find straight flush")
 
     def test_score_hand_straight(self):
         """Tests finding a straight"""
-        straight = self.cards1 + [Card(C.JACK, C.SPADES)]
+        high_card = Card(C.JACK, C.SPADES)
+        straight = self.cards1 + [high_card] # Jack-high straight
         hb = HandBuilder(straight)
-        print str(straight)
-        self.assertEqual(HandBuilder.STRAIGHT, hb.score_hand(), "didn't score the straight")
+        self.assertEqual((HandBuilder.STRAIGHT + high_card.score_value()), hb.score_hand(), "didn't score the straight")
 
     def test_score_hand_high(self):
         """Score a hand with only a high card"""
+        high_card = Card(C.ACE, C.CLUBS)
         aceHigh = [Card(2, C.DIAMONDS), Card(4, C.SPADES), Card(C.JACK, C.CLUBS),
-                   Card(7, C.HEARTS), Card(C.ACE, C.CLUBS)]
+                   Card(7, C.HEARTS), high_card]
         hb = HandBuilder(aceHigh)
-        self.assertEqual(HandBuilder.HIGH_CARD, hb.score_hand(), "didn't score an ace high")
+        self.assertEqual(HandBuilder.HIGH_CARD + high_card.score_value(), hb.score_hand(), "didn't score an ace high")
 
     def test_score_hand_pair(self):
         """Scores a hand with a pair"""
@@ -204,6 +207,7 @@ class HandFinderTest(unittest.TestCase):
     """Tests edge cases of the find_hand function"""
 
     def test_easy_find_hand(self):
+        """Tests the 5-card case (no-op)"""
         full_house = [Card(2, C.DIAMONDS), Card(C.ACE, C.SPADES),
                       Card(2, C.CLUBS), Card(C.ACE, C.HEARTS),
                       Card(C.ACE, C.CLUBS)]
@@ -215,6 +219,7 @@ class HandFinderTest(unittest.TestCase):
             self.assertTrue(card in full_house, "card missing from best hand")
 
     def test_6_card_hand(self):
+        """Tests a simple version of the 6-card case"""
         full_house = [Card(2, C.DIAMONDS), Card(C.ACE, C.SPADES),
                       Card(2, C.CLUBS), Card(C.ACE, C.HEARTS),
                       Card(C.ACE, C.CLUBS), Card(4, C.DIAMONDS)]
@@ -225,6 +230,22 @@ class HandFinderTest(unittest.TestCase):
         self.assertTrue(len(answer), len(best_hand))
         for card in best_hand:
             self.assertTrue(card in answer)
+
+    def test_7_card_hand(self):
+        """Tests a 7-card case"""
+        two_pair = [Card(2, C.DIAMONDS), Card(2, C.SPADES),
+                    Card(5, C.HEARTS), Card(5, C.SPADES),
+                    Card(C.ACE, C.HEARTS), Card(C.ACE, C.DIAMONDS)]
+        # Don't care which 2 gets picked
+        partial_answer = [Card(5, C.HEARTS), Card(5, C.SPADES),
+                          Card(C.ACE, C.HEARTS), Card(C.ACE, C.DIAMONDS)]
+
+        hb = HandBuilder(two_pair)
+        best_hand = hb.find_hand()
+
+        self.assertEqual(len(best_hand), len(partial_answer) + 1)
+        for card in partial_answer:
+            self.assertTrue(card in best_hand, "card missing from the answer")
 
 if __name__ == '__main__':
     unittest.main()

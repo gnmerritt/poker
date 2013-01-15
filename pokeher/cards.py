@@ -40,6 +40,12 @@ class Card(object):
     def is_suited(self, other):
         return self.suit == other.suit
 
+    def score_value(self):
+        if self.value < 10:
+            return .01 * self.value
+        else:
+            return 0.1 * self.value
+
     def __repr__(self):
         return '{value}-{suit}'.format(value=self.FACES[self.value], suit=str(self.suit))
 
@@ -119,9 +125,8 @@ class HandBuilder(object):
         self.__sort_hand()
         best_hand_score = self.NO_SCORE
         best_hand = None
-        for hand_tup in itertools.combinations(self.cards, self.HAND_LENGTH):
-            hand = list(hand_tup)
-            score = HandBuilder(hand).score_hand()
+        for hand in itertools.combinations(self.cards, self.HAND_LENGTH):
+            score = HandBuilder(hand).__score_hand()
 
             if score > best_hand_score:
                 print "{hand} is new best with {score}".format(hand=hand, score=score)
@@ -131,18 +136,21 @@ class HandBuilder(object):
 
     def score_hand(self):
         """Returns the score of a 5-card hand"""
-        score = self.NO_SCORE
-
         # Drop invalid hands
         if not self.cards or len(self.cards) != self.HAND_LENGTH:
-            return score
-
+            return self.NO_SCORE
         self.__sort_hand()
+        return self.__score_hand()
+
+    def __score_hand(self):
+        """Internal verson of score_hand, works on tuples and lists"""
+        score = self.NO_SCORE
 
         # Do we have a flush?
         flush_suit = self.select_flush_suit()
         if flush_suit is not None:
-            score = self.FLUSH
+            # Add the values of all the cards to distinguish between flushes
+            score = self.FLUSH + self.__score_flush()
 
         # Is there a straight?
         if self.is_straight():
@@ -150,6 +158,8 @@ class HandBuilder(object):
                 score = self.STRAIGHT_FLUSH
             else:
                 score = self.STRAIGHT
+            # Add the high card to distinguish between multiple straights
+            score += self.__score_high_card()
 
         # At this point, return since we can't have any pairs
         # at the same time as a straight or flush
@@ -159,18 +169,18 @@ class HandBuilder(object):
         pairs, trips, quads = self.find_pairs_trips_quads()
 
         # Go from least to most valuable hands
-        score = self.HIGH_CARD
+        score = self.HIGH_CARD + self.__score_high_card()
 
         if pairs:
-            score = self.PAIR
+            score = self.PAIR + self.__score_pairs(pairs)
         if len(pairs) > 1:
-            score = self.TWO_PAIR
+            score = self.TWO_PAIR + self.__score_pairs(pairs)
         if trips:
-            score = self.TRIPS
+            score = self.TRIPS + self.__score_pairs(trips)
         if trips and pairs:
-            score = self.FULL_HOUSE
+            score = self.FULL_HOUSE + self.__score_full_house(trips, pairs)
         if quads:
-            score = self.QUADS
+            score = self.QUADS + self.__score_pairs(pairs)
 
         return score
 
@@ -230,6 +240,18 @@ class HandBuilder(object):
             if count >= self.HAND_LENGTH:
                 return suit
         return None
+
+    def __score_flush(self):
+        return 0
+
+    def __score_high_card(self):
+        return self.cards[0].score_value()
+
+    def __score_pairs(self, pairs):
+        return 0
+
+    def __score_full_house(self, trips, pairs):
+        return 0
 
 class Constants(object):
     CLUBS = Suit(0)
