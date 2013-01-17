@@ -15,6 +15,10 @@ class HandScore(object):
     STRAIGHT_FLUSH = 8
 
     def __init__(self, type=NO_SCORE, kicker=NO_SCORE):
+        """type should be one of the hand types defined here
+        kicker is a tuple of card values sorted based on the hand type
+        e.g. kicker=(10,10,9,5,2) for a pair of tens, 9-high
+        """
         self.type = type
         self.kicker = kicker
 
@@ -44,7 +48,7 @@ class HandBuilder(object):
         if len(self.cards) == self.HAND_LENGTH:
             return self.cards
 
-        self.__sort_hand()
+        HandBuilder.sort_hand(self.cards)
         best_hand_score = HandScore()
         best_hand = None
         for hand in itertools.combinations(self.cards, self.HAND_LENGTH):
@@ -60,8 +64,8 @@ class HandBuilder(object):
         """Returns the score of a 5-card hand"""
         # Drop invalid hands
         if not self.cards or len(self.cards) != self.HAND_LENGTH:
-            return HandScore(HandScore.NO_SCORE)
-        self.__sort_hand()
+            return HandScore()
+        HandBuilder.sort_hand(self.cards)
         return self.__score_hand()
 
     def __score_hand(self):
@@ -72,7 +76,6 @@ class HandBuilder(object):
         # Do we have a flush?
         flush_suit = self.select_flush_suit()
         if flush_suit is not None:
-            # Add the values of all the cards to distinguish between flushes
             score.type = HandScore.FLUSH
 
         # Is there a straight?
@@ -81,11 +84,12 @@ class HandBuilder(object):
                 score.type = HandScore.STRAIGHT_FLUSH
             else:
                 score.type = HandScore.STRAIGHT
-            # Add the high card to distinguish between multiple straights
 
         # At this point, return since we can't have any pairs
         # at the same time as a straight or flush
         if score > HandScore():
+            # straights and flushes are both sorted in descending order
+            score.kicker = HandBuilder.get_cards_tuple(self.cards)
             return score
 
         pairs, trips, quads = self.find_pairs_trips_quads()
@@ -137,10 +141,22 @@ class HandBuilder(object):
             last_card = card
         return True
 
-    def __sort_hand(self):
+    @staticmethod
+    def get_cards_tuple(cards):
+        """Return a tuple of card values, sorted in descending order"""
+        our_cards = cards[:]
+        HandBuilder.sort_hand(our_cards)
+
+        def generator():
+            for card in our_cards:
+                yield card.value
+        return tuple(generator())
+
+    @staticmethod
+    def sort_hand(cards):
         """Sorts a hand, high values first"""
-        sort_key = lambda card: (card.value, card.suit.suit)
-        self.cards.sort(key=sort_key,reverse=True)
+        sort_key = lambda card: card.value
+        cards.sort(key=sort_key,reverse=True)
 
     def __gap(self, card1, card2):
         return card1.value - card2.value

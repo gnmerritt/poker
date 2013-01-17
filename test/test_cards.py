@@ -43,17 +43,18 @@ class CardTest(unittest.TestCase):
 
     def test_eq(self):
         """Tests the card equals function, and that we can make a full deck"""
-        cards = 0
+        cards = []
         for i in range(0, 4):
             suit = Suit(i)
             for j in range(2, 15):
                 card1 = Card(j, suit)
                 card2 = Card(j, suit)
-                cards = cards + 1
+                cards.append(card1)
                 self.assertTrue(card1.is_pair(card2))
                 self.assertTrue(card1.is_suited(card2))
                 self.assertEqual(card1, card2)
-        self.assertEqual(cards, 52)
+        self.assertEqual(len(cards), 52)
+        self.assertEqual(cards, Card.full_deck())
 
     def test_comparisons(self):
         """Tests that lt, lte, gt, gte all work on Card"""

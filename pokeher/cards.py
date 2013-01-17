@@ -58,6 +58,16 @@ class Card(object):
         return ((self.value, self.suit) <
                 (other.value, other.suit))
 
+    @staticmethod
+    def full_deck():
+        """Returns a full deck of cards"""
+        deck = []
+        for i in range(0, 4):
+            suit = Suit(i)
+            for j in range(2, 15):
+                deck.append(Card(j, suit))
+        return deck
+
 class Hand(object):
     """Player's hand of cards"""
     def __init__(self, card1, card2):

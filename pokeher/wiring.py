@@ -50,8 +50,3 @@ class GameParserDelegate(object):
 
     def set_up(self, data, turn_callback):
         pass
-
-class Callable(object):
-    """Wrapper for defining class (static) methods"""
-    def __init__(self, anycallable):
-        self.__call__ = anycallable
