@@ -103,7 +103,7 @@ class HandBuilder(object):
         if quads:
             score.type = HandScore.QUADS
 
-        score.kicker = self.get_segmented_tuple(singles, pairs, trips, quads)
+        score.kicker = self.get_sorted_tuple(singles, [pairs, trips, quads])
         return score
 
     @staticmethod
@@ -147,37 +147,24 @@ class HandBuilder(object):
         return True
 
     @staticmethod
-    def get_sorted_tuple(cards):
-        """Return a tuple of card values, sorted in descending order"""
-        our_cards = cards[:]
-        HandBuilder.sort_hand(our_cards)
+    def get_sorted_tuple(singles, ptq=None):
+        """Return a sorted hand tuple (by value) so that a tuple comparison
+        can be used to evaluate the hand. This handles the default case (sorting
+        a straight) as well as if you pass in a list of pairs, triples or quads
+          optional argument ptq list of lists: [pairs, trips, quads]
+        """
+        if ptq is None:
+            ptq = [[],[],[]]
+        ptq.reverse() # quads > trips > pairs in hand scoring
+        ptq.append(singles) # handle the generic case
 
         def generator():
-            for card in our_cards:
-                yield card.value
+            for segment in ptq:
+                if segment:
+                    segment.sort(reverse=True)
+                    for c in segment:
+                        yield c
         return tuple(generator())
-
-    @staticmethod
-    def get_segmented_tuple(singles, pairs, trips, quads):
-        """Return a sorted hand tuple (by value) so that a tuple comparison
-        can be used to evaluate the hand
-        """
-        sorted = None
-        # don't need to sort trips or quads
-        singles.sort(reverse=True)
-        pairs.sort(reverse=True)
-
-        if quads: # 4 of a kind
-            sorted = quads + singles
-        elif trips and pairs: # full house
-            sorted = trips + pairs
-        elif trips: # 3 of a kind
-            sorted = trips + singles
-        elif pairs: # one or two
-            sorted = pairs + singles
-        else:
-            sorted = singles
-        return tuple(sorted)
 
     @staticmethod
     def sort_hand(cards):

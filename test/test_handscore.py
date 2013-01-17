@@ -79,7 +79,7 @@ class HandBuilderTest(unittest.TestCase):
         hb = HandBuilder(straight)
         score = hb.score_hand()
         self.assertEqual(HandScore.STRAIGHT, score.type, "didn't score the straight")
-        self.assertEqual(HandBuilder.get_sorted_tuple(straight), score.kicker, "got the kicker wrong")
+        self.assertEqual(HandBuilder.get_sorted_tuple(straight), score.kicker)
 
     def test_score_hand_high(self):
         """Score a hand with only a high card"""
@@ -121,16 +121,19 @@ class HandBuilderTest(unittest.TestCase):
         full_house = [Card(2, C.DIAMONDS), Card(C.ACE, C.SPADES),
                       Card(2, C.CLUBS), Card(C.ACE, C.HEARTS),
                       Card(C.ACE, C.CLUBS)]
-        hb = HandBuilder(full_house)
-        self.assertEqual(HandScore.FULL_HOUSE, hb.score_hand().type, "didn't find full house")
+        score = HandBuilder(full_house).score_hand()
+        self.assertEqual(HandScore.FULL_HOUSE, score.type, "didn't find full house")
+        self.assertEqual((14,14,14,2,2), score.kicker)
+
 
     def test_score_hand_quads(self):
         """Finds 4 of a kind"""
-        quads = [Card(C.ACE, C.DIAMONDS), Card(C.ACE, C.SPADES),
-                 Card(2, C.CLUBS), Card(C.ACE, C.HEARTS),
-                 Card(C.ACE, C.CLUBS)]
-        hb = HandBuilder(quads)
-        self.assertEqual(HandScore.QUADS, hb.score_hand().type, "didn't find quads")
+        quads = [Card(2, C.DIAMONDS), Card(2, C.SPADES),
+                 Card(3, C.CLUBS), Card(2, C.HEARTS),
+                 Card(2, C.CLUBS)]
+        score = HandBuilder(quads).score_hand()
+        self.assertEqual(HandScore.QUADS, score.type, "didn't find quads")
+        self.assertEqual((2,2,2,2,3), score.kicker)
 
 class HandFinderTest(unittest.TestCase):
     """Tests edge cases of the find_hand function"""
