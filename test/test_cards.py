@@ -54,7 +54,12 @@ class CardTest(unittest.TestCase):
                 self.assertTrue(card1.is_suited(card2))
                 self.assertEqual(card1, card2)
         self.assertEqual(len(cards), 52)
-        self.assertEqual(cards, Card.full_deck())
+        self.assertEqual(cards, list(Card.full_deck()))
+
+    def test_one_suit(self):
+        """Make sure one suit works correctly"""
+        clubs = Card.one_suit(0)
+        self.assertEqual(len(clubs), 13)
 
     def test_comparisons(self):
         """Tests that lt, lte, gt, gte all work on Card"""

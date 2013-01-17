@@ -68,6 +68,15 @@ class Card(object):
                 deck.append(Card(j, suit))
         return deck
 
+    @staticmethod
+    def one_suit(suit_value):
+        """Returns a single suit in a list"""
+        suit = Suit(suit_value)
+        cards = []
+        for j in range(2, 15):
+            cards.append(Card(j, suit))
+        return cards
+
 class Hand(object):
     """Player's hand of cards"""
     def __init__(self, card1, card2):

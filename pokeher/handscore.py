@@ -105,7 +105,7 @@ class HandBuilder(object):
         if quads:
             score.type = HandScore.QUADS
 
-        score.kicker = self.get_sorted_tuple(singles, [pairs, trips, quads])
+        score.kicker = HandBuilder.get_sorted_tuple(singles, [pairs, trips, quads])
         return score
 
     @staticmethod
