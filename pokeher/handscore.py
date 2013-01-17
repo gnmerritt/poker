@@ -39,7 +39,10 @@ class HandBuilder(object):
     HAND_LENGTH = 5
 
     def __init__(self, cards):
-        self.cards = cards
+        if isinstance(cards, tuple):
+            self.cards = list(cards)
+        else:
+            self.cards = cards
 
     def find_hand(self):
         """Returns the best hand & score of length HAND_LENGTH"""
@@ -55,7 +58,6 @@ class HandBuilder(object):
             score = HandBuilder(list(hand)).score_hand()
 
             if score > best_hand_score:
-                print "{hand} is new best with {score}".format(hand=hand, score=score)
                 best_hand_score = score
                 best_hand = hand
         return best_hand, best_hand_score
