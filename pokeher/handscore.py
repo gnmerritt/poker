@@ -42,7 +42,7 @@ class HandBuilder(object):
         self.cards = cards
 
     def find_hand(self):
-        """Returns the best hand of length HAND_LENGTH"""
+        """Returns the best hand & score of length HAND_LENGTH"""
         if not self.cards or len(self.cards) < self.HAND_LENGTH:
             return None
         if len(self.cards) == self.HAND_LENGTH:
@@ -52,26 +52,21 @@ class HandBuilder(object):
         best_hand_score = HandScore()
         best_hand = None
         for hand in itertools.combinations(self.cards, self.HAND_LENGTH):
-            score = HandBuilder(hand).__score_hand()
+            score = HandBuilder(list(hand)).score_hand()
 
             if score > best_hand_score:
                 print "{hand} is new best with {score}".format(hand=hand, score=score)
                 best_hand_score = score
                 best_hand = hand
-        return best_hand
+        return best_hand, best_hand_score
 
     def score_hand(self):
-        """Returns the score of a 5-card hand"""
-        # Drop invalid hands
-        if not self.cards or len(self.cards) != self.HAND_LENGTH:
-            return HandScore()
-        HandBuilder.sort_hand(self.cards)
-        return self.__score_hand()
-
-    def __score_hand(self):
-        """Internal verson of score_hand, works on tuples and lists
-        Assumes that self.cards is already sorted"""
+        """Returns the HandScore of a 5-card hand"""
         score = HandScore()
+        if not self.cards or len(self.cards) != self.HAND_LENGTH:
+            return score
+
+        HandBuilder.sort_hand(self.cards)
 
         # Do we have a flush?
         flush_suit = self.select_flush_suit()
@@ -89,17 +84,17 @@ class HandBuilder(object):
         # at the same time as a straight or flush
         if score > HandScore():
             # straights and flushes are both sorted in descending order
-            score.kicker = HandBuilder.get_cards_tuple(self.cards)
+            score.kicker = HandBuilder.get_sorted_tuple(self.cards)
             return score
 
-        pairs, trips, quads = self.find_pairs_trips_quads()
+        singles, pairs, trips, quads = HandBuilder.segment_hand(self.cards)
 
         # Go from least to most valuable hands
         score.type = HandScore.HIGH_CARD
 
         if pairs:
             score.type = HandScore.PAIR
-        if len(pairs) > 1:
+        if len(pairs) > 2:
             score.type = HandScore.TWO_PAIR
         if trips:
             score.type = HandScore.TRIPS
@@ -108,27 +103,37 @@ class HandBuilder(object):
         if quads:
             score.type = HandScore.QUADS
 
+        score.kicker = self.get_segmented_tuple(singles, pairs, trips, quads)
         return score
 
-    def find_pairs_trips_quads(self):
-        """Finds pairs and trips, returns a list of pairs & a list of trips"""
+    @staticmethod
+    def segment_hand(cards):
+        """Splits a hand into 4 lists of pairs, trips, quads and singles"""
+        singles = []
         pairs = []
         trips = []
         quads = []
         seen = [None,None] + [0]*13 # card values run 2-15 instead of 0-13
 
-        for card in self.cards:
+        for card in cards:
             seen[card.value] += 1
 
-        for i, val in enumerate(seen):
-            if val == 2:
-                pairs.append(i)
-            elif val == 3:
-                trips.append(i)
-            elif val == 4:
-                quads.append(i)
+        for card_value, times in enumerate(seen):
+            target = None
+            if times == 1:
+                target = singles
+            elif times == 2:
+                target = pairs
+            elif times == 3:
+                target = trips
+            elif times == 4:
+                target = quads
 
-        return (pairs, trips, quads)
+            if times and target is not None:
+                for j in range(0, times):
+                    target.append(card_value)
+
+        return (singles, pairs, trips, quads)
 
     def is_straight(self):
         """returns True if this hand is a straight, false otherwise"""
@@ -142,7 +147,7 @@ class HandBuilder(object):
         return True
 
     @staticmethod
-    def get_cards_tuple(cards):
+    def get_sorted_tuple(cards):
         """Return a tuple of card values, sorted in descending order"""
         our_cards = cards[:]
         HandBuilder.sort_hand(our_cards)
@@ -151,6 +156,28 @@ class HandBuilder(object):
             for card in our_cards:
                 yield card.value
         return tuple(generator())
+
+    @staticmethod
+    def get_segmented_tuple(singles, pairs, trips, quads):
+        """Return a sorted hand tuple (by value) so that a tuple comparison
+        can be used to evaluate the hand
+        """
+        sorted = None
+        # don't need to sort trips or quads
+        singles.sort(reverse=True)
+        pairs.sort(reverse=True)
+
+        if quads: # 4 of a kind
+            sorted = quads + singles
+        elif trips and pairs: # full house
+            sorted = trips + pairs
+        elif trips: # 3 of a kind
+            sorted = trips + singles
+        elif pairs: # one or two
+            sorted = pairs + singles
+        else:
+            sorted = singles
+        return tuple(sorted)
 
     @staticmethod
     def sort_hand(cards):
