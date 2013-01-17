@@ -14,17 +14,20 @@ class HandScore(object):
     QUADS = 7
     STRAIGHT_FLUSH = 8
 
-    def __init__(self):
-        self.score = self.NO_SCORE
-        self.kicker = self.NO_SCORE
+    def __init__(self, type=NO_SCORE, kicker=NO_SCORE):
+        self.type = type
+        self.kicker = kicker
 
     def __eq__(self, other):
-        return (self.score, self.kicker) == \
-            (other.score, other.kicker)
+        return (self.type, self.kicker) == \
+            (other.type, other.kicker)
 
     def __lt__(self, other):
-        return (self.score, self.kicker) < \
-            (other.score, other.kicker)
+        return (self.type, self.kicker) < \
+            (other.type, other.kicker)
+
+    def __repr__(self):
+        return '{self.type}, {self.kicker}'.format(self=self)
 
 class HandBuilder(object):
     """Makes the best hand from a given set of cards, scores hands
@@ -42,7 +45,7 @@ class HandBuilder(object):
             return self.cards
 
         self.__sort_hand()
-        best_hand_score = HandScore.NO_SCORE
+        best_hand_score = HandScore()
         best_hand = None
         for hand in itertools.combinations(self.cards, self.HAND_LENGTH):
             score = HandBuilder(hand).__score_hand()
@@ -57,48 +60,49 @@ class HandBuilder(object):
         """Returns the score of a 5-card hand"""
         # Drop invalid hands
         if not self.cards or len(self.cards) != self.HAND_LENGTH:
-            return HandScore.NO_SCORE
+            return HandScore(HandScore.NO_SCORE)
         self.__sort_hand()
         return self.__score_hand()
 
     def __score_hand(self):
-        """Internal verson of score_hand, works on tuples and lists"""
-        score = HandScore.NO_SCORE
+        """Internal verson of score_hand, works on tuples and lists
+        Assumes that self.cards is already sorted"""
+        score = HandScore()
 
         # Do we have a flush?
         flush_suit = self.select_flush_suit()
         if flush_suit is not None:
             # Add the values of all the cards to distinguish between flushes
-            score = HandScore.FLUSH
+            score.type = HandScore.FLUSH
 
         # Is there a straight?
         if self.is_straight():
-            if score == HandScore.FLUSH:
-                score = HandScore.STRAIGHT_FLUSH
+            if score.type == HandScore.FLUSH:
+                score.type = HandScore.STRAIGHT_FLUSH
             else:
-                score = HandScore.STRAIGHT
+                score.type = HandScore.STRAIGHT
             # Add the high card to distinguish between multiple straights
 
         # At this point, return since we can't have any pairs
         # at the same time as a straight or flush
-        if score > HandScore.NO_SCORE:
+        if score > HandScore():
             return score
 
         pairs, trips, quads = self.find_pairs_trips_quads()
 
         # Go from least to most valuable hands
-        score = HandScore.HIGH_CARD
+        score.type = HandScore.HIGH_CARD
 
         if pairs:
-            score = HandScore.PAIR
+            score.type = HandScore.PAIR
         if len(pairs) > 1:
-            score = HandScore.TWO_PAIR
+            score.type = HandScore.TWO_PAIR
         if trips:
-            score = HandScore.TRIPS
+            score.type = HandScore.TRIPS
         if trips and pairs:
-            score = HandScore.FULL_HOUSE
+            score.type = HandScore.FULL_HOUSE
         if quads:
-            score = HandScore.QUADS
+            score.type = HandScore.QUADS
 
         return score
 

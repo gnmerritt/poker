@@ -3,7 +3,7 @@ from handscore import *
 
 @functools.total_ordering
 class Suit(object):
-    SUITS = ["Clubs", "Diamonds", "Hearts", "Spades"]
+    SUITS = ("Clubs", "Diamonds", "Hearts", "Spades")
 
     def __init__(self, suit):
         assert suit >= 0 and suit < len(self.SUITS)
@@ -23,7 +23,7 @@ class Suit(object):
 @functools.total_ordering
 class Card(object):
     """Card value"""
-    FACES = [None,None] + range(2, 11) + ["J", "Q", "K", "A"]
+    FACES = (None,None) + tuple(range(2, 11)) + ("J", "Q", "K", "A")
 
     def __init__(self, value, suit):
         assert value > 1
