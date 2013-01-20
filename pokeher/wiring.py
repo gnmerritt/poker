@@ -1,10 +1,13 @@
+from brain import Brain
+
 class IOPokerBot(object):
     """Generic Poker Bot, can read & write lines.
-    Subclasses should define a brain for the bot to use"""
-    def __init__(self, output, error):
+    Subclasses should mix-in parser & action delegates
+    """
+    def __init__(self, output, log_output):
         self.output = output
-        self.log = error
-        self.brain = None
+        self.__log = log_output
+        self.brain = Brain(self)
 
     def run(self):
         """ Main run loop """
@@ -24,7 +27,7 @@ class IOPokerBot(object):
 
     def log(self, line):
         """Writes a line somewhere we can log it"""
-        self.__write_line(line, self.log)
+        self.__write_line(line, self.__log)
 
     def __write_line(self, line, dest):
         if line and dest:
@@ -47,6 +50,3 @@ class GameParserDelegate(object):
             if worker.handle_line(line):
                 return True
         return False
-
-    def set_up(self, data, turn_callback):
-        pass

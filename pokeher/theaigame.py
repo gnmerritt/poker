@@ -170,8 +170,25 @@ class TurnParser(AiGameParser):
         return False
 
 class TheAiGameParserDelegate(GameParserDelegate):
-    def set_up(self, data, turn_callback):
+    def set_up_parser(self, data, turn_callback):
+        """Links the workers & callback up from the Brain"""
         self.workers = [ SettingsParser(data),
                          RoundParser(data),
                          TurnParser(data, turn_callback) ]
         return self
+
+class TheAiGameActionDelegate(object):
+    def bet(self, amount):
+        if amount > 0:
+            self.say('raise {amount}'.format(amount=amount))
+        else:
+            self.call()
+
+    def fold(self):
+        self.say('fold 0')
+
+    def call(self, amount):
+        self.say('call {amount}'.format(amount=amount))
+
+    def check(self):
+        self.say('check 0')
