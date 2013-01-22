@@ -47,9 +47,7 @@ class HandBuilder(object):
     def find_hand(self):
         """Returns the best hand & score of length HAND_LENGTH"""
         if not self.cards or len(self.cards) < self.HAND_LENGTH:
-            return None
-        if len(self.cards) == self.HAND_LENGTH:
-            return self.cards
+            return None, None
 
         HandBuilder.sort_hand(self.cards)
         best_hand_score = HandScore()
@@ -86,7 +84,8 @@ class HandBuilder(object):
         # at the same time as a straight or flush
         if score > HandScore():
             # straights and flushes are both sorted in descending order
-            score.kicker = HandBuilder.get_sorted_tuple(self.cards)
+            ranks_tuple = list(self.cards_to_ranks())
+            score.kicker = HandBuilder.get_sorted_tuple(ranks_tuple)
             return score
 
         singles, pairs, trips, quads = HandBuilder.segment_hand(self.cards)
@@ -147,6 +146,10 @@ class HandBuilder(object):
                     return False
             last_card = card
         return True
+
+    def cards_to_ranks(self):
+        """Returns a generator of the ranks of our cards"""
+        return (card.value for card in self.cards)
 
     @staticmethod
     def get_sorted_tuple(singles, ptq=None):

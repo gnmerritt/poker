@@ -70,7 +70,7 @@ class HandBuilderTest(unittest.TestCase):
         high_card = Card(10, C.CLUBS)
         score = hb_s_flush.score_hand()
         self.assertEqual(HandScore.STRAIGHT_FLUSH, score.type, "didn't find straight flush")
-        self.assertEqual(HandBuilder.get_sorted_tuple(self.cards2), score.kicker, "didn't get the kicker right")
+        self.assertEqual((10, 9, 8, 7, 6), score.kicker, "didn't get the kicker right")
 
     def test_score_hand_straight(self):
         """Tests finding a straight"""
@@ -79,7 +79,7 @@ class HandBuilderTest(unittest.TestCase):
         hb = HandBuilder(straight)
         score = hb.score_hand()
         self.assertEqual(HandScore.STRAIGHT, score.type, "didn't score the straight")
-        self.assertEqual(HandBuilder.get_sorted_tuple(straight), score.kicker)
+        self.assertEqual((11, 10, 9, 8, 7), score.kicker)
 
     def test_score_hand_high(self):
         """Score a hand with only a high card"""
@@ -135,6 +135,15 @@ class HandBuilderTest(unittest.TestCase):
         self.assertEqual(HandScore.QUADS, score.type, "didn't find quads")
         self.assertEqual((2,2,2,2,3), score.kicker)
 
+    def test_preflop_edge_cases(self):
+        """Tests cases that seemed to be weird in the preflop job"""
+#A-Spades, K-Spades, 9-Spades, 8-Spades, 2-Spades)
+        hand = [Card(C.ACE, C.SPADES), Card(C.KING, C.SPADES), Card(9, C.SPADES),
+                Card(8, C.SPADES), Card(2, C.SPADES)]
+        score = HandBuilder(hand).score_hand()
+        self.assertEqual(HandScore.FLUSH, score.type)
+        self.assertEqual((14, 13, 9, 8, 2), score.kicker)
+
 class HandFinderTest(unittest.TestCase):
     """Tests edge cases of the find_hand function"""
 
@@ -144,7 +153,7 @@ class HandFinderTest(unittest.TestCase):
                       Card(2, C.CLUBS), Card(C.ACE, C.HEARTS),
                       Card(C.ACE, C.CLUBS)]
         hb = HandBuilder(full_house)
-        best_hand = hb.find_hand()
+        best_hand, _ = hb.find_hand()
 
         self.assertEqual(len(full_house), len(best_hand), "hands not the same length")
         for card in best_hand:
