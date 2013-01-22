@@ -1,5 +1,4 @@
-import itertools
-import pickle
+import itertools, pickle
 
 from cards import Card
 from handscore import HandBuilder
