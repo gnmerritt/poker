@@ -7,8 +7,8 @@ from handscore import HandBuilder
 class BestHandCalculator(object):
 
     def run(self):
-        self.calculate_best_mapping(6)
-        self.calculate_best_mapping(7)
+        self.calculate_best_mapping(6) # This pickle file is ~750MB
+        self.calculate_best_mapping(7) # This does not complete in my macbook
 
     def calculate_best_mapping(self, num_cards):
         """Iterates through a full suite
