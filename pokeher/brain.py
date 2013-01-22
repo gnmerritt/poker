@@ -1,7 +1,7 @@
 from game import *
 
 class Brain:
-    """The brain: combines data classes from game.py to make decisions"""
+    """The brain: parses lines, combines data classes to make decisions"""
     def __init__(self, bot):
         self.sharedData = {}
         self.bot = bot

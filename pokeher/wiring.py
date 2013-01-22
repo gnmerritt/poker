@@ -4,16 +4,17 @@ class IOPokerBot(object):
     """Generic Poker Bot, can read & write lines.
     Subclasses should mix-in parser & action delegates
     """
-    def __init__(self, output, log_output):
-        self.output = output
-        self.__log = log_output
+    def __init__(self, input, output, log_output):
+        self.input = input
+        self.action_out = output
+        self.log_out = log_output
         self.brain = Brain(self)
 
     def run(self):
         """ Main run loop """
-        while not sys.stdin.closed:
+        while not self.input.closed:
             try:
-                rawline = sys.stdin.readline()
+                rawline = self.input.readline()
                 if len(rawline) == 0:
                     break
                 line = rawline.strip()
@@ -23,16 +24,26 @@ class IOPokerBot(object):
 
     def say(self, line):
         """Writes a line where the game controller can see it"""
-        self.__write_line(line, self.output)
+        self.write_line(line, self.action_out)
 
     def log(self, line):
         """Writes a line somewhere we can log it"""
-        self.__write_line(line, self.__log)
+        self.write_line(line, self.log)
 
-    def __write_line(self, line, dest):
+    def write_line(self, line, dest):
         if line and dest:
             dest.write(line)
             dest.flush()
+
+class BufferPokerBot(IOPokerBot):
+    """Reads to and writes from lists of strings for easier testing """
+    def write_line(self, line, dest):
+        if line and dest is not None:
+            dest.append(line)
+
+    def run(self):
+        for line in self.input:
+            self.brain.parse_line(line)
 
 class Parser(object):
     """Parsers handle lines and store data into self.data"""
