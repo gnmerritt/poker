@@ -62,20 +62,18 @@ class Card(object):
     def full_deck():
         """Returns a full deck of cards"""
         deck = []
-        for i in range(0, 4):
-            suit = Suit(i)
-            for j in range(2, 15):
-                deck.append(Card(j, suit))
+        suits = (Suit(s) for s in range(0,4))
+        for suit in suits:
+            cards = (Card(c, suit) for c in range(2,15))
+            for card in cards:
+                deck.append(card)
         return deck
 
     @staticmethod
     def one_suit(suit_value):
         """Returns a single suit in a list"""
         suit = Suit(suit_value)
-        cards = []
-        for j in range(2, 15):
-            cards.append(Card(j, suit))
-        return cards
+        return list(Card(c, suit) for c in range(2,15))
 
 class Hand(object):
     """Player's hand of cards"""
