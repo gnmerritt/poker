@@ -16,6 +16,9 @@ PokeHer TODO list:
 
 ** jenkins?
 
+* Opponent modelling
+** record % hands to each street
+** record raise sequence, use histogram for analysis?
 
 * Notes
 
