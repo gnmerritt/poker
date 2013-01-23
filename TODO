@@ -2,19 +2,20 @@ PokeHer TODO list:
 
 * Pot odds
 
-** Hook up chen formula for now
-* Initial hand win % table
-** hook up to actions
-
+** Flop hand win %
+** post-flop probability
+*** flop: simulate?
+*** turn: simulate?
+*** river: exhaustive search
+* Probabilistic framework for call/raise/check/fold based on pot odds
 * Set up actions
-** converter for thepokeraigame.com
-
 ** background thread for picking actions
 
 * Automated bot vs bot framework
 ** reporting
 
 ** jenkins?
+
 
 * Notes
 
