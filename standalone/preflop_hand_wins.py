@@ -12,17 +12,13 @@ class PreflopCalculator(object):
         """Calculates the win % for each preflop hand, returns the mapping"""
         cards = Card.full_deck()
         self.wins = {}
-        total_wins = 0
-        total_count = 0
 
         for hand in itertools.combinations(cards, 2):
             self.wins[hand] = 0
 
             for i in range(0, self.TRIES_PER_HAND):
-                if self.try_hand(list(hand)):
-                    self.wins[hand] += 1
-                    total_wins += 1
-                total_count += 1
+                equity = self.try_hand(list(hand))
+                self.wins[hand] += equity
 
             if self.VERBOSE:
                 print '{hand} won {times}/{tries}, {percent}%' \
@@ -31,10 +27,8 @@ class PreflopCalculator(object):
                             tries=self.TRIES_PER_HAND,
                             percent=self.percentage(self.wins[hand], self.TRIES_PER_HAND))
 
-        print 'Total wins: {p}% (should be ~50%)'.format(p=self.percentage(total_wins, total_count))
-
     def try_hand(self, hand):
-        """returns whether or not the hand we picked won"""
+        """Returns the percentage of the pot we won with our hand"""
         # Build & shuffle the deck
         deck = [c for c in Card.full_deck() if not c in hand]
         for i in range(0, 7):
@@ -50,7 +44,12 @@ class PreflopCalculator(object):
         if self.VERBOSE:
             print 'us: {us} and them: {them}'.format(us=our_score, them=their_score)
 
-        return our_score > their_score
+        if our_score > their_score:
+            return 1
+        elif our_score == their_score:
+            return 0.5
+        else:
+            return 0
 
     def percentage(self, num, denom):
         return round(((num + 0.0) / denom) * 100.0)
