@@ -20,12 +20,14 @@ class PreflopCalculator(object):
                 equity = self.try_hand(list(hand))
                 self.wins[hand] += equity
 
+            percent_pots_won = self.percentage(self.wins[hand], self.TRIES_PER_HAND)
+            self.wins[hand] = percent_pots_won
+
             if self.VERBOSE:
-                print '{hand} won {times}/{tries}, {percent}%' \
+                print '{hand} won {percent}% in {tries} tries' \
                     .format(hand=hand,
-                            times=wins[hand],
                             tries=self.TRIES_PER_HAND,
-                            percent=self.percentage(self.wins[hand], self.TRIES_PER_HAND))
+                            percent=percent_pots_won)
 
     def try_hand(self, hand):
         """Returns the percentage of the pot we won with our hand"""
