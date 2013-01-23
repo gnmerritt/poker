@@ -1,3 +1,5 @@
+import cPickle as pickle
+import os
 from game import *
 
 class Brain:
@@ -7,10 +9,18 @@ class Brain:
         self.bot = bot
         self.parser = bot.set_up_parser(self.sharedData, self.do_turn)
 
+        self.load_precalc_data()
+
         # Null-out the data
         self.match = Match(self.sharedData)
         self.player = Player(self.sharedData)
         self.round = Round(self.sharedData)
+
+    def load_precalc_data(self):
+        infile = os.path.join('data', 'preflop_wins_5000.pickle')
+        in_stream = open(infile, 'r')
+        self.preflop_equity = pickle.load(in_stream)
+        in_stream.close()
 
     def parse_line(self, line):
         """Feeds a line to the parsers"""

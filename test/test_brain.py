@@ -19,5 +19,10 @@ class BrainTest(unittest.TestCase):
         self.bot.run()
         self.assertTrue(self.fake_out)
 
+    def test_preflop_equity_loaded(self):
+        """Tests that the preflop equity data loaded correctly"""
+        self.assertTrue(self.bot.brain.preflop_equity)
+        self.assertEqual(len(self.bot.brain.preflop_equity.keys()), 1326)
+
 if __name__ == '__main__':
     unittest.main()
