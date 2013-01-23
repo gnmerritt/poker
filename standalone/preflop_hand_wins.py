@@ -1,26 +1,30 @@
+from __future__ import division
 import sys, itertools, random, pickle, os
+
 sys.path.append('/Users/nathan/sources/poker/')
 
 from pokeher.cards import Card
 from pokeher.handscore import *
 
 class PreflopCalculator(object):
-    TRIES_PER_HAND = 1
+    TRIES_PER_HAND = 10
     VERBOSE = False
 
     def run(self):
         """Calculates the win % for each preflop hand, returns the mapping"""
         cards = Card.full_deck()
         self.wins = {}
+        count = 0
 
         for hand in itertools.combinations(cards, 2):
-            self.wins[hand] = 0
+            wins = 0
 
             for i in range(0, self.TRIES_PER_HAND):
-                equity = self.try_hand(list(hand))
-                self.wins[hand] += equity
+                deck = [c for c in Card.full_deck() if not c in hand]
+                equity = self.try_hand(list(hand), deck)
+                wins += equity
 
-            percent_pots_won = self.percentage(self.wins[hand], self.TRIES_PER_HAND)
+            percent_pots_won = self.percentage(wins, self.TRIES_PER_HAND)
             self.wins[hand] = percent_pots_won
 
             if self.VERBOSE:
@@ -29,10 +33,13 @@ class PreflopCalculator(object):
                             tries=self.TRIES_PER_HAND,
                             percent=percent_pots_won)
 
-    def try_hand(self, hand):
+            count += 1
+            percent_done = self.percentage(count, 1326) # 52 choose 2 == 1326
+            print 'Finished hand {c}, {p}%'.format(c=count, p=percent_done)
+
+    def try_hand(self, hand, deck):
         """Returns the percentage of the pot we won with our hand"""
-        # Build & shuffle the deck
-        deck = [c for c in Card.full_deck() if not c in hand]
+        # Shuffle the deck
         for i in range(0, 7):
             random.shuffle(deck)
 
@@ -54,7 +61,7 @@ class PreflopCalculator(object):
             return 0
 
     def percentage(self, num, denom):
-        return round(((num + 0.0) / denom) * 100.0)
+        return (num / denom) * 100.0
 
     def save_answer(self):
         """Saves the calculated mapping to a pickle file"""
