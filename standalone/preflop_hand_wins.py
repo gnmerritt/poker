@@ -7,7 +7,7 @@ from pokeher.cards import Card
 from pokeher.handscore import *
 
 class PreflopCalculator(object):
-    TRIES_PER_HAND = 10
+    TRIES_PER_HAND = 1000
     VERBOSE = False
 
     def run(self):
@@ -27,15 +27,16 @@ class PreflopCalculator(object):
             percent_pots_won = self.percentage(wins, self.TRIES_PER_HAND)
             self.wins[hand] = percent_pots_won
 
-            if self.VERBOSE:
-                print '{hand} won {percent}% in {tries} tries' \
-                    .format(hand=hand,
-                            tries=self.TRIES_PER_HAND,
-                            percent=percent_pots_won)
+            print ' {hand} won {percent}% in {tries} tries' \
+                .format(hand=hand,
+                        tries=self.TRIES_PER_HAND,
+                        percent=percent_pots_won)
 
             count += 1
             percent_done = self.percentage(count, 1326) # 52 choose 2 == 1326
-            print 'Finished hand {c}, {p}%'.format(c=count, p=percent_done)
+            print ' Finished hand {c}, {p}% finished' \
+                .format(c=count, p=round(percent_done))
+            print '-'*10
 
     def try_hand(self, hand, deck):
         """Returns the percentage of the pot we won with our hand"""
