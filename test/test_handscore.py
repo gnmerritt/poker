@@ -27,7 +27,7 @@ class HandBuilderTest(unittest.TestCase):
               Card(10, C.CLUBS) ]
     cards2 = cards1 + [Card(6, C.CLUBS)]
     cards3 = cards1 + [Card(6, C.SPADES), Card(2, C.DIAMONDS), Card(C.ACE, C.HEARTS)]
-    cards4 = cards3 + [Card(3, C.CLUBS)]
+    cards4 = cards1 + [Card(3, C.CLUBS)]
 
     def test_flush_finder_empty(self):
         """Tests that select_flush_suit degrades gracefully"""

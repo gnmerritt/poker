@@ -10,30 +10,30 @@ class PreflopCalculator(object):
     """Estimates the average value, in % of pots won, for a 2 card hole hand.
     Currently only useful for heads up texas hold'em
     """
-    TRIES_PER_HAND = 5000 # Should be above 1000
     VERBOSE = False
 
-    def run(self):
+    def run(self, tries):
         """Calculates the win % for each preflop hand, returns the mapping"""
         cards = Card.full_deck()
         self.wins = {}
+        self.tries = tries
         count = 0
 
         for hand in itertools.combinations(cards, 2):
             wins = 0
             t1 = time.clock()
 
-            for i in range(0, self.TRIES_PER_HAND):
+            for i in range(0, tries):
                 deck = [c for c in Card.full_deck() if not c in hand]
                 equity = self.try_hand(list(hand), deck)
                 wins += equity
 
-            percent_pots_won = self.percentage(wins, self.TRIES_PER_HAND)
+            percent_pots_won = self.percentage(wins, tries)
             self.wins[hand] = percent_pots_won
 
             print ' {hand} won {percent}% in {tries} tries in {t} seconds' \
                 .format(hand=hand,
-                        tries=self.TRIES_PER_HAND,
+                        tries=tries,
                         percent=percent_pots_won,
                         t=(time.clock() - t1))
 
@@ -70,17 +70,17 @@ class PreflopCalculator(object):
 
     def save_answer(self):
         """Saves the calculated mapping to a pickle file"""
-        outfile = os.path.join('data', 'preflop_wins_{i}.pickle'.format(i=self.TRIES_PER_HAND))
+        outfile = os.path.join('data', 'preflop_wins_{i}.pickle'.format(i=self.tries)
         outf = open(outfile, 'wb')
         pickle.dump(self.wins, outf)
         outf.close()
 
-def calculate():
+def calculate(tries=5000):
     job = PreflopCalculator()
-    job.run()
+    job.run(tries)
     job.save_answer()
 
 if __name__ == '__main__':
-    #import cProfile
-    #cProfile.run('calculate()', 'hands_profile')
-    calculate()
+    import cProfile
+    cProfile.run('calculate(10)', 'hands_profile')
+    #calculate()

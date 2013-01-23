@@ -181,19 +181,14 @@ class HandBuilder(object):
         return card1.value - card2.value
 
     def select_flush_suit(self):
-        """Returns the suit that has 5+ cards, or None otherwise"""
+        """If all cards match suit, return the suit. Return None otherwise."""
         if not self.cards:
             return None
 
-        counts = {}
-        for i in range(0, 4):
-            counts[i] = 0
-
+        suit = self.cards[0].suit.suit
         for card in self.cards:
             value = card.suit.suit
-            counts[value] += 1
+            if suit != value:
+                return None
 
-        for suit, count in counts.iteritems():
-            if count >= self.HAND_LENGTH:
-                return suit
-        return None
+        return suit
