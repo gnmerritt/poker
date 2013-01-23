@@ -1,4 +1,4 @@
-import sys, itertools, random, pickle
+import sys, itertools, random, pickle, os
 sys.path.append('/Users/nathan/sources/poker/')
 
 from pokeher.cards import Card
@@ -58,7 +58,7 @@ class PreflopCalculator(object):
 
     def save_answer(self):
         """Saves the calculated mapping to a pickle file"""
-        outfile = 'preflop_wins_{i}.pickle'.format(i=self.TRIES_PER_HAND)
+        outfile = os.path.join('data', 'preflop_wins_{i}.pickle'.format(i=self.TRIES_PER_HAND))
         outf = open(outfile, 'wb')
         pickle.dump(self.wins, outf)
         outf.close()
