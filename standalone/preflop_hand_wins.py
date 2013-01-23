@@ -70,7 +70,7 @@ class PreflopCalculator(object):
 
     def save_answer(self):
         """Saves the calculated mapping to a pickle file"""
-        outfile = os.path.join('data', 'preflop_wins_{i}.pickle'.format(i=self.tries)
+        outfile = os.path.join('data', 'preflop_wins_{i}.pickle'.format(i=self.tries))
         outf = open(outfile, 'wb')
         pickle.dump(self.wins, outf)
         outf.close()
@@ -81,6 +81,6 @@ def calculate(tries=5000):
     job.save_answer()
 
 if __name__ == '__main__':
-    import cProfile
-    cProfile.run('calculate(10)', 'hands_profile')
-    #calculate()
+    #import cProfile
+    #cProfile.run('calculate(100)', 'hands_profile')
+    calculate()

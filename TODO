@@ -3,6 +3,7 @@ PokeHer TODO list:
 * Pot odds
 
 ** Flop hand win %
+** memoize score_hand method
 ** post-flop probability
 *** flop: simulate?
 *** turn: simulate?

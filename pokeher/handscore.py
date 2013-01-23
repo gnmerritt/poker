@@ -49,7 +49,6 @@ class HandBuilder(object):
         if not self.cards or len(self.cards) < self.HAND_LENGTH:
             return None, None
 
-        HandBuilder.sort_hand(self.cards)
         best_hand_score = HandScore()
         best_hand = None
         for hand in itertools.combinations(self.cards, self.HAND_LENGTH):
@@ -82,59 +81,71 @@ class HandBuilder(object):
 
         # At this point, return since we can't have any pairs
         # at the same time as a straight or flush
-        if score > HandScore():
+        if score.type > HandScore.NO_SCORE:
             # straights and flushes are both sorted in descending order
-            ranks_tuple = list(self.cards_to_ranks())
-            score.kicker = HandBuilder.get_sorted_tuple(ranks_tuple)
+            score.kicker = tuple(self.cards_to_ranks())
             return score
 
-        singles, pairs, trips, quads = HandBuilder.segment_hand(self.cards)
+        return self.__score_hand(score)
 
-        # Go from least to most valuable hands
+    def __score_hand(self, score):
+        """Scores a hand, finding pairs, trips & quads and setting the kicker"""
+        singles = None
+        pairs = None
+        trips = None
+        quads = None
         score.type = HandScore.HIGH_CARD
 
-        if pairs:
-            score.type = HandScore.PAIR
-        if len(pairs) > 2:
-            score.type = HandScore.TWO_PAIR
-        if trips:
-            score.type = HandScore.TRIPS
-        if trips and pairs:
-            score.type = HandScore.FULL_HOUSE
-        if quads:
-            score.type = HandScore.QUADS
+        def up_score(new):
+            if new > score.type:
+                score.type = new
 
-        score.kicker = HandBuilder.get_sorted_tuple(singles, [pairs, trips, quads])
-        return score
-
-    @staticmethod
-    def segment_hand(cards):
-        """Splits a hand into 4 lists of pairs, trips, quads and singles"""
-        singles = []
-        pairs = []
-        trips = []
-        quads = []
         seen = [None,None] + [0]*13 # card values run 2-15 instead of 0-13
-
-        for card in cards:
+        for card in self.cards:
             seen[card.value] += 1
 
         for card_value, times in enumerate(seen):
-            target = None
             if times == 1:
-                target = singles
+                if not singles:
+                    singles = [card_value]
+                else:
+                    singles.append(card_value)
             elif times == 2:
-                target = pairs
+                if not pairs:
+                    pairs = [card_value]
+                    up_score(HandScore.PAIR)
+                else:
+                    if card_value > pairs[0]:
+                        pairs.insert(0, card_value)
+                    else:
+                        pairs.append(card_value)
+                    up_score(HandScore.TWO_PAIR)
             elif times == 3:
-                target = trips
+                trips = card_value
+                up_score(HandScore.TRIPS)
             elif times == 4:
-                target = quads
+                quads = card_value
+                up_score(HandScore.QUADS)
 
-            if times and target is not None:
-                for j in range(0, times):
-                    target.append(card_value)
+        # have to find the full house separately
+        if pairs and trips:
+            up_score(HandScore.FULL_HOUSE)
 
-        return (singles, pairs, trips, quads)
+        def kicker_generator():
+            if quads:
+                yield quads
+            if trips:
+                yield trips
+            if pairs:
+                for x in pairs:
+                    yield x
+            if singles:
+                singles.sort(reverse=True)
+                for x in singles:
+                    yield x
+
+        score.kicker = tuple(kicker_generator())
+        return score
 
     def is_straight(self):
         """returns True if this hand is a straight, false otherwise"""
@@ -150,26 +161,6 @@ class HandBuilder(object):
     def cards_to_ranks(self):
         """Returns a generator of the ranks of our cards"""
         return (card.value for card in self.cards)
-
-    @staticmethod
-    def get_sorted_tuple(singles, ptq=None):
-        """Return a sorted hand tuple (by value) so that a tuple comparison
-        can be used to evaluate the hand. This handles the default case (sorting
-        a straight) as well as if you pass in a list of pairs, triples or quads
-          optional argument ptq list of lists: [pairs, trips, quads]
-        """
-        if ptq is None:
-            ptq = [[],[],[]]
-        ptq.reverse() # quads > trips > pairs in hand scoring
-        ptq.append(singles) # handle the generic case
-
-        def generator():
-            for segment in ptq:
-                if segment:
-                    segment.sort(reverse=True)
-                    for c in segment:
-                        yield c
-        return tuple(generator())
 
     @staticmethod
     def sort_hand(cards):
