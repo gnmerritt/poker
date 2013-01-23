@@ -1,5 +1,5 @@
 from __future__ import division
-import sys, itertools, random, pickle, os
+import sys, itertools, random, pickle, os, time
 
 sys.path.append('/Users/nathan/sources/poker/')
 
@@ -7,7 +7,10 @@ from pokeher.cards import Card
 from pokeher.handscore import *
 
 class PreflopCalculator(object):
-    TRIES_PER_HAND = 1000
+    """Estimates the average value, in % of pots won, for a 2 card hole hand.
+    Currently only useful for heads up texas hold'em
+    """
+    TRIES_PER_HAND = 5000 # Should be above 1000
     VERBOSE = False
 
     def run(self):
@@ -18,6 +21,7 @@ class PreflopCalculator(object):
 
         for hand in itertools.combinations(cards, 2):
             wins = 0
+            t1 = time.clock()
 
             for i in range(0, self.TRIES_PER_HAND):
                 deck = [c for c in Card.full_deck() if not c in hand]
@@ -27,10 +31,11 @@ class PreflopCalculator(object):
             percent_pots_won = self.percentage(wins, self.TRIES_PER_HAND)
             self.wins[hand] = percent_pots_won
 
-            print ' {hand} won {percent}% in {tries} tries' \
+            print ' {hand} won {percent}% in {tries} tries in {t} seconds' \
                 .format(hand=hand,
                         tries=self.TRIES_PER_HAND,
-                        percent=percent_pots_won)
+                        percent=percent_pots_won,
+                        t=(time.clock() - t1))
 
             count += 1
             percent_done = self.percentage(count, 1326) # 52 choose 2 == 1326
@@ -40,20 +45,19 @@ class PreflopCalculator(object):
 
     def try_hand(self, hand, deck):
         """Returns the percentage of the pot we won with our hand"""
-        # Shuffle the deck
-        for i in range(0, 7):
-            random.shuffle(deck)
-
         # Deal out two opponent cards and 5 table cards
-        opponent = deck[0:2]
-        table = deck[2:7]
+        cards = random.sample(deck, 7)
+        opponent = cards[0:2]
+        table = cards[2:7]
 
+        # Find the best hand for each set of hole cards
         our_hand, our_score = HandBuilder(hand + table).find_hand()
         their_hand, their_score = HandBuilder(opponent + table).find_hand()
 
         if self.VERBOSE:
             print 'us: {us} and them: {them}'.format(us=our_score, them=their_score)
 
+        # return our equity: fraction of the pot we won
         if our_score > their_score:
             return 1
         elif our_score == their_score:
@@ -71,7 +75,12 @@ class PreflopCalculator(object):
         pickle.dump(self.wins, outf)
         outf.close()
 
-if __name__ == '__main__':
+def calculate():
     job = PreflopCalculator()
     job.run()
     job.save_answer()
+
+if __name__ == '__main__':
+    #import cProfile
+    #cProfile.run('calculate()', 'hands_profile')
+    calculate()
