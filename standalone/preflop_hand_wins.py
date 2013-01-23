@@ -1,5 +1,6 @@
 from __future__ import division
-import sys, itertools, random, pickle, os, time
+import cPickle as pickle
+import sys, itertools, random, os, time
 
 sys.path.append('/Users/nathan/sources/poker/')
 
@@ -82,5 +83,5 @@ def calculate(tries=5000):
 
 if __name__ == '__main__':
     #import cProfile
-    #cProfile.run('calculate(100)', 'hands_profile')
+    #cProfile.run('calculate(10)', 'hands_profile')
     calculate()

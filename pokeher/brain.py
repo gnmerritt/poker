@@ -17,6 +17,7 @@ class Brain:
         self.round = Round(self.sharedData)
 
     def load_precalc_data(self):
+        """Loads pre-computed hand data"""
         infile = os.path.join('data', 'preflop_wins_5000.pickle')
         in_stream = open(infile, 'r')
         self.preflop_equity = pickle.load(in_stream)
