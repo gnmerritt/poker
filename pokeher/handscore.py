@@ -65,7 +65,7 @@ class HandBuilder(object):
         if not self.cards or len(self.cards) != self.HAND_LENGTH:
             return score
 
-        HandBuilder.sort_hand(self.cards)
+        self.sort_hand()
 
         # Do we have a flush?
         flush_suit = self.select_flush_suit()
@@ -86,66 +86,47 @@ class HandBuilder(object):
             score.kicker = tuple(self.cards_to_ranks())
             return score
 
-        return self.__score_hand(score)
-
-    def __score_hand(self, score):
-        """Scores a hand, finding pairs, trips & quads and setting the kicker"""
-        singles = None
-        pairs = None
-        trips = None
-        quads = None
+        # Now find any pairs, triples or quads in the hand and score it
         score.type = HandScore.HIGH_CARD
-
-        def up_score(new):
-            if new > score.type:
-                score.type = new
 
         seen = [None,None] + [0]*13 # card values run 2-15 instead of 0-13
         for card in self.cards:
             seen[card.value] += 1
 
-        for card_value, times in enumerate(seen):
-            if times == 1:
-                if not singles:
-                    singles = [card_value]
-                else:
-                    singles.append(card_value)
-            elif times == 2:
-                if not pairs:
-                    pairs = [card_value]
-                    up_score(HandScore.PAIR)
-                else:
-                    if card_value > pairs[0]:
-                        pairs.insert(0, card_value)
-                    else:
-                        pairs.append(card_value)
-                    up_score(HandScore.TWO_PAIR)
-            elif times == 3:
-                trips = card_value
-                up_score(HandScore.TRIPS)
-            elif times == 4:
-                quads = card_value
-                up_score(HandScore.QUADS)
+        # sort by # of times each value was seen
+        # this puts quads in front of triples in front of pairs etc
+        self.cards.sort(key=lambda card: (seen[card.value], card.value),
+                        reverse=True)
+        score.kicker = tuple(self.score_cards_to_ranks(score))
 
-        # have to find the full house separately
-        if pairs and trips:
-            up_score(HandScore.FULL_HOUSE)
-
-        def kicker_generator():
-            if quads:
-                yield quads
-            if trips:
-                yield trips
-            if pairs:
-                for x in pairs:
-                    yield x
-            if singles:
-                singles.sort(reverse=True)
-                for x in singles:
-                    yield x
-
-        score.kicker = tuple(kicker_generator())
         return score
+
+    def score_cards_to_ranks(self, score):
+        """Goes through a list of cards sorted by quad/trip/pair and set the hand score."""
+        last_value = -1
+        run = 0
+        for card in self.cards:
+            if card.value == last_value:
+                run += 1
+            else:
+                if run == 4:
+                    score.type = HandScore.QUADS
+                elif run == 3:
+                    score.type = HandScore.TRIPS
+                elif run == 2:
+                    if score.type == HandScore.TRIPS:
+                        score.type = HandScore.FULL_HOUSE
+                    elif score.type == HandScore.PAIR:
+                        score.type = HandScore.TWO_PAIR
+                    else:
+                        score.type = HandScore.PAIR
+                run = 1
+            last_value = card.value
+            yield card.value
+
+        # the full house is the only hand where we need to match on the last card
+        if run == 2 and score.type == HandScore.TRIPS:
+            score.type = HandScore.FULL_HOUSE
 
     def is_straight(self):
         """returns True if this hand is a straight, false otherwise"""
@@ -162,11 +143,10 @@ class HandBuilder(object):
         """Returns a generator of the ranks of our cards"""
         return (card.value for card in self.cards)
 
-    @staticmethod
-    def sort_hand(cards):
+    def sort_hand(self):
         """Sorts a hand, high values first"""
         sort_key = lambda card: card.value
-        cards.sort(key=sort_key,reverse=True)
+        self.cards.sort(key=sort_key,reverse=True)
 
     def __gap(self, card1, card2):
         return card1.value - card2.value

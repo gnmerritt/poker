@@ -95,8 +95,8 @@ class HandBuilderTest(unittest.TestCase):
         pairAces = [Card(2, C.DIAMONDS), Card(4, C.SPADES), Card(C.JACK, C.CLUBS),
                    Card(C.ACE, C.HEARTS), Card(C.ACE, C.CLUBS)]
         score = HandBuilder(pairAces).score_hand()
-        self.assertEqual(HandScore.PAIR, score.type, "didn't find a pair")
-        self.assertEqual((14,11,4,2), score.kicker)
+        self.assertEqual(HandScore.PAIR, score.type)
+        self.assertEqual((14,14,11,4,2), score.kicker)
 
     def test_score_hand_two_pair(self):
         """Finds two pairs"""
@@ -107,7 +107,7 @@ class HandBuilderTest(unittest.TestCase):
         self.assertEqual(HandScore.TWO_PAIR, score.type, "didn't find two pair")
 
         # check the kicker to make sure the pairs got sorted
-        self.assertEqual((14,2,11), score.kicker)
+        self.assertEqual((14,14,2,2,11), score.kicker)
 
     def test_score_hand_trips(self):
         """Finds 3 of a kind"""
@@ -123,8 +123,7 @@ class HandBuilderTest(unittest.TestCase):
                       Card(C.ACE, C.CLUBS)]
         score = HandBuilder(full_house).score_hand()
         self.assertEqual(HandScore.FULL_HOUSE, score.type, "didn't find full house")
-        self.assertEqual((14,2), score.kicker)
-
+        self.assertEqual((14,14,14,2,2), score.kicker)
 
     def test_score_hand_quads(self):
         """Finds 4 of a kind"""
@@ -133,7 +132,7 @@ class HandBuilderTest(unittest.TestCase):
                  Card(2, C.CLUBS)]
         score = HandBuilder(quads).score_hand()
         self.assertEqual(HandScore.QUADS, score.type, "didn't find quads")
-        self.assertEqual((2,3), score.kicker)
+        self.assertEqual((2,2,2,2,3), score.kicker)
 
     def test_preflop_edge_cases(self):
         """Tests cases that seemed to be weird in the preflop job"""
