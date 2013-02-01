@@ -46,9 +46,32 @@ class Round(Data):
         self.pot = 0
         self.big_blind = 0
         self.small_blind = 0
+        self.button = None
 
     def update(self):
+        self.parse_blinds()
+        self.parse_cards()
+
+        if 'onButton' in self.sharedData:
+            self.button = self.sharedData.pop('onButton')
+
+    def parse_cards(self):
         pass
+
+    def parse_blinds(self):
+        if 'smallBlind' in self.sharedData:
+            sb_string = self.sharedData.pop('smallBlind')
+            try:
+                self.small_blind = int(sb_string)
+            except ValueError:
+                pass
+
+        if 'bigBlind' in self.sharedData:
+            bb_string = self.sharedData.pop('bigBlind')
+            try:
+                self.big_blind = int(bb_string)
+            except ValueError:
+                pass
 
 class Player(Data):
     """Player info"""

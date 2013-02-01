@@ -42,7 +42,28 @@ class MatchTest(unittest.TestCase):
         self.assertEqual(match.round, 8392) # shouldn't change or explode
 
 class RoundTest(unittest.TestCase):
-    pass
+    """Tests for round by round stuff - cards and bots and blinds etc"""
+
+    def test_blinds_button(self):
+        """Test getting the blind and button"""
+        sharedData = {}
+        the_round = Round(sharedData)
+        parser = RoundParser(sharedData)
+        lines = ['Match smallBlind 10',
+                 'Match bigBlind 20',
+                 'Match onButton bot_0']
+
+        for line in lines:
+            self.assertTrue(parser.handle_line(line))
+        the_round.update()
+
+        self.assertEqual(the_round.small_blind, 10)
+        self.assertEqual(the_round.big_blind, 20)
+        self.assertEqual(the_round.button, 'bot_0')
+
+    def test_cards(self):
+        """Tests finding the cards"""
+        self.fail()
 
 class PlayerTest(unittest.TestCase):
     pass
