@@ -19,9 +19,14 @@ class Brain:
     def load_precalc_data(self):
         """Loads pre-computed hand data"""
         infile = os.path.join('data', 'preflop_wins_5000.pickle')
-        in_stream = open(infile, 'r')
-        self.preflop_equity = pickle.load(in_stream)
-        in_stream.close()
+        try:
+            in_stream = open(infile, 'r')
+            try:
+                self.preflop_equity = pickle.load(in_stream)
+            finally:
+                in_stream.close()
+        except IOError:
+            self.bot.log("IO error loading {f}".format(f=infile))
 
     def parse_line(self, line):
         """Feeds a line to the parsers"""

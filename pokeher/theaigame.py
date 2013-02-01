@@ -77,16 +77,21 @@ class SettingsParser(AiGameParser):
       Settings timeBank 5000 (ignored)
       Settings timePerMove 500 (ignored)
       Settings handsPerLevel 10 (ignored)
-      bot_0 seat 0 (ignored)
-      bot_1 seat 1 (ignored)
 
+      bot_0 seat 0
+      bot_1 seat 1
       Settings yourBot bot_0
     """
     START_TOKEN = 'Settings'
     YOUR_BOT = 'yourBot'
 
     def _handle_line(self, token, key, value):
+        # Just pull out any active bots, don't worry about seats yet
         if self.is_bot_directive(token) and key == 'seat':
+            if not 'bots' in self._data:
+                self._data['bots'] = [token]
+            else:
+                self._data['bots'].append(token)
             return True
 
         if token != self.START_TOKEN:

@@ -32,6 +32,7 @@ class CardBuilderTest(unittest.TestCase):
         self.assertEqual(b.from_list(' [Tc,8d,9c]   '), answer2)
 
     def test_is_card_list(self):
+        """Checks that the card builder returns list of cards"""
         b = CardBuilder()
         self.assertTrue(b.is_card_list('[Th,3d]'))
         self.assertFalse(b.is_card_list('3nkjnxu903'))
