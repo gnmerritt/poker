@@ -2,22 +2,14 @@
 Data classes relating to the game of poker
 """
 
-class Data(object):
-    def __init__(self, sharedData):
-        self.sharedData = sharedData
-        self.reset()
-
-    def reset(self):
-        pass
-
-class Match(Data):
+class Match(object):
     """Container for information about a group of games"""
-    def reset(self):
+    def reset_match(self):
         self.round = 0
         self.opponents = []
         self.me = None
 
-    def update(self):
+    def update_match(self):
         if 'yourBot' in self.sharedData:
             self.me = self.sharedData.pop('yourBot')
             if self.me in self.opponents:
@@ -38,9 +30,9 @@ class Match(Data):
                 self.opponents.append(bot)
 
 
-class Round(Data):
+class Round(object):
     """Memory for a full hand of poker"""
-    def reset(self):
+    def reset_round(self):
         self.table_cards = []
         self.hand = None
         self.pot = 0
@@ -48,7 +40,7 @@ class Round(Data):
         self.small_blind = 0
         self.button = None
 
-    def update(self):
+    def update_round(self):
         self.parse_blinds()
         self.parse_cards()
 
@@ -56,7 +48,8 @@ class Round(Data):
             self.button = self.sharedData.pop('onButton')
 
     def parse_cards(self):
-        pass
+        if '' in self.sharedData:
+            pass
 
     def parse_blinds(self):
         if 'smallBlind' in self.sharedData:
@@ -73,13 +66,16 @@ class Round(Data):
             except ValueError:
                 pass
 
-class Player(Data):
-    """Player info"""
+class GameData(Match, Round):
+    """Aggregate data classes mixed in together"""
+    def __init__(self, sharedData):
+        self.sharedData = sharedData
+        self.reset()
+
     def reset(self):
-        self.name = None
-        self.is_me = False
-        self.is_dealer = False
-        self.chips = None
+        self.reset_match()
+        self.reset_round()
 
     def update(self):
-        pass
+        self.update_match()
+        self.update_round()

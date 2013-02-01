@@ -8,7 +8,7 @@ class MatchTest(unittest.TestCase):
     def test_load_opponents_me(self):
         """Tests finding our bot's name and our opponents names"""
         sharedData = {}
-        match = Match(sharedData)
+        match = GameData(sharedData)
         parser = SettingsParser(sharedData)
         lines = ['bot_0 seat 0',
                  'bot_1 seat 1',
@@ -28,7 +28,7 @@ class MatchTest(unittest.TestCase):
     def test_round(self):
         """Tests getting the current round"""
         sharedData = {}
-        match = Match(sharedData)
+        match = GameData(sharedData)
         parser = RoundParser(sharedData)
         self.assertEqual(match.round, 0)
         self.assertTrue(parser.handle_line('Match round 8'))
@@ -47,7 +47,7 @@ class RoundTest(unittest.TestCase):
     def test_blinds_button(self):
         """Test getting the blind and button"""
         sharedData = {}
-        the_round = Round(sharedData)
+        the_round = GameData(sharedData)
         parser = RoundParser(sharedData)
         lines = ['Match smallBlind 10',
                  'Match bigBlind 20',
