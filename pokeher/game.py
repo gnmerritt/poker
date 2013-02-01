@@ -24,7 +24,11 @@ class Match(Data):
                 del self.opponents[self.me]
 
         if 'round' in self.sharedData:
-            self.round = self.sharedData.pop('round')
+            round_string = self.sharedData.pop('round')
+            try:
+                self.round = int(round_string)
+            except ValueError:
+                pass
 
         if 'bots' in self.sharedData:
             bot_list = self.sharedData.pop('bots')
