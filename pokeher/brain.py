@@ -37,4 +37,45 @@ class Brain:
 
     def do_turn(self, timeLeft):
         """Callback for when the brain has to make a decision"""
-        self.bot.call(0)
+        if not self.data.hand:
+            self.log("No hand, killing ourselves")
+            self.bot.fold()
+            return
+
+        if not self.data.table_cards:
+            return self.do_preflop()
+
+        cards = self.data.table_cards
+
+        if len(cards) == 3:
+            return self.do_third()
+        elif len(cards) == 4:
+            return self.do_fourth()
+        else:
+            return self.do_fifth()
+
+    def do_preflop(self):
+        """Preflop hand strategy"""
+        equity = 0
+        hand = self.data.hand
+        hand_tup = tuple(hand)
+        if hand_tup in self.preflop_equity:
+            equity = self.preflop_equity[hand_tup]
+        else:
+            hand.reverse()
+            hand_tup = tuple(hand)
+            if hand_tup in self.preflop_equity:
+                equity = self.preflop_equity[hand_tup]
+
+        print equity
+        if equity < 0.3:
+            self.bot.fold()
+
+    def do_third(self):
+        pass
+
+    def do_fourth(self):
+        pass
+
+    def do_fifth(self):
+        pass
