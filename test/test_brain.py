@@ -2,7 +2,7 @@ import unittest
 from pokeher.wiring import BufferPokerBot
 from pokeher.theaigame import TheAiGameParserDelegate, TheAiGameActionDelegate
 from pokeher.brain import Brain
-from pokeher.cards import Card
+from pokeher.cards import Card, Hand
 from pokeher.cards import Constants as C
 
 class BrainTestBot(BufferPokerBot, TheAiGameParserDelegate, TheAiGameActionDelegate):
@@ -32,7 +32,8 @@ class BrainTest(unittest.TestCase):
         self.assertTrue(bot.brain.preflop_equity)
         self.assertEqual(len(bot.brain.preflop_equity.keys()), 1326)
 
-        sample_key = (Card(2, C.CLUBS), Card(3, C.DIAMONDS))
+        hand = Hand(Card(2, C.CLUBS), Card(3, C.DIAMONDS))
+        sample_key = repr(hand)
         self.assertTrue(sample_key in bot.brain.preflop_equity)
 
 if __name__ == '__main__':

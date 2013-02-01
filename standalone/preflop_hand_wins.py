@@ -1,10 +1,11 @@
 from __future__ import division
 import cPickle as pickle
+import cProfile
 import sys, itertools, random, os, time
 
 sys.path.append('/Users/nathan/sources/poker/')
 
-from pokeher.cards import Card
+from pokeher.cards import Card, Hand
 from pokeher.handscore import *
 
 class PreflopCalculator(object):
@@ -20,13 +21,14 @@ class PreflopCalculator(object):
         self.tries = tries
         count = 0
 
-        for hand in itertools.combinations(cards, 2):
-            wins = 0
+        for two_cards in itertools.combinations(cards, 2):
             t1 = time.clock()
+            wins = 0
+            hand = Hand(two_cards[0], two_cards[1])
 
             for i in range(0, tries):
-                deck = [c for c in Card.full_deck() if not c in hand]
-                equity = self.try_hand(list(hand), deck)
+                deck = [c for c in Card.full_deck() if not c in two_cards]
+                equity = self.try_hand(list(two_cards), deck)
                 wins += equity
 
             percent_pots_won = self.percentage(wins, tries)
@@ -82,6 +84,11 @@ def calculate(tries=5000):
     job.save_answer()
 
 if __name__ == '__main__':
-    #import cProfile
-    #cProfile.run('calculate(10)', 'hands_profile')
-    calculate()
+    if sys.argv:
+        argument = sys.argv[1]
+        if argument == "profile":
+            cProfile.run('calculate(10)', 'hands_profile')
+        else:
+            calculate(int(argument))
+    else:
+        calculate()

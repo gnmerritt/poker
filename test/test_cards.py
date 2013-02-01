@@ -95,6 +95,12 @@ class HandTest(unittest.TestCase):
         self.assertFalse(h2.is_connected())
         self.assertFalse(h2.is_pair())
 
+    def test_repr_string(self):
+        h = Hand(self.jackD, self.aceS)
+
+        self.assertEqual(repr(h), '143111')
+        self.assertEqual(str(h), 'A-Spades, J-Diamonds')
+
     def test_hand_negs(self):
         """Tests an unsuited, unconnected hand"""
         h = Hand(self.aceH,self.jackD)

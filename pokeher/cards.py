@@ -46,6 +46,9 @@ class Card(object):
             return 0.1 * self.value
 
     def __repr__(self):
+        return '{self.value}{self.suit.suit}'.format(self=self)
+
+    def __str__(self):
         return '{value}-{suit}'.format(value=self.FACES[self.value], suit=str(self.suit))
 
     def __eq__(self, other):
@@ -78,13 +81,19 @@ class Card(object):
 class Hand(object):
     """Player's hand of cards"""
     def __init__(self, card1, card2):
-        if card1.value > card2.value:
+        if card1 > card2:
             self.high = card1
             self.low = card2
         else:
             self.high = card2
             self.low = card1
         self._score = HandScore.NO_SCORE
+
+    def __repr__(self):
+        return '{a}{b}'.format(a=repr(self.high), b=repr(self.low))
+
+    def __str__(self):
+        return '{a}, {b}'.format(a=self.high, b=self.low)
 
     def score(self):
         """Returns the score, see HandBuilder"""
