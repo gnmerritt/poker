@@ -1,4 +1,5 @@
 import unittest
+from pokeher.cards import *
 from pokeher.game import *
 from pokeher.theaigame import *
 
@@ -63,10 +64,24 @@ class RoundTest(unittest.TestCase):
 
     def test_cards(self):
         """Tests finding the cards"""
-        self.fail()
+        sharedData = {}
+        data = GameData(sharedData)
+        data.me = 'bot_0'
+        callback = None
+        parser = TurnParser(sharedData, callback)
+        lines = ['bot_0 hand [6c,Jc]',
+                 'Match pot 20',
+                 'Match table [Tc,8d,9c]',
+                 'Match sidepots [10]']
 
-class PlayerTest(unittest.TestCase):
-    pass
+        for line in lines:
+            self.assertTrue(parser.handle_line(line))
+        data.update()
+
+        self.assertEqual(data.hand, [Card(6, C.CLUBS), Card(C.JACK, C.CLUBS)])
+        self.assertEqual(data.table_cards, [Card(10, C.CLUBS), Card(8, C.DIAMONDS), Card(9, C.CLUBS)])
+        self.assertEqual(data.pot, 20)
+        self.assertEqual(data.sidepot, 10)
 
 if __name__ == '__main__':
     unittest.main()

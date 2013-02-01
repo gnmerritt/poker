@@ -36,6 +36,7 @@ class Round(object):
         self.table_cards = []
         self.hand = None
         self.pot = 0
+        self.sidepot = 0
         self.big_blind = 0
         self.small_blind = 0
         self.button = None
@@ -43,13 +44,35 @@ class Round(object):
     def update_round(self):
         self.parse_blinds()
         self.parse_cards()
+        self.parse_pot()
 
         if 'onButton' in self.sharedData:
             self.button = self.sharedData.pop('onButton')
 
     def parse_cards(self):
-        if '' in self.sharedData:
-            pass
+        if self.me:
+            key = ('hand', self.me)
+            if key in self.sharedData:
+                self.hand = self.sharedData.pop(key)
+
+        if 'table' in self.sharedData:
+            self.table_cards = self.sharedData.pop('table')
+
+    def parse_pot(self):
+        if 'pot' in self.sharedData:
+            pot_str = self.sharedData.pop('pot')
+            try:
+                self.pot = int(pot_str)
+            except ValueError:
+                pass
+
+        if 'sidepots' in self.sharedData:
+            sidepot_str = self.sharedData.pop('sidepots')
+            sidepot_str = sidepot_str.replace('[', '').replace(']', '') # strip []'s
+            try:
+                self.sidepot = int(sidepot_str)
+            except ValueError:
+                pass
 
     def parse_blinds(self):
         if 'smallBlind' in self.sharedData:

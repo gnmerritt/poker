@@ -136,8 +136,7 @@ class TurnParser(AiGameParser):
       bot_1 fold 0 (ignored)
       bot_0 wins 30 (ignored)
 
-      Match sidepots [10] (ignored) TODO
-
+      Match sidepots [10]
       bot_0 raise 20
       bot_0 hand [6c,Jc]
       Match pot 20
