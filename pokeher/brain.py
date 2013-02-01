@@ -1,6 +1,6 @@
 import cPickle as pickle
 import os
-from game import *
+from game import GameData
 
 class Brain:
     """The brain: parses lines, combines data classes to make decisions"""

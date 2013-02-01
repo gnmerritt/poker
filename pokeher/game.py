@@ -49,6 +49,11 @@ class Round(object):
         if 'onButton' in self.sharedData:
             self.button = self.sharedData.pop('onButton')
 
+        if 'roundOver' in self.sharedData:
+            round_is_over = self.sharedData.pop('roundOver')
+            if round_is_over:
+                self.reset_round()
+
     def parse_cards(self):
         if self.me:
             key = ('hand', self.me)

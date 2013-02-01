@@ -155,6 +155,10 @@ class TurnParser(AiGameParser):
         if parser.is_card_list(value):
             value = parser.from_list(value)
 
+        # check for a 'wins' statement, make note of it
+        if key == 'wins':
+            self._data['roundOver'] = True
+
         # Save the data as (key, bot_x) = value
         if self.is_bot_directive(token) and key in self.BOT_DATA:
             self._data[(key, token)] = value
