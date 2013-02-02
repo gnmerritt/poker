@@ -51,6 +51,7 @@ class BrainTest(unittest.TestCase):
         data = MockData()
         data.sidepot = 20 # to call
         data.pot = 140
+        data.hand = Hand(Card(C.ACE, C.DIAMONDS), Card(C.ACE, C.HEARTS))
         brain = Brain(MockBot())
         brain.data = data
 

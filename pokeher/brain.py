@@ -19,7 +19,7 @@ class Brain:
 
     def load_precalc_data(self):
         """Loads pre-computed hand data"""
-        infile = os.path.join('data', 'preflop_wins_100.pickle')
+        infile = os.path.join('data', 'preflop_wins_5000.pickle')
         try:
             in_stream = open(infile, 'r')
             try:
