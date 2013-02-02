@@ -16,7 +16,7 @@ class HandSimulatorTest(unittest.TestCase):
         self.assertFalse(Card(10, C.SPADES) in simulator.deck)
         self.assertFalse(Card(4, C.DIAMONDS) in simulator.deck)
 
-        win_percentage = simulator.simulate(5)
+        win_percentage = simulator.simulate(10)
         self.assertTrue(isinstance(win_percentage, float))
         self.assertTrue(win_percentage > 0)
 

@@ -1,4 +1,3 @@
-from __future__ import division
 import cPickle as pickle
 import cProfile
 import sys, itertools, random, os, time
@@ -7,6 +6,7 @@ sys.path.append('/Users/nathan/sources/poker/')
 
 from pokeher.cards import Card, Hand
 from pokeher.hand_simulator import HandSimulator
+from pokeher.utility import MathUtils
 
 class PreflopCalculator(object):
     """Estimates the average value, in % of pots won, for a 2 card hole hand.
@@ -36,13 +36,10 @@ class PreflopCalculator(object):
                         t=(time.clock() - t1))
 
             count += 1
-            percent_done = self.percentage(count, 1326) # 52 choose 2 == 1326
+            percent_done = MathUtils.percentage(count, 1326) # 52 choose 2 == 1326
             print ' Finished hand {c} ({p}%)' \
                 .format(c=count, p=round(percent_done))
             print '-'*10
-
-    def percentage(self, num, denom):
-        return (num / denom) * 100.0
 
     def save_answer(self):
         """Saves the calculated mapping to a pickle file"""

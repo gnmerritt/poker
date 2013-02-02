@@ -30,6 +30,16 @@ class CardTest(unittest.TestCase):
         else:
             self.fail('Card with non-suit value allowed')
 
+    def test_card_slots(self):
+        """Makes sure slots are active on Card"""
+        try:
+            c = Card(3, Suit(3))
+            c.extra = 'fail'
+        except AttributeError:
+            pass
+        else:
+            self.fail("slots didn't explode")
+
     def test_card_bad_values(self):
         """Tests the card constructor value checks"""
         suit = Suit(0)

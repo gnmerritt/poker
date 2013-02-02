@@ -4,6 +4,7 @@ from handscore import *
 @functools.total_ordering
 class Suit(object):
     SUITS = ("Clubs", "Diamonds", "Hearts", "Spades")
+    __slots__ = ('suit')
 
     def __init__(self, suit):
         assert suit >= 0 and suit < len(self.SUITS)
@@ -20,10 +21,13 @@ class Suit(object):
     def __lt__(self, other):
         return self.suit < other.suit
 
+
+
 @functools.total_ordering
 class Card(object):
     """Card value"""
     FACES = (None,None) + tuple(range(2, 11)) + ("J", "Q", "K", "A")
+    __slots__ = ('value', 'suit')
 
     def __init__(self, value, suit):
         assert value > 1
@@ -80,6 +84,7 @@ class Card(object):
 
 class Hand(object):
     """Player's hand of cards"""
+    __slots__ = ('high', 'low')
     def __init__(self, card1, card2):
         if card1 > card2:
             self.high = card1
@@ -87,7 +92,6 @@ class Hand(object):
         else:
             self.high = card2
             self.low = card1
-        self._score = HandScore.NO_SCORE
 
     def __repr__(self):
         return '{a}{b}'.format(a=repr(self.high), b=repr(self.low))
@@ -99,16 +103,6 @@ class Hand(object):
         if isinstance(other, Hand):
             return (self.high, self.low) == (other.high, other.low)
         return NotImplemented
-
-    def score(self):
-        """Returns the score, see HandBuilder"""
-        if self._score == HandScore.NO_SCORE:
-            return None
-        return self._score
-
-    def set_score(self, score):
-        if score and score > HandScore.NO_SCORE:
-            self._score = score
 
     def is_pair(self):
         """Returns true if hand is a pair, false otherwise"""

@@ -1,7 +1,7 @@
-from __future__ import division
 import random
 from cards import Card
 from handscore import HandBuilder
+from utility import MathUtils
 
 class HandSimulator(object):
     """Given two hole cards & any number of table cards simulate the
@@ -21,7 +21,7 @@ class HandSimulator(object):
         for i in range(0, iterations):
             wins += self.try_hand()
 
-        return self.percentage(wins, iterations)
+        return MathUtils.percentage(wins, iterations)
 
     def try_hand(self):
         # Deal out two opponent cards and 5 table cards
@@ -42,6 +42,3 @@ class HandSimulator(object):
             return 0.5
         else:
             return 0
-
-    def percentage(self, num, denom):
-        return (num / denom) * 100.0

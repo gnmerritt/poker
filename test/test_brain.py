@@ -46,6 +46,23 @@ class BrainTest(unittest.TestCase):
         good_equity = bot.brain.preflop_equity[repr(good_hand)]
         self.assertTrue(good_equity > bad_equity)
 
+    def test_preflop_betting(self):
+        """Test that the preflop equity & pot odds system work"""
+        data = MockData()
+        data.sidepot = 20 # to call
+        data.pot = 140
+        brain = Brain(MockBot())
+        brain.data = data
+
+        self.assertEqual(brain.pot_odds(), 12.5)
+
+class MockBot(object):
+    """For testing the brain by itself"""
+    def set_up_parser(self, a, b):
+        return None
+
+class MockData(object):
+    pass
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,6 +1,8 @@
 import cPickle as pickle
-import os
+import os, time
 from game import GameData
+from hand_simulator import HandSimulator
+from utility import MathUtils
 
 class Brain:
     """The brain: parses lines, combines data classes to make decisions"""
@@ -35,10 +37,16 @@ class Brain:
         else:
             self.bot.log("didn't handle line: " + line + "\n")
 
+    def pot_odds(self):
+        """Return the pot odds, or how much we need to gain to call"""
+        to_call = self.data.sidepot
+        pot_total = to_call + self.data.pot
+        return MathUtils.percentage(to_call, pot_total)
+
     def do_turn(self, timeLeft):
         """Callback for when the brain has to make a decision"""
         if not self.data.hand:
-            self.log("No hand, killing ourselves")
+            self.log("No hand, killing ourselves. Data={d}".format(d=self.data))
             self.bot.fold()
             return
 
@@ -47,28 +55,17 @@ class Brain:
 
         cards = self.data.table_cards
 
-        if len(cards) == 3:
-            return self.do_third()
-        elif len(cards) == 4:
-            return self.do_fourth()
-        else:
-            return self.do_fifth()
+        self.bot.fold()
 
     def do_preflop(self):
-        """Preflop hand strategy"""
+        """Preflop hand strategy - random mix of betting, folding, calling"""
         hand = self.data.hand
         equity = self.preflop_equity[repr(hand)]
+        pot_odds = self.pot_odds()
+
+        print "equity: {e}, pot odds: {p}".format(e=equity, p=pot_odds)
 
         if equity < 0.3:
             self.bot.fold()
         else:
             self.bot.call(self.data.sidepot)
-
-    def do_third(self):
-        pass
-
-    def do_fourth(self):
-        pass
-
-    def do_fifth(self):
-        pass
