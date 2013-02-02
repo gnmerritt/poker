@@ -32,7 +32,7 @@ class PreflopCalculator(object):
                 wins += equity
 
             percent_pots_won = self.percentage(wins, tries)
-            self.wins[hand] = percent_pots_won
+            self.wins[repr(hand)] = percent_pots_won
 
             print ' {hand} won {percent}% in {tries} tries in {t} seconds' \
                 .format(hand=hand,

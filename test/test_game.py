@@ -78,7 +78,8 @@ class RoundTest(unittest.TestCase):
             self.assertTrue(parser.handle_line(line))
         data.update()
 
-        self.assertEqual(data.hand, [Card(6, C.CLUBS), Card(C.JACK, C.CLUBS)])
+        self.assertEqual(data.hand,
+                         Hand(Card(6, C.CLUBS), Card(C.JACK, C.CLUBS)))
         self.assertEqual(data.table_cards, [Card(10, C.CLUBS), Card(8, C.DIAMONDS), Card(9, C.CLUBS)])
         self.assertEqual(data.pot, 20)
         self.assertEqual(data.sidepot, 10)

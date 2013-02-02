@@ -30,11 +30,12 @@ class BrainTest(unittest.TestCase):
         """Tests that the preflop equity data loaded correctly"""
         bot = BrainTestBot(self.fake_in, self.fake_out, self.fake_log)
         self.assertTrue(bot.brain.preflop_equity)
-        self.assertEqual(len(bot.brain.preflop_equity.keys()), 1326)
+        equity_keys = bot.brain.preflop_equity.keys()
+        self.assertEqual(len(equity_keys), 1326)
 
         hand = Hand(Card(2, C.CLUBS), Card(3, C.DIAMONDS))
         sample_key = repr(hand)
-        self.assertTrue(sample_key in bot.brain.preflop_equity)
+        self.assertTrue(sample_key in equity_keys)
 
 if __name__ == '__main__':
     unittest.main()

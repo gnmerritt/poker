@@ -17,7 +17,7 @@ class Brain:
 
     def load_precalc_data(self):
         """Loads pre-computed hand data"""
-        infile = os.path.join('data', 'preflop_wins_5000.pickle')
+        infile = os.path.join('data', 'preflop_wins_100.pickle')
         try:
             in_stream = open(infile, 'r')
             try:
@@ -56,20 +56,13 @@ class Brain:
 
     def do_preflop(self):
         """Preflop hand strategy"""
-        equity = 0
         hand = self.data.hand
-        hand_tup = tuple(hand)
-        if hand_tup in self.preflop_equity:
-            equity = self.preflop_equity[hand_tup]
-        else:
-            hand.reverse()
-            hand_tup = tuple(hand)
-            if hand_tup in self.preflop_equity:
-                equity = self.preflop_equity[hand_tup]
+        equity = self.preflop_equity[repr(hand)]
 
-        print equity
         if equity < 0.3:
             self.bot.fold()
+        else:
+            self.bot.call(self.data.sidepot)
 
     def do_third(self):
         pass

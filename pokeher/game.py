@@ -1,3 +1,5 @@
+from cards import Hand
+
 """
 Data classes relating to the game of poker
 """
@@ -58,7 +60,8 @@ class Round(object):
         if self.me:
             key = ('hand', self.me)
             if key in self.sharedData:
-                self.hand = self.sharedData.pop(key)
+                cards = self.sharedData.pop(key)
+                self.hand = Hand(cards[0], cards[1])
 
         if 'table' in self.sharedData:
             self.table_cards = self.sharedData.pop('table')

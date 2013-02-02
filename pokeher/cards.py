@@ -95,6 +95,11 @@ class Hand(object):
     def __str__(self):
         return '{a}, {b}'.format(a=self.high, b=self.low)
 
+    def __eq__(self, other):
+        if isinstance(other, Hand):
+            return (self.high, self.low) == (other.high, other.low)
+        return NotImplemented
+
     def score(self):
         """Returns the score, see HandBuilder"""
         if self._score == HandScore.NO_SCORE:
