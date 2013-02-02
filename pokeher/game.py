@@ -80,7 +80,7 @@ class Round(object):
             try:
                 self.sidepot = int(sidepot_str)
             except ValueError:
-                pass
+                self.sidepot = 0
 
     def parse_blinds(self):
         if 'smallBlind' in self.sharedData:

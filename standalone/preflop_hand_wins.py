@@ -6,7 +6,7 @@ import sys, itertools, random, os, time
 sys.path.append('/Users/nathan/sources/poker/')
 
 from pokeher.cards import Card, Hand
-from pokeher.handscore import *
+from pokeher.hand_simulator import HandSimulator
 
 class PreflopCalculator(object):
     """Estimates the average value, in % of pots won, for a 2 card hole hand.
@@ -23,15 +23,10 @@ class PreflopCalculator(object):
 
         for two_cards in itertools.combinations(cards, 2):
             t1 = time.clock()
-            wins = 0
             hand = Hand(two_cards[0], two_cards[1])
+            simulator = HandSimulator(hand)
+            percent_pots_won = simulator.simulate(tries)
 
-            for i in range(0, tries):
-                deck = [c for c in Card.full_deck() if not c in two_cards]
-                equity = self.try_hand(list(two_cards), deck)
-                wins += equity
-
-            percent_pots_won = self.percentage(wins, tries)
             self.wins[repr(hand)] = percent_pots_won
 
             print ' {hand} won {percent}% in {tries} tries in {t} seconds' \
@@ -42,31 +37,9 @@ class PreflopCalculator(object):
 
             count += 1
             percent_done = self.percentage(count, 1326) # 52 choose 2 == 1326
-            print ' Finished hand {c}, {p}% finished' \
+            print ' Finished hand {c} ({p}%)' \
                 .format(c=count, p=round(percent_done))
             print '-'*10
-
-    def try_hand(self, hand, deck):
-        """Returns the percentage of the pot we won with our hand"""
-        # Deal out two opponent cards and 5 table cards
-        cards = random.sample(deck, 7)
-        opponent = cards[0:2]
-        table = cards[2:7]
-
-        # Find the best hand for each set of hole cards
-        our_hand, our_score = HandBuilder(hand + table).find_hand()
-        their_hand, their_score = HandBuilder(opponent + table).find_hand()
-
-        if self.VERBOSE:
-            print 'us: {us} and them: {them}'.format(us=our_score, them=their_score)
-
-        # return our equity: fraction of the pot we won
-        if our_score > their_score:
-            return 1
-        elif our_score == their_score:
-            return 0.5
-        else:
-            return 0
 
     def percentage(self, num, denom):
         return (num / denom) * 100.0

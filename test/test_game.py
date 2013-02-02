@@ -84,6 +84,10 @@ class RoundTest(unittest.TestCase):
         self.assertEqual(data.pot, 20)
         self.assertEqual(data.sidepot, 10)
 
+        parser.handle_line('Match sidepots []')
+        data.update()
+        self.assertEqual(data.sidepot, 0)
+
         parser.handle_line('bot_0 wins 90')
         data.update()
         self.assertFalse(data.hand)

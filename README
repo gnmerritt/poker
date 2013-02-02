@@ -1,1 +1,9 @@
 Poker bot for http://theaigames.com/
+
+Layout:
+
+pokeher/ - source code for the bot
+test/ - unit tests
+standalone/ - tools & utilities
+arena/ - testing & machine learning framework
+data/ - data files
