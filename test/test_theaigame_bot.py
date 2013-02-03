@@ -1,11 +1,15 @@
 import unittest
 from pokeher.theaigame_bot import TheAiGameBot
 
+class QuietBot(TheAiGameBot):
+    def log(self, msg):
+        pass
+
 class TheAiGameBotTest(unittest.TestCase):
     """Test that the bot class is instantiated properly and has all the methods
     that it's supposed to"""
     def setUp(self):
-        self.bot = TheAiGameBot(None, None, None)
+        self.bot = QuietBot(None, None, None)
 
     def test_bot_instantiation(self):
         """Tests instantiating the bot"""

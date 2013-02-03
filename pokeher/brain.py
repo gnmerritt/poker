@@ -10,6 +10,7 @@ class Brain:
         self.bot = bot
         self.load_realtime_data()
         self.load_precalc_data()
+        self.bot.log("Brain started up")
 
     def load_realtime_data(self):
         sharedData = {}
@@ -24,6 +25,7 @@ class Brain:
             in_stream = open(infile, 'r')
             try:
                 self.preflop_equity = pickle.load(in_stream)
+                self.bot.log("Loaded preflop equity file")
             finally:
                 in_stream.close()
         except IOError:
@@ -46,14 +48,12 @@ class Brain:
     def do_turn(self, timeLeft):
         """Callback for when the brain has to make a decision"""
         if not self.data.hand:
-            self.log("No hand, killing ourselves. Data={d}".format(d=self.data))
+            self.bot.log("No hand, killing ourselves. Data={d}".format(d=self.data))
             self.bot.fold()
             return
 
         if not self.data.table_cards:
             return self.do_preflop()
-
-        cards = self.data.table_cards
 
         self.bot.fold()
 
@@ -63,7 +63,8 @@ class Brain:
         equity = self.preflop_equity[repr(hand)]
         pot_odds = self.pot_odds()
 
-        print "equity: {e}, pot odds: {p}".format(e=equity, p=pot_odds)
+        self.bot.log("PF: {h} equity: {e}, pot odds: {p}"
+                 .format(h=hand, e=equity, p=pot_odds))
 
         if equity < 0.3:
             self.bot.fold()

@@ -6,13 +6,19 @@ from pokeher.cards import Card, Hand
 from pokeher.cards import Constants as C
 
 class BrainTestBot(BufferPokerBot, TheAiGameParserDelegate, TheAiGameActionDelegate):
-    pass
+    def log(self, msg):
+        pass
 
 class BrainTest(unittest.TestCase):
     def setUp(self):
         self.fake_in = []
         self.fake_out = []
         self.fake_log = []
+        self.data = MockData()
+        self.data.sidepot = 20 # to call
+        self.data.pot = 140
+        self.data.hand = Hand(Card(C.ACE, C.DIAMONDS), Card(C.ACE, C.HEARTS))
+        self.data.table_cards = []
 
     def test_got_output(self):
         """Tests that the bot does something when it hits the turn marker"""
@@ -47,20 +53,30 @@ class BrainTest(unittest.TestCase):
         self.assertTrue(good_equity > bad_equity)
 
     def test_preflop_betting(self):
-        """Test that the preflop equity & pot odds system work"""
-        data = MockData()
-        data.sidepot = 20 # to call
-        data.pot = 140
-        data.hand = Hand(Card(C.ACE, C.DIAMONDS), Card(C.ACE, C.HEARTS))
-        brain = Brain(MockBot())
+        """Sanity test of the preflop betting"""
+        data = self.data
+        bot = MockBot()
+        brain = Brain(bot)
         brain.data = data
 
-        self.assertEqual(brain.pot_odds(), 12.5)
+        self.assertEqual(brain.pot_odds(), 12.5) # 20 to call, 140 in the pot
+
+        brain.do_turn(1000)
+        self.assertTrue(bot.bet_amount > 0) # shouldn't fold with a pair of aces
 
 class MockBot(object):
     """For testing the brain by itself"""
+    def __init__(self):
+        self.bet_amount = 0
+
     def set_up_parser(self, a, b):
         return None
+
+    def call(self, amount):
+        self.bet_amount = amount
+
+    def log(self, msg):
+        pass
 
 class MockData(object):
     pass
