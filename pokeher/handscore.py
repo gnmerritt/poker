@@ -14,6 +14,7 @@ class HandScore(object):
     QUADS = 7
     STRAIGHT_FLUSH = 8
 
+    __slots__ = ('type', 'kicker')
     def __init__(self, type=NO_SCORE, kicker=NO_SCORE):
         """type should be one of the hand types defined here
         kicker is a tuple of card values sorted based on the hand type
@@ -38,6 +39,7 @@ class HandBuilder(object):
     """
     HAND_LENGTH = 5
 
+    __slots__ = ('cards')
     def __init__(self, cards):
         if isinstance(cards, tuple):
             self.cards = list(cards)

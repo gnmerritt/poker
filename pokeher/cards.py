@@ -21,8 +21,6 @@ class Suit(object):
     def __lt__(self, other):
         return self.suit < other.suit
 
-
-
 @functools.total_ordering
 class Card(object):
     """Card value"""
