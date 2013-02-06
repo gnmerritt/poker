@@ -53,7 +53,7 @@ def calculate(tries=5000):
     job.save_answer()
 
 if __name__ == '__main__':
-    if sys.argv:
+    if len(sys.argv) > 1:
         argument = sys.argv[1]
         if argument == "profile":
             import cProfile

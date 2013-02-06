@@ -67,7 +67,25 @@ class HandBuilder(object):
         if not self.cards or len(self.cards) != self.HAND_LENGTH:
             return score
 
-        self.sort_hand()
+        # Find any pairs, triples or quads in the hand and score them
+        score.type = HandScore.HIGH_CARD
+
+        seen = [None,None] + [0]*13 # card values run 2-15 instead of 0-13
+        for card in self.cards:
+            seen[card.value] += 1
+
+        # sort by # of times each value was seen
+        # this puts quads in front of triples in front of pairs etc
+        # if there aren't any pairs, then this sorts by rank order
+        self.cards.sort(key=lambda card: (seen[card.value], card.value),
+                        reverse=True)
+        # this function also sets the handscore if there are any pairs etc.
+        score.kicker = tuple(self.score_cards_to_ranks(score))
+
+        # At this point, return since we can't have any pairs
+        # at the same time as a straight or flush
+        if score.type > HandScore.HIGH_CARD:
+            return score
 
         # Do we have a flush?
         flush_suit = self.select_flush_suit()
@@ -81,26 +99,8 @@ class HandBuilder(object):
             else:
                 score.type = HandScore.STRAIGHT
 
-        # At this point, return since we can't have any pairs
-        # at the same time as a straight or flush
-        if score.type > HandScore.NO_SCORE:
-            # straights and flushes are both sorted in descending order
-            score.kicker = tuple(self.cards_to_ranks())
-            return score
-
-        # Now find any pairs, triples or quads in the hand and score it
-        score.type = HandScore.HIGH_CARD
-
-        seen = [None,None] + [0]*13 # card values run 2-15 instead of 0-13
-        for card in self.cards:
-            seen[card.value] += 1
-
-        # sort by # of times each value was seen
-        # this puts quads in front of triples in front of pairs etc
-        self.cards.sort(key=lambda card: (seen[card.value], card.value),
-                        reverse=True)
-        score.kicker = tuple(self.score_cards_to_ranks(score))
-
+        # straights and flushes are both sorted in descending order
+        score.kicker = tuple(self.cards_to_ranks())
         return score
 
     def score_cards_to_ranks(self, score):
