@@ -1,5 +1,4 @@
 import cPickle as pickle
-import cProfile
 import sys, itertools, random, os, time
 
 sys.path.append('/Users/nathan/sources/poker/')
@@ -57,7 +56,11 @@ if __name__ == '__main__':
     if sys.argv:
         argument = sys.argv[1]
         if argument == "profile":
+            import cProfile
+            from subprocess import call
             cProfile.run('calculate(10)', 'hands_profile')
+            call(['pyprof2calltree', '-i', 'hands_profile', '-o', 'hands_profile.out'])
+            call(['kcachegrind', 'hands_profile.out'])
         else:
             calculate(int(argument))
     else:
