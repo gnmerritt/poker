@@ -70,14 +70,15 @@ class HandBuilder(object):
         # Find any pairs, triples or quads in the hand and score them
         score.type = HandScore.HIGH_CARD
 
-        seen = [None,None] + [0]*13 # card values run 2-15 instead of 0-13
+        seen = [0]*13
         for card in self.cards:
-            seen[card.value] += 1
+            # card values run 2-15 instead of 0-13
+            seen[card.value-2] += 1
 
         # sort by # of times each value was seen
         # this puts quads in front of triples in front of pairs etc
         # if there aren't any pairs, then this sorts by rank order
-        self.cards.sort(key=lambda card: (seen[card.value], card.value),
+        self.cards.sort(key=lambda card: (seen[card.value-2], card.value),
                         reverse=True)
         # this function also sets the handscore if there are any pairs etc.
         score.kicker = tuple(self.score_cards_to_ranks(score))
