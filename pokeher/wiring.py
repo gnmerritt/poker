@@ -25,6 +25,7 @@ class IOPokerBot(object):
     def say(self, line):
         """Writes a line where the game controller can see it"""
         self.write_line(line, self.action_out)
+        self.log("SAID :: {l}".format(l=line))
 
     def log(self, line):
         """Writes a line somewhere we can log it"""

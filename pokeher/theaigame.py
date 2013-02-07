@@ -191,7 +191,7 @@ class TheAiGameActionDelegate(object):
         if amount > 0:
             self.say('raise {amount}'.format(amount=amount))
         else:
-            self.call()
+            self.check()
 
     def fold(self):
         self.say('fold 0')

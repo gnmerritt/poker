@@ -1,5 +1,7 @@
+from __future__ import division
 import cPickle as pickle
 import os, time, random
+
 from game import GameData
 from hand_simulator import HandSimulator
 from utility import MathUtils
@@ -84,12 +86,43 @@ class Brain:
     def pick_action(self, equity, pot_odds):
         """Look at our expected return and do something.
         Will be a semi-random mix of betting, folding, calling"""
-        if equity < 0.3:
-            self.bot.fold()
+        to_call = self.data.sidepot
+        # action to us: check or bet
+        if to_call == 0:
+            if equity > 0.7 or self.r_test(0.03):
+                self.bot.bet(self.big_raise())
+            elif equity > 0.5 or self.r_test(0.05):
+                self.bot.minimum_bet()
+            else: # equity <= 0.3:
+                self.bot.check()
+
+        # use pot odds to call/bet/fold
         else:
-            self.bot.call(self.data.sidepot)
+            return_ratio = equity / pot_odds
+            if return_ratio > 1.5 or self.r_test(0.02):
+                self.bot.bet(self.big_raise())
+            elif return_ratio > 1:
+                self.bot.call(to_call)
+            else:
+                self.bot.fold()
+
+    def big_raise(self):
+        """Returns a big raise, 30-50% of the pot"""
+        pot = self.data.pot
+        bet_raise = random.uniform(0.3, 0.5) * pot
+        self.bot.log("big raise of {r}".format(r=bet_raise))
+        return bet_raise
+
+    def minimum_bet(self):
+        """Returns a minimum bet, 2.5 BB"""
+        bet = 2.5 * self.data.big_blind
+        self.bot.log("min bet of {b}".format(b=bet))
+        return bet
 
     def r_test(self, fraction):
         """Given a number [0,1], randomly return true / false
         s.t. r_test(0.5) is true ~50% of the time"""
-        return random.uniform(0,1) > fraction
+        passed = random.uniform(0,1) < fraction
+        if passed:
+            self.bot.log("r_test() passed for %{f}".format(f=fraction))
+        return passed

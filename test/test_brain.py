@@ -52,7 +52,32 @@ class BrainTest(unittest.TestCase):
         good_equity = bot.brain.preflop_equity[repr(good_hand)]
         self.assertTrue(good_equity > bad_equity)
 
+class TestBrainBets(unittest.TestCase):
+    """Checks the predefined bets"""
+    def setUp(self):
+        bot = MockBot()
+        self.brain = Brain(bot)
+        d = MockData()
+        d.big_blind = 20
+        d.pot = 130
+        self.brain.data = d
+
+    def test_big_raise(self):
+        """Tests the big bet range"""
+        bet = self.brain.big_raise()
+        pot = self.brain.data.pot
+        bottom = pot * 0.3
+        top = pot * 0.5
+        self.assertTrue(bet >= bottom)
+        self.assertTrue(bet <= top)
+
+    def test_minimum_bet(self):
+        """Tests the minimum bet range"""
+        bb = self.brain.data.big_blind
+        self.assertEqual(self.brain.minimum_bet(), 2.5 * bb)
+
 class BettingFunctionalTests(BrainTest):
+    """End-to-end tests with cards and everything"""
     def test_preflop_betting(self):
         """Sanity test of the preflop betting"""
         bot = MockBot()
@@ -61,7 +86,7 @@ class BettingFunctionalTests(BrainTest):
 
         self.assertEqual(brain.pot_odds(), 12.5) # 20 to call, 140 in the pot
         brain.do_turn(1000)
-        self.assertTrue(bot.bet_amount > 0) # shouldn't fold with a pair of aces
+        self.assertTrue(bot.raise_amount > 0) # shouldn't fold with a pair of aces
 
     def test_river_betting(self):
         """Sanity tests of betting with common cards"""
@@ -73,7 +98,7 @@ class BettingFunctionalTests(BrainTest):
         brain.data = self.data
         brain.iterations = 100 # smaller for unit tests
         brain.do_turn(5000)
-        self.assertTrue(bot.bet_amount > 0)
+        self.assertTrue(bot.raise_amount > 0)
 
 class MockBot(object):
     """For testing the brain by itself"""
@@ -85,6 +110,9 @@ class MockBot(object):
 
     def call(self, amount):
         self.bet_amount = amount
+
+    def bet(self, amount):
+        self.raise_amount = amount
 
     def log(self, msg):
         print msg
