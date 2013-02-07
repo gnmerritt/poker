@@ -12,6 +12,7 @@ class Brain:
             self.bot = bot
             self.load_realtime_data()
             self.load_precalc_data()
+            self.iterations = 2000
         self.bot.log("Brain started up in {t} secs".format(t=t.secs))
 
     def load_realtime_data(self):
@@ -51,8 +52,9 @@ class Brain:
         """Wraps internal __do_turn so we can time how long each turn takes"""
         with Timer() as t:
             self.__do_turn(timeLeft_ms)
-        self.bot.log("Finished turn in {t}s, had {l}s remaining"
-                     .format(t=t.secs, l=(timeLeft_ms/1000 - t.secs)))
+        self.bot.log("Finished turn in {t}s ({i} sims), had {l}s remaining"
+                     .format(t=t.secs, i=self.iterations,
+                             l=(timeLeft_ms/1000 - t.secs)))
 
     def __do_turn(self, timeLeft_ms):
         """Callback for when the brain has to make a decision"""
@@ -69,9 +71,12 @@ class Brain:
             equity = self.preflop_equity[repr(hand)]
         else:
             simulator = HandSimulator(hand, self.data.table_cards)
-            equity = simulator.simulate(1500)
+            best_hand, score = simulator.best_hand()
+            self.bot.log("best 5: {b} score: {s}" \
+                         .format(b=str(best_hand), s=score))
+            equity = simulator.simulate(self.iterations)
 
-        self.bot.log("{h} equity: {e}, pot odds: {p}" \
+        self.bot.log("{h}, equity: {e}%, pot odds: {p}%" \
           .format(h=hand, e=equity, p=pot_odds))
 
         self.pick_action(equity, pot_odds)

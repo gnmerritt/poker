@@ -14,6 +14,13 @@ class HandSimulator(object):
         self.deck = [c for c in Card.full_deck() \
                      if not c in self.table_cards and not c in self.hand]
 
+    def best_hand(self):
+        """Returns the best hand possible given the cards the simulator knows about"""
+        if len(self.table_cards) >= 3:
+            return HandBuilder(self.hand + self.table_cards).find_hand()
+        else:
+            return self.hand
+
     def simulate(self, iterations):
         """Repeatedly run the simulation, return the % pot equity"""
         wins = 0

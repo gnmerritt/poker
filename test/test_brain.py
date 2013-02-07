@@ -52,17 +52,28 @@ class BrainTest(unittest.TestCase):
         good_equity = bot.brain.preflop_equity[repr(good_hand)]
         self.assertTrue(good_equity > bad_equity)
 
+class BettingFunctionalTests(BrainTest):
     def test_preflop_betting(self):
         """Sanity test of the preflop betting"""
-        data = self.data
         bot = MockBot()
         brain = Brain(bot)
-        brain.data = data
+        brain.data = self.data
 
         self.assertEqual(brain.pot_odds(), 12.5) # 20 to call, 140 in the pot
-
         brain.do_turn(1000)
         self.assertTrue(bot.bet_amount > 0) # shouldn't fold with a pair of aces
+
+    def test_river_betting(self):
+        """Sanity tests of betting with common cards"""
+        self.data.table_cards = [Card(C.ACE, C.SPADES),
+                                 Card(2, C.DIAMONDS),
+                                 Card(7, C.SPADES)]
+        bot = MockBot()
+        brain = Brain(bot)
+        brain.data = self.data
+        brain.iterations = 100 # smaller for unit tests
+        brain.do_turn(5000)
+        self.assertTrue(bot.bet_amount > 0)
 
 class MockBot(object):
     """For testing the brain by itself"""
