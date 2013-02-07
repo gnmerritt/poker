@@ -1,17 +1,7 @@
 PokeHer TODO list:
 
-* Pot odds
-
-** Flop hand win %
-** memoize score_hand method
-** post-flop probability
-*** flop: simulate?
-*** turn: simulate?
-*** river: exhaustive search
-* Probabilistic framework for call/raise/check/fold based on pot odds
-* Set up actions
-** background thread for picking actions
-
+* Fix pot odds to only check next card
+* game simulator
 * Automated bot vs bot framework
 ** reporting
 
@@ -21,14 +11,4 @@ PokeHer TODO list:
 ** record % hands to each street
 ** record raise sequence, use histogram for analysis?
 
-* Notes
-
-SB: The ideal raise from the small-blind is to 2-3 big-blinds, but
-with the changes (and loose play) that online poker has brought, I
-suggest raising it to 2.5-4 big-blinds.
-
-BB: . You want to either end the hand pre-flop, or end it with a solid
-continuation-bet on the flop should your opponent call your pre-flop
-bet. I'd suggest a range of 3-5 big-blinds on top of your
-already-posted blind. A raise of that size gives your opponent at best
-1.67:1 odds
+* memoize score_hand method
