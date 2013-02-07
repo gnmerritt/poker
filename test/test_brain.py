@@ -76,7 +76,7 @@ class MockBot(object):
         self.bet_amount = amount
 
     def log(self, msg):
-        pass
+        print msg
 
 class MockData(object):
     pass
