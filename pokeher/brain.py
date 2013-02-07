@@ -114,8 +114,8 @@ class Brain:
         return bet_raise
 
     def minimum_bet(self):
-        """Returns a minimum bet, 2.5 BB"""
-        bet = 2.5 * self.data.big_blind
+        """Returns a minimum bet, 2.5-4 BB"""
+        bet = self.data.big_blind * random.uniform(2, 4)
         self.bot.log("min bet of {b}".format(b=bet))
         return bet
 

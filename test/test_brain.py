@@ -62,19 +62,21 @@ class TestBrainBets(unittest.TestCase):
         d.pot = 130
         self.brain.data = d
 
+    def verify_bet(self, bet, bottom, top):
+        self.assertTrue(bet >= bottom)
+        self.assertTrue(bet <= top)
+
     def test_big_raise(self):
         """Tests the big bet range"""
         bet = self.brain.big_raise()
         pot = self.brain.data.pot
-        bottom = pot * 0.3
-        top = pot * 0.5
-        self.assertTrue(bet >= bottom)
-        self.assertTrue(bet <= top)
+        self.verify_bet(bet, pot * 0.3, pot * 0.5)
 
     def test_minimum_bet(self):
         """Tests the minimum bet range"""
         bb = self.brain.data.big_blind
-        self.assertEqual(self.brain.minimum_bet(), 2.5 * bb)
+        bet = self.brain.minimum_bet()
+        self.verify_bet(bet, bb * 2, bb * 4)
 
 class BettingFunctionalTests(BrainTest):
     """End-to-end tests with cards and everything"""
