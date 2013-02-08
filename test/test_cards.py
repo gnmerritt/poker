@@ -10,16 +10,6 @@ class SuitTest(unittest.TestCase):
             suit2 = Suit(i)
             self.assertEqual(suit1, suit2)
 
-    def test_bad_suit_values(self):
-        """Tests the range of the suit constructor"""
-        for i in range(-1, 12, 5):
-            try:
-                Suit(i)
-            except AssertionError:
-                pass
-            else:
-                self.fail('Suit({value}) allowed'.format(value=i))
-
 class CardTest(unittest.TestCase):
     def test_card_slots(self):
         """Makes sure slots are active on Card"""

@@ -62,23 +62,25 @@ class HandBuilder(object):
         return best_hand, best_hand_score
 
     def score_hand(self):
-        """Returns the HandScore of a 5-card hand"""
+        """Returns the HandScore of a 5-card hand
+        This guy runs fast. Don't feed it bad entries"""
         score = HandScore()
-        if not self.cards or len(self.cards) != self.HAND_LENGTH:
-            return score
+        # removed these for speed reasons, will be more careful about input
+        #if not self.cards or len(self.cards) != self.HAND_LENGTH:
+        #            return score
 
         # Find any pairs, triples or quads in the hand and score them
         score.type = HandScore.HIGH_CARD
 
-        seen = [0]*13
+        seen = [None,None] + [0]*13
         for card in self.cards:
             # card values run 2-15 instead of 0-13
-            seen[card.value-2] += 1
+            seen[card.value] += 1
 
         # sort by # of times each value was seen
         # this puts quads in front of triples in front of pairs etc
         # if there aren't any pairs, then this sorts by rank order
-        self.cards.sort(key=lambda card: (seen[card.value-2], card.value),
+        self.cards.sort(key=lambda card: (seen[card.value], card.value),
                         reverse=True)
         # this function also sets the handscore if there are any pairs etc.
         score.kicker = tuple(self.score_cards_to_ranks(score))
@@ -100,8 +102,6 @@ class HandBuilder(object):
             else:
                 score.type = HandScore.STRAIGHT
 
-        # straights and flushes are both sorted in descending order
-        score.kicker = tuple(self.cards_to_ranks())
         return score
 
     def score_cards_to_ranks(self, score):
@@ -136,7 +136,7 @@ class HandBuilder(object):
         last_card = None
         for card in self.cards:
             if last_card:
-                gap = self.__gap(last_card, card)
+                gap = last_card.value - card.value
                 if gap != 1:
                     return False
             last_card = card
@@ -150,9 +150,6 @@ class HandBuilder(object):
         """Sorts a hand, high values first"""
         sort_key = lambda card: card.value
         self.cards.sort(key=sort_key,reverse=True)
-
-    def __gap(self, card1, card2):
-        return card1.value - card2.value
 
     def select_flush_suit(self):
         """If all cards match suit, return the suit. Return None otherwise."""
