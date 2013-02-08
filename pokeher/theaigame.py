@@ -134,8 +134,8 @@ class TurnParser(AiGameParser):
       bot_0 post 10 (ignored)
       bot_1 post 20 (ignored)
       bot_1 fold 0 (ignored)
-      bot_0 wins 30 (ignored)
 
+      bot_0 wins 30
       Match sidepots [10]
       bot_0 raise 20
       bot_0 hand [6c,Jc]
@@ -144,7 +144,7 @@ class TurnParser(AiGameParser):
       go 5000 (transformed into go go 5000)
     """
     BOT_DATA = ['raise', 'call', 'wins', 'check', 'hand']
-    IGNORED_ACTIONS = ['fold']
+    IGNORED_ACTIONS = ['fold', 'post', 'stack']
 
     def __init__(self, data, goCallback):
         self._data = data

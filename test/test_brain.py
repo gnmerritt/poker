@@ -99,7 +99,7 @@ class BettingFunctionalTests(BrainTest):
         brain = Brain(bot)
         brain.data = self.data
         brain.iterations = 100 # smaller for unit tests
-        brain.do_turn(5000)
+        brain.do_turn(500)
         self.assertTrue(bot.raise_amount > 0)
 
 class MockBot(object):

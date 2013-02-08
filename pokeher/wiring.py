@@ -34,6 +34,7 @@ class IOPokerBot(object):
     def write_line(self, line, dest):
         if line and dest:
             dest.write(line)
+            dest.write('\n')
             dest.flush()
 
 class BufferPokerBot(IOPokerBot):

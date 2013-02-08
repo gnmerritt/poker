@@ -14,7 +14,7 @@ class Brain:
             self.bot = bot
             self.load_realtime_data()
             self.load_precalc_data()
-            self.iterations = 2000
+            self.iterations = 400
         self.bot.log("Brain started up in {t} secs".format(t=t.secs))
 
     def load_realtime_data(self):

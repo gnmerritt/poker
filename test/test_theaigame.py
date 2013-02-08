@@ -36,6 +36,8 @@ class CardBuilderTest(unittest.TestCase):
         b = CardBuilder()
         self.assertTrue(b.is_card_list('[Th,3d]'))
         self.assertFalse(b.is_card_list('3nkjnxu903'))
+        self.assertFalse(b.is_card_list('[10,22]'))
+        self.assertTrue(b.is_card_list('[Qh,Ah,2s,5s,9s]'))
 
 class SettingsParserTest(unittest.TestCase):
     def test_parse_settings(self):

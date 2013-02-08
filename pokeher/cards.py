@@ -1,13 +1,11 @@
 import functools
-from handscore import *
 
 @functools.total_ordering
 class Suit(object):
     SUITS = ("Clubs", "Diamonds", "Hearts", "Spades")
-    __slots__ = ('suit')
 
+    __slots__ = ('suit')
     def __init__(self, suit):
-        assert suit >= 0 and suit < len(self.SUITS)
         self.suit = suit
 
     def __repr__(self):
@@ -25,13 +23,9 @@ class Suit(object):
 class Card(object):
     """Card value"""
     FACES = (None,None) + tuple(range(2, 11)) + ("J", "Q", "K", "A")
+
     __slots__ = ('value', 'suit')
-
     def __init__(self, value, suit):
-        assert value > 1
-        assert value < len(self.FACES)
-        assert isinstance(suit, Suit)
-
         self.value = value
         self.suit = suit
 
