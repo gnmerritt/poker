@@ -2,19 +2,11 @@ import unittest
 from pokeher.cards import *
 from pokeher.cards import Constants as C
 
-class SuitTest(unittest.TestCase):
-    def test_eq(self):
-        """Makes two instances of each suit and makes sure they're equal"""
-        for i in range(0, 3):
-            suit1 = Suit(i)
-            suit2 = Suit(i)
-            self.assertEqual(suit1, suit2)
-
 class CardTest(unittest.TestCase):
     def test_card_slots(self):
         """Makes sure slots are active on Card"""
         try:
-            c = Card(3, Suit(3))
+            c = Card(3, 3)
             c.extra = 'fail'
         except AttributeError:
             pass
@@ -25,7 +17,7 @@ class CardTest(unittest.TestCase):
         """Tests the card equals function, and that we can make a full deck"""
         cards = []
         for i in range(0, 4):
-            suit = Suit(i)
+            suit = i
             for j in range(2, 15):
                 card1 = Card(j, suit)
                 card2 = Card(j, suit)

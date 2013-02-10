@@ -1,28 +1,10 @@
 import functools
 
 @functools.total_ordering
-class Suit(object):
-    SUITS = ("Clubs", "Diamonds", "Hearts", "Spades")
-
-    __slots__ = ('suit')
-    def __init__(self, suit):
-        self.suit = suit
-
-    def __repr__(self):
-        return self.SUITS[self.suit]
-
-    def __eq__(self, other):
-        if isinstance(other, Suit):
-            return self.suit == other.suit
-        return NotImplemented
-
-    def __lt__(self, other):
-        return self.suit < other.suit
-
-@functools.total_ordering
 class Card(object):
-    """Card value"""
+    """Card value - ordinal & suit"""
     FACES = (None,None) + tuple(range(2, 11)) + ("J", "Q", "K", "A")
+    SUITS = ("Clubs", "Diamonds", "Hearts", "Spades")
 
     __slots__ = ('value', 'suit')
     def __init__(self, value, suit):
@@ -35,17 +17,12 @@ class Card(object):
     def is_suited(self, other):
         return self.suit == other.suit
 
-    def score_value(self):
-        if self.value < 10:
-            return .01 * self.value
-        else:
-            return 0.1 * self.value
-
     def __repr__(self):
-        return '{self.value}{self.suit.suit}'.format(self=self)
+        return '{self.value}{self.suit}'.format(self=self)
 
     def __str__(self):
-        return '{value}-{suit}'.format(value=self.FACES[self.value], suit=str(self.suit))
+        return '{value}-{suit}'.format(value=self.FACES[self.value],
+                                       suit=self.SUITS[self.suit])
 
     def __eq__(self, other):
         if isinstance(other, Card):
@@ -61,7 +38,7 @@ class Card(object):
     def full_deck():
         """Returns a full deck of cards"""
         deck = []
-        suits = (Suit(s) for s in range(0,4))
+        suits = range(0,4)
         for suit in suits:
             cards = (Card(c, suit) for c in range(2,15))
             for card in cards:
@@ -69,9 +46,8 @@ class Card(object):
         return deck
 
     @staticmethod
-    def one_suit(suit_value):
+    def one_suit(suit):
         """Returns a single suit in a list"""
-        suit = Suit(suit_value)
         return list(Card(c, suit) for c in range(2,15))
 
 class Hand(object):
@@ -113,10 +89,10 @@ class Hand(object):
         return self.card_gap() == 0
 
 class Constants(object):
-    CLUBS = Suit(0)
-    DIAMONDS = Suit(1)
-    HEARTS = Suit(2)
-    SPADES = Suit(3)
+    CLUBS = 0
+    DIAMONDS = 1
+    HEARTS = 2
+    SPADES = 3
 
     # Can use real numbers for everything else
     JACK = 11

@@ -156,10 +156,9 @@ class HandBuilder(object):
         if not self.cards:
             return None
 
-        suit = self.cards[0].suit.suit
+        suit = self.cards[0].suit
         for card in self.cards:
-            value = card.suit.suit
-            if suit != value:
+            if suit != card.suit:
                 return None
 
         return suit
