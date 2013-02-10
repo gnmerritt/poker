@@ -6,6 +6,9 @@ class Card(object):
     FACES = (None,None) + tuple(range(2, 11)) + ("J", "Q", "K", "A")
     SUITS = ("Clubs", "Diamonds", "Hearts", "Spades")
 
+    AIG_FACES = (None,None) + tuple(range(2, 10)) + ("T", "J", "Q", "K", "A")
+    AIG_SUITS = ("c", "d", "h", "s")
+
     __slots__ = ('value', 'suit')
     def __init__(self, value, suit):
         self.value = value
@@ -24,6 +27,11 @@ class Card(object):
         return '{value}-{suit}'.format(value=self.FACES[self.value],
                                        suit=self.SUITS[self.suit])
 
+    def aigames_str(self):
+        """Returns theaigames card representation"""
+        return '{value}{suit}'.format(value=self.AIG_FACES[self.value],
+                                       suit=self.AIG_SUITS[self.suit])
+
     def __eq__(self, other):
         if isinstance(other, Card):
             return self.value == other.value and self.suit == other.suit
@@ -33,6 +41,18 @@ class Card(object):
         """Implements compare for Cards. Check value, then suit"""
         return ((self.value, self.suit) <
                 (other.value, other.suit))
+
+    @staticmethod
+    def to_aigames_list(card_list):
+        """Converts a list of our card objects into theaigames equivalent"""
+        if not card_list:
+            return None
+        buff = ['[']
+        for card in card_list:
+            buff.append(card.aigames_str())
+            buff.append(',')
+        buff[len(buff) - 1] = ']' # replace last , with a closing brace
+        return "".join(buff)
 
     @staticmethod
     def full_deck():
