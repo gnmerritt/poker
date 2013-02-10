@@ -72,9 +72,9 @@ class HandBuilder(object):
         # Find any pairs, triples or quads in the hand and score them
         score.type = HandScore.HIGH_CARD
 
+        # card values run 2-15 instead of 0-13
         seen = [None,None] + [0]*13
         for card in self.cards:
-            # card values run 2-15 instead of 0-13
             seen[card.value] += 1
 
         # sort by # of times each value was seen
