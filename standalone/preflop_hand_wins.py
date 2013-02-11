@@ -58,9 +58,11 @@ if __name__ == '__main__':
         if argument == "profile":
             import cProfile
             from subprocess import call
-            cProfile.run('calculate(10)', 'hands_profile')
-            call(['pyprof2calltree', '-i', 'hands_profile', '-o', 'hands_profile.out'])
-            call(['kcachegrind', 'hands_profile.out'])
+            cprof_file = os.path.join('data', 'hands_profile')
+            calltree_file = os.path.join('data', 'hands_profile.out')
+            cProfile.run('calculate(10)', cprof_file)
+            call(['pyprof2calltree', '-i', cprof_file, '-o', calltree_file])
+            call(['kcachegrind', calltree_file])
         else:
             calculate(int(argument))
     else:
