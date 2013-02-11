@@ -7,7 +7,3 @@ class Holdem(object):
 
     def max_players(self):
         return 10
-
-    def play_game(self):
-        """"""
-        pass

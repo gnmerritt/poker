@@ -51,7 +51,7 @@ class Card(object):
         for card in card_list:
             buff.append(card.aigames_str())
             buff.append(',')
-        buff[len(buff) - 1] = ']' # replace last , with a closing brace
+        buff[len(buff) - 1] = ']' # replace last ',' with a closing brace
         return "".join(buff)
 
     @staticmethod
