@@ -10,7 +10,7 @@ class Card(object):
     AIG_SUITS = ("c", "d", "h", "s")
 
     __slots__ = ('value', 'suit')
-    def __init__(self, value, suit):
+    def __init__(self, int value, int suit):
         self.value = value
         self.suit = suit
 
