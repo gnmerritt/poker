@@ -1,6 +1,7 @@
 import sys
 import unittest
 from pokeher.theaigame import *
+import pokeher.cards as cards
 
 class CardBuilderTest(unittest.TestCase):
     def test_from_string(self):
@@ -29,11 +30,11 @@ class CardBuilderTest(unittest.TestCase):
         for case in cases:
             us, aig_str = case
             self.assertEqual(us, b.from_list(aig_str))
-            self.assertEqual(aig_str, Card.to_aigames_list(us))
+            self.assertEqual(aig_str, cards.to_aigames_list(us))
 
     def test_all_cards_aig(self):
         """For every card, verify that we can go to/from the aig string"""
-        deck = Card.full_deck()
+        deck = cards.full_deck()
         b = CardBuilder()
         for card in deck:
             card_string = card.aigames_str()

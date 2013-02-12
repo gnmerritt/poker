@@ -3,7 +3,7 @@ import sys, itertools, random, os, time
 
 sys.path.append('/Users/nathan/sources/poker/')
 
-from pokeher.cards import Card, Hand
+import pokeher.cards as c
 from pokeher.hand_simulator import HandSimulator
 from pokeher.utility import MathUtils
 
@@ -15,14 +15,14 @@ class PreflopCalculator(object):
 
     def run(self, tries):
         """Calculates the win % for each preflop hand, returns the mapping"""
-        cards = Card.full_deck()
+        cards = c.full_deck()
         self.wins = {}
         self.tries = tries
         count = 0
 
         for two_cards in itertools.combinations(cards, 2):
             t1 = time.clock()
-            hand = Hand(two_cards[0], two_cards[1])
+            hand = c.Hand(two_cards[0], two_cards[1])
             simulator = HandSimulator(hand)
             percent_pots_won = simulator.simulate(tries)
 

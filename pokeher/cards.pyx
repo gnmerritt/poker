@@ -1,23 +1,22 @@
-import functools
 
-@functools.total_ordering
-class Card(object):
+cdef class Card:
     """Card value - ordinal & suit"""
+    cdef readonly int value, suit
+
     FACES = (None,None) + tuple(range(2, 11)) + ("J", "Q", "K", "A")
     SUITS = ("Clubs", "Diamonds", "Hearts", "Spades")
 
     AIG_FACES = (None,None) + tuple(range(2, 10)) + ("T", "J", "Q", "K", "A")
     AIG_SUITS = ("c", "d", "h", "s")
 
-    __slots__ = ('value', 'suit')
     def __init__(self, int value, int suit):
         self.value = value
         self.suit = suit
 
-    def is_pair(self, other):
+    cpdef bint is_pair(self, Card other):
         return self.value == other.value
 
-    def is_suited(self, other):
+    cpdef bint is_suited(self, Card other):
         return self.suit == other.suit
 
     def __repr__(self):
@@ -32,43 +31,64 @@ class Card(object):
         return '{value}{suit}'.format(value=self.AIG_FACES[self.value],
                                        suit=self.AIG_SUITS[self.suit])
 
-    def __eq__(self, other):
-        if isinstance(other, Card):
-            return self.value == other.value and self.suit == other.suit
-        return NotImplemented
+    def __richcmp__(Card self, Card other not None, int op):
+        """Cython equivalent of functools.totalordering
+        Implements compare for Cards. Check value, then suit"""
+        cdef int compare
+        if self.value > other.value:
+            compare = 1
+        elif self.value < other.value:
+            compare = -1
+        else:
+            if self.suit > other.suit:
+                compare = 1
+            elif self.suit < other.suit:
+                compare = -1
+            else:
+                compare = 0
 
-    def __lt__(self, other):
-        """Implements compare for Cards. Check value, then suit"""
-        return ((self.value, self.suit) <
-                (other.value, other.suit))
+        if op == 2: # ==
+            return compare == 0
+        elif op == 3: # !=
+            return compare != 0
+        if op == 0: # <
+            return compare < 0
+        elif op == 1: # <=
+            return compare <= 0
+        elif op == 4: # >
+            return compare > 0
+        elif op == 5: # >=
+            return compare >= 0
 
-    @staticmethod
-    def to_aigames_list(card_list):
-        """Converts a list of our card objects into theaigames equivalent"""
-        if not card_list:
-            return None
-        buff = ['[']
-        for card in card_list:
-            buff.append(card.aigames_str())
-            buff.append(',')
-        buff[len(buff) - 1] = ']' # replace last ',' with a closing brace
-        return "".join(buff)
 
-    @staticmethod
-    def full_deck():
-        """Returns a full deck of cards"""
-        deck = []
-        suits = range(0,4)
-        for suit in suits:
-            cards = (Card(c, suit) for c in range(2,15))
-            for card in cards:
-                deck.append(card)
-        return deck
+"""Functions for generating lists of cards
+"""
 
-    @staticmethod
-    def one_suit(suit):
-        """Returns a single suit in a list"""
-        return list(Card(c, suit) for c in range(2,15))
+def to_aigames_list(card_list):
+    """Converts a list of our card objects into theaigames equivalent"""
+    if not card_list:
+        return None
+    buff = ['[']
+    for card in card_list:
+        buff.append(card.aigames_str())
+        buff.append(',')
+    buff[len(buff) - 1] = ']' # replace last ',' with a closing brace
+    return "".join(buff)
+
+def full_deck():
+    """Returns a full deck of cards"""
+    cdef int suit, c
+
+    deck = []
+    for suit in range(0,4):
+        for c in range(2,15):
+            deck.append(Card(c, suit))
+    return deck
+
+def one_suit(int suit):
+    """Returns a single suit in a list"""
+    cdef int c
+    return list(Card(c, suit) for c in range(2,15))
 
 class Hand(object):
     """Player's hand of cards"""
