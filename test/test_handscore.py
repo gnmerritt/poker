@@ -1,6 +1,6 @@
 import unittest
 from pokeher.cards import *
-from pokeher.cards import Constants as C
+import pokeher.constants as C
 from pokeher.handscore import *
 
 class HandScoreTest(unittest.TestCase):

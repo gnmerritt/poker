@@ -107,15 +107,3 @@ class Hand(object):
     def is_connected(self):
         """Returns whether the hand is connected"""
         return self.card_gap() == 0
-
-class Constants(object):
-    CLUBS = 0
-    DIAMONDS = 1
-    HEARTS = 2
-    SPADES = 3
-
-    # Can use real numbers for everything else
-    JACK = 11
-    QUEEN = 12
-    KING = 13
-    ACE = 14

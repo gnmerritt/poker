@@ -3,7 +3,7 @@ from pokeher.wiring import BufferPokerBot
 from pokeher.theaigame import TheAiGameParserDelegate, TheAiGameActionDelegate
 from pokeher.brain import Brain
 from pokeher.cards import Card, Hand
-from pokeher.cards import Constants as C
+import pokeher.constants as C
 
 class BrainTestBot(BufferPokerBot, TheAiGameParserDelegate, TheAiGameActionDelegate):
     def log(self, msg):

@@ -1,7 +1,7 @@
 import unittest
 from pokeher.chen import *
 from pokeher.cards import *
-from pokeher.cards import Constants as C
+import pokeher.constants as C
 
 class ChenScoreTest(unittest.TestCase):
 

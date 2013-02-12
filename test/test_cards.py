@@ -1,6 +1,6 @@
 import unittest
 from pokeher.cards import *
-from pokeher.cards import Constants as C
+import pokeher.constants as C
 
 class CardTest(unittest.TestCase):
     def test_card_slots(self):
