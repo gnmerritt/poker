@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import sys
 from wiring import IOPokerBot
 from theaigame import TheAiGameParserDelegate, TheAiGameActionDelegate

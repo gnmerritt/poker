@@ -1,2 +1,5 @@
 build/*
 *.pyc
+*.c
+*.so
+pokeher/*.html

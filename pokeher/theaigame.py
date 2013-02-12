@@ -1,6 +1,6 @@
 import re
 from cards import *
-from cards import Constants as C
+import constants as C
 from wiring import Parser,GameParserDelegate
 
 class CardBuilder(object):

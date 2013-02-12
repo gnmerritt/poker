@@ -1,7 +1,8 @@
-import functools
+cimport cython_util as util
+cimport cards
+import cards
 import itertools
 
-@functools.total_ordering
 class HandScore(object):
     NO_SCORE = -1 # when we haven't calculated the score yet
     HIGH_CARD = 0
@@ -14,7 +15,6 @@ class HandScore(object):
     QUADS = 7
     STRAIGHT_FLUSH = 8
 
-    __slots__ = ('type', 'kicker')
     def __init__(self, type=NO_SCORE, kicker=NO_SCORE):
         """type should be one of the hand types defined here
         kicker is a tuple of card values sorted based on the hand type
@@ -22,6 +22,11 @@ class HandScore(object):
         """
         self.type = type
         self.kicker = kicker
+
+    # def __richcmp__(HandScore self, HandScore other not None, int op):
+    #     cdef int compare
+
+    #     return util.richcmp_helper(compare, int)
 
     def __eq__(self, other):
         return (self.type, self.kicker) == \
@@ -34,10 +39,12 @@ class HandScore(object):
     def __repr__(self):
         return '{self.type}, {self.kicker}'.format(self=self)
 
+cdef enum:
+    HAND_LENGTH = 5
+
 class HandBuilder(object):
     """Makes the best hand from a given set of cards, scores hands
     """
-    HAND_LENGTH = 5
 
     __slots__ = ('cards')
     def __init__(self, cards):
@@ -48,12 +55,12 @@ class HandBuilder(object):
 
     def find_hand(self):
         """Returns the best hand & score of length HAND_LENGTH"""
-        if not self.cards or len(self.cards) < self.HAND_LENGTH:
+        if not self.cards or len(self.cards) < HAND_LENGTH:
             return None, None
 
         best_hand_score = HandScore()
         best_hand = None
-        for hand in itertools.combinations(self.cards, self.HAND_LENGTH):
+        for hand in itertools.combinations(self.cards, HAND_LENGTH):
             score = HandBuilder(list(hand)).score_hand()
 
             if score > best_hand_score:
@@ -64,17 +71,18 @@ class HandBuilder(object):
     def score_hand(self):
         """Returns the HandScore of a 5-card hand
         This guy runs fast. Don't feed it bad entries"""
+        cdef cards.Card card
+
         score = HandScore()
-        # removed these for speed reasons, will be more careful about input
-        #if not self.cards or len(self.cards) != self.HAND_LENGTH:
-        #            return score
+        if not self.cards or len(self.cards) != HAND_LENGTH:
+            return score
 
         # Find any pairs, triples or quads in the hand and score them
         score.type = HandScore.HIGH_CARD
 
+        # card values run 2-15 instead of 0-13
         seen = [None,None] + [0]*13
         for card in self.cards:
-            # card values run 2-15 instead of 0-13
             seen[card.value] += 1
 
         # sort by # of times each value was seen
@@ -92,7 +100,7 @@ class HandBuilder(object):
 
         # Do we have a flush?
         flush_suit = self.select_flush_suit()
-        if flush_suit is not None:
+        if flush_suit != -1:
             score.type = HandScore.FLUSH
 
         # Is there a straight?
@@ -106,6 +114,9 @@ class HandBuilder(object):
 
     def score_cards_to_ranks(self, score):
         """Goes through a list of cards sorted by quad/trip/pair and set the hand score."""
+        cdef int last_value, run
+        cdef cards.Card card
+
         last_value = -1
         run = 0
         for card in self.cards:
@@ -133,17 +144,21 @@ class HandBuilder(object):
 
     def is_straight(self):
         """returns True if this hand is a straight, false otherwise"""
-        last_card = None
+        cdef int last_value
+        cdef cards.Card card
+
+        last_value = -1
         for card in self.cards:
-            if last_card:
-                gap = last_card.value - card.value
+            if last_value > 0:
+                gap = last_value - card.value
                 if gap != 1:
                     return False
-            last_card = card
+            last_value = card.value
         return True
 
     def cards_to_ranks(self):
         """Returns a generator of the ranks of our cards"""
+        cdef cards.Card card
         return (card.value for card in self.cards)
 
     def sort_hand(self):
@@ -153,13 +168,15 @@ class HandBuilder(object):
 
     def select_flush_suit(self):
         """If all cards match suit, return the suit. Return None otherwise."""
-        if not self.cards:
-            return None
+        cdef int suit
+        cdef cards.Card card
 
-        suit = self.cards[0].suit.suit
+        if not self.cards:
+            return -1
+
+        suit = self.cards[0].suit
         for card in self.cards:
-            value = card.suit.suit
-            if suit != value:
-                return None
+            if suit != card.suit:
+                return -1
 
         return suit

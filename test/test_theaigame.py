@@ -1,6 +1,7 @@
 import sys
 import unittest
 from pokeher.theaigame import *
+import pokeher.cards as cards
 
 class CardBuilderTest(unittest.TestCase):
     def test_from_string(self):
@@ -16,28 +17,46 @@ class CardBuilderTest(unittest.TestCase):
         self.assertEqual(b.from_2char('Ad'), Card(C.ACE, C.DIAMONDS))
         self.assertEqual(b.from_2char('2c'), Card(2, C.CLUBS))
 
-    def test_from_list(self):
+    def test_to_from_list(self):
         """Tests building a list of cards from a theaigame hand or table token"""
         b = CardBuilder()
 
-        self.assertFalse(b.from_list(None))
         self.assertFalse(b.from_list('asdf2njks92'))
 
-        answer1 = [Card(10, C.HEARTS), Card(3, C.DIAMONDS)]
-        self.assertEqual(b.from_list('[Th,3d]'), answer1)
-        answer1.reverse()
-        self.assertEqual(b.from_list('[3d,Th]'), answer1)
+        cases = [([Card(10, C.HEARTS), Card(3, C.DIAMONDS)], '[Th,3d]'),
+                 ([Card(3, C.DIAMONDS), Card(10, C.HEARTS)], '[3d,Th]'),
+                 ([Card(10, C.CLUBS), Card(8, C.DIAMONDS), Card(9, C.CLUBS)], '[Tc,8d,9c]')]
 
-        answer2 = [Card(10, C.CLUBS), Card(8, C.DIAMONDS), Card(9, C.CLUBS)]
-        self.assertEqual(b.from_list(' [Tc,8d,9c]   '), answer2)
+        for case in cases:
+            us, aig_str = case
+            self.assertEqual(us, b.from_list(aig_str))
+            self.assertEqual(aig_str, cards.to_aigames_list(us))
+
+    def test_all_cards_aig(self):
+        """For every card, verify that we can go to/from the aig string"""
+        deck = cards.full_deck()
+        b = CardBuilder()
+        for card in deck:
+            card_string = card.aigames_str()
+            self.assertEqual(card, b.from_2char(card_string))
 
     def test_is_card_list(self):
-        """Checks that the card builder returns list of cards"""
+        """Checks that the card builder returns list of card"""
         b = CardBuilder()
         self.assertTrue(b.is_card_list('[Th,3d]'))
         self.assertFalse(b.is_card_list('3nkjnxu903'))
         self.assertFalse(b.is_card_list('[10,22]'))
         self.assertTrue(b.is_card_list('[Qh,Ah,2s,5s,9s]'))
+
+    def test_to_from_aig_format(self):
+        """Checks that we can go to/from the AIG format"""
+        b = CardBuilder()
+        c = Card(10, C.DIAMONDS)
+        self.assertEqual(c, b.from_2char(c.aigames_str()))
+
+        c2 = Card(C.ACE, C.HEARTS)
+        self.assertEqual(c2, b.from_2char(c2.aigames_str()))
+        self.assertNotEqual(c, b.from_2char(c2.aigames_str()))
 
 class SettingsParserTest(unittest.TestCase):
     def test_parse_settings(self):

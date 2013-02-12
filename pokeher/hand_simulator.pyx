@@ -1,5 +1,6 @@
 import random
-from cards import Card
+cimport cards as cards
+import cards as cards
 from handscore import HandBuilder
 from utility import MathUtils
 
@@ -11,7 +12,7 @@ class HandSimulator(object):
     def __init__(self, hand, table_cards=[]):
         self.hand = [hand.high, hand.low]
         self.table_cards = table_cards
-        self.deck = [c for c in Card.full_deck() \
+        self.deck = [c for c in cards.full_deck() \
                      if not c in self.table_cards and not c in self.hand]
 
     def best_hand(self):

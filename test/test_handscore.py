@@ -1,6 +1,6 @@
 import unittest
 from pokeher.cards import *
-from pokeher.cards import Constants as C
+import pokeher.constants as C
 from pokeher.handscore import *
 
 class HandScoreTest(unittest.TestCase):
@@ -32,10 +32,10 @@ class HandBuilderTest(unittest.TestCase):
     def test_flush_finder_empty(self):
         """Tests that select_flush_suit degrades gracefully"""
         hb = HandBuilder([])
-        self.assertEqual(None, hb.select_flush_suit())
+        self.assertEqual(-1, hb.select_flush_suit())
 
         hb = HandBuilder(None)
-        self.assertEqual(None, hb.select_flush_suit())
+        self.assertEqual(-1, hb.select_flush_suit())
 
     def test_flush_finder(self):
         """Tests the flush finder"""
@@ -43,15 +43,14 @@ class HandBuilderTest(unittest.TestCase):
         self.assertFalse(hb.select_flush_suit())
 
         hb2 = HandBuilder(self.cards2)
-        self.assertEqual(C.CLUBS.suit, hb2.select_flush_suit())
+        self.assertEqual(C.CLUBS, hb2.select_flush_suit())
 
         hb3 = HandBuilder(self.cards3)
-        self.assertFalse(hb3.select_flush_suit())
+        self.assertEqual(-1, hb3.select_flush_suit())
 
         hb4 = HandBuilder(self.cards4)
-        self.assertEqual(C.CLUBS.suit, hb4.select_flush_suit())
+        self.assertEqual(C.CLUBS, hb4.select_flush_suit())
 
-    @unittest.skip("removed safety checks. speed!")
     def test_score_hand_empty(self):
         """Tests that the HB doesn't explode for bad entries"""
         hb = HandBuilder([])
