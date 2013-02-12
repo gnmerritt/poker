@@ -65,9 +65,8 @@ class HandBuilder(object):
         """Returns the HandScore of a 5-card hand
         This guy runs fast. Don't feed it bad entries"""
         score = HandScore()
-        # removed these for speed reasons, will be more careful about input
-        #if not self.cards or len(self.cards) != self.HAND_LENGTH:
-        #            return score
+        if not self.cards or len(self.cards) != self.HAND_LENGTH:
+            return score
 
         # Find any pairs, triples or quads in the hand and score them
         score.type = HandScore.HIGH_CARD
@@ -92,7 +91,7 @@ class HandBuilder(object):
 
         # Do we have a flush?
         flush_suit = self.select_flush_suit()
-        if flush_suit is not None:
+        if flush_suit != -1:
             score.type = HandScore.FLUSH
 
         # Is there a straight?
@@ -106,6 +105,8 @@ class HandBuilder(object):
 
     def score_cards_to_ranks(self, score):
         """Goes through a list of cards sorted by quad/trip/pair and set the hand score."""
+        cdef int last_value, run
+
         last_value = -1
         run = 0
         for card in self.cards:
@@ -133,13 +134,15 @@ class HandBuilder(object):
 
     def is_straight(self):
         """returns True if this hand is a straight, false otherwise"""
-        last_card = None
+        cdef int last_value
+
+        last_value = -1
         for card in self.cards:
-            if last_card:
-                gap = last_card.value - card.value
+            if last_value > 0:
+                gap = last_value - card.value
                 if gap != 1:
                     return False
-            last_card = card
+            last_value = card.value
         return True
 
     def cards_to_ranks(self):
@@ -153,12 +156,14 @@ class HandBuilder(object):
 
     def select_flush_suit(self):
         """If all cards match suit, return the suit. Return None otherwise."""
+        cdef int suit
+
         if not self.cards:
-            return None
+            return -1
 
         suit = self.cards[0].suit
         for card in self.cards:
             if suit != card.suit:
-                return None
+                return -1
 
         return suit
