@@ -1,4 +1,5 @@
 import random
+cimport cards as cards
 import cards as cards
 from handscore import HandBuilder
 from utility import MathUtils

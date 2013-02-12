@@ -2,22 +2,20 @@ cimport cython_util as util
 
 cdef class Card:
     """Card value - ordinal & suit"""
-    cdef readonly int value, suit
-
     FACES = (None,None) + tuple(range(2, 11)) + ("J", "Q", "K", "A")
     SUITS = ("Clubs", "Diamonds", "Hearts", "Spades")
 
     AIG_FACES = (None,None) + tuple(range(2, 10)) + ("T", "J", "Q", "K", "A")
     AIG_SUITS = ("c", "d", "h", "s")
 
-    def __init__(self, int value, int suit):
-        self.value = value
-        self.suit = suit
+    def __cinit__(self, int val, int s):
+        self.value = val
+        self.suit = s
 
-    cpdef bint is_pair(self, Card other):
+    def is_pair(self, Card other):
         return self.value == other.value
 
-    cpdef bint is_suited(self, Card other):
+    def is_suited(self, Card other):
         return self.suit == other.suit
 
     def __repr__(self):

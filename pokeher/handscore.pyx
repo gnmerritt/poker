@@ -1,7 +1,7 @@
-import functools
+cimport cython_util as util
+cimport cards
 import itertools
 
-@functools.total_ordering
 class HandScore(object):
     NO_SCORE = -1 # when we haven't calculated the score yet
     HIGH_CARD = 0
@@ -14,7 +14,6 @@ class HandScore(object):
     QUADS = 7
     STRAIGHT_FLUSH = 8
 
-    __slots__ = ('type', 'kicker')
     def __init__(self, type=NO_SCORE, kicker=NO_SCORE):
         """type should be one of the hand types defined here
         kicker is a tuple of card values sorted based on the hand type
@@ -22,6 +21,11 @@ class HandScore(object):
         """
         self.type = type
         self.kicker = kicker
+
+    # def __richcmp__(HandScore self, HandScore other not None, int op):
+    #     cdef int compare
+
+    #     return util.richcmp_helper(compare, int)
 
     def __eq__(self, other):
         return (self.type, self.kicker) == \
@@ -135,6 +139,7 @@ class HandBuilder(object):
     def is_straight(self):
         """returns True if this hand is a straight, false otherwise"""
         cdef int last_value
+        #cdef Card card
 
         last_value = -1
         for card in self.cards:
@@ -157,6 +162,7 @@ class HandBuilder(object):
     def select_flush_suit(self):
         """If all cards match suit, return the suit. Return None otherwise."""
         cdef int suit
+        #cdef Card card
 
         if not self.cards:
             return -1
