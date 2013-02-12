@@ -1,5 +1,6 @@
 cimport cython_util as util
 cimport cards
+import cards
 import itertools
 
 class HandScore(object):
@@ -38,10 +39,12 @@ class HandScore(object):
     def __repr__(self):
         return '{self.type}, {self.kicker}'.format(self=self)
 
+cdef enum:
+    HAND_LENGTH = 5
+
 class HandBuilder(object):
     """Makes the best hand from a given set of cards, scores hands
     """
-    HAND_LENGTH = 5
 
     __slots__ = ('cards')
     def __init__(self, cards):
@@ -52,12 +55,12 @@ class HandBuilder(object):
 
     def find_hand(self):
         """Returns the best hand & score of length HAND_LENGTH"""
-        if not self.cards or len(self.cards) < self.HAND_LENGTH:
+        if not self.cards or len(self.cards) < HAND_LENGTH:
             return None, None
 
         best_hand_score = HandScore()
         best_hand = None
-        for hand in itertools.combinations(self.cards, self.HAND_LENGTH):
+        for hand in itertools.combinations(self.cards, HAND_LENGTH):
             score = HandBuilder(list(hand)).score_hand()
 
             if score > best_hand_score:
@@ -68,8 +71,10 @@ class HandBuilder(object):
     def score_hand(self):
         """Returns the HandScore of a 5-card hand
         This guy runs fast. Don't feed it bad entries"""
+        cdef cards.Card card
+
         score = HandScore()
-        if not self.cards or len(self.cards) != self.HAND_LENGTH:
+        if not self.cards or len(self.cards) != HAND_LENGTH:
             return score
 
         # Find any pairs, triples or quads in the hand and score them
@@ -110,6 +115,7 @@ class HandBuilder(object):
     def score_cards_to_ranks(self, score):
         """Goes through a list of cards sorted by quad/trip/pair and set the hand score."""
         cdef int last_value, run
+        cdef cards.Card card
 
         last_value = -1
         run = 0
@@ -139,7 +145,7 @@ class HandBuilder(object):
     def is_straight(self):
         """returns True if this hand is a straight, false otherwise"""
         cdef int last_value
-        #cdef Card card
+        cdef cards.Card card
 
         last_value = -1
         for card in self.cards:
@@ -152,6 +158,7 @@ class HandBuilder(object):
 
     def cards_to_ranks(self):
         """Returns a generator of the ranks of our cards"""
+        cdef cards.Card card
         return (card.value for card in self.cards)
 
     def sort_hand(self):
@@ -162,7 +169,7 @@ class HandBuilder(object):
     def select_flush_suit(self):
         """If all cards match suit, return the suit. Return None otherwise."""
         cdef int suit
-        #cdef Card card
+        cdef cards.Card card
 
         if not self.cards:
             return -1
