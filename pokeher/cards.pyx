@@ -1,4 +1,21 @@
 
+# Rich compare helper once we've constructed a compare integer
+cdef bint richcmp_helper(int compare, int op):
+    """Returns True/False for each compare operation given an op code.
+    Make sure compare does what you want it to"""
+    if op == 2: # ==
+        return compare == 0
+    elif op == 3: # !=
+        return compare != 0
+    if op == 0: # <
+        return compare < 0
+    elif op == 1: # <=
+        return compare <= 0
+    elif op == 4: # >
+        return compare > 0
+    elif op == 5: # >=
+        return compare >= 0
+
 cdef class Card:
     """Card value - ordinal & suit"""
     cdef readonly int value, suit
@@ -46,20 +63,7 @@ cdef class Card:
                 compare = -1
             else:
                 compare = 0
-
-        if op == 2: # ==
-            return compare == 0
-        elif op == 3: # !=
-            return compare != 0
-        if op == 0: # <
-            return compare < 0
-        elif op == 1: # <=
-            return compare <= 0
-        elif op == 4: # >
-            return compare > 0
-        elif op == 5: # >=
-            return compare >= 0
-
+        return richcmp_helper(compare, op)
 
 """Functions for generating lists of cards
 """
@@ -90,9 +94,10 @@ def one_suit(int suit):
     cdef int c
     return list(Card(c, suit) for c in range(2,15))
 
-class Hand(object):
+cdef class Hand:
     """Player's hand of cards"""
-    __slots__ = ('high', 'low')
+    cdef readonly Card high, low
+
     def __init__(self, card1, card2):
         if card1 > card2:
             self.high = card1
@@ -107,23 +112,32 @@ class Hand(object):
     def __str__(self):
         return '{a}, {b}'.format(a=self.high, b=self.low)
 
-    def __eq__(self, other):
-        if isinstance(other, Hand):
-            return (self.high, self.low) == (other.high, other.low)
-        return NotImplemented
+    def __richcmp__(Hand self, Hand other not None, int op):
+        if self.high > other.high:
+            compare = 1
+        elif self.high < other.high:
+            compare = -1
+        else:
+            if self.low > other.low:
+                compare = 1
+            elif self.low < other.low:
+                compare = -1
+            else:
+                compare = 0
+        return richcmp_helper(compare, op)
 
-    def is_pair(self):
+    cpdef bint is_pair(self):
         """Returns true if hand is a pair, false otherwise"""
         return self.high.value == self.low.value
 
-    def is_suited(self):
+    cpdef bint is_suited(self):
         """Returns true if other and self are the same suit, false otherwise"""
         return self.high.suit == self.low.suit
 
-    def card_gap(self):
+    cpdef int card_gap(self):
         """Returns the gap between high & low"""
         return (self.high.value - self.low.value) - 1
 
-    def is_connected(self):
+    cpdef bint is_connected(self):
         """Returns whether the hand is connected"""
         return self.card_gap() == 0
