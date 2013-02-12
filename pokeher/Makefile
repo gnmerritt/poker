@@ -1,9 +1,9 @@
 # Makefile for the Cython .so files. See setup.py
 
-all: cython
+all:
 
-cython: 
-	python setup.py build_ext --inplace
 
 clean:
 	rm *.so
+	rm *.c
+	rm *.html

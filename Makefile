@@ -1,8 +1,11 @@
+all: cython
+	$(MAKE) -C pokeher
+
+cython:
+	python setup.py build_ext --inplace
+
 test: all
 	nosetests
-
-all:
-	$(MAKE) -C pokeher
 
 clean:
 	$(MAKE) clean -C pokeher
