@@ -3,7 +3,7 @@ cimport cards
 import cards
 import itertools
 
-class HandScore(object):
+cdef enum:
     NO_SCORE = -1 # when we haven't calculated the score yet
     HIGH_CARD = 0
     PAIR = 1
@@ -15,6 +15,7 @@ class HandScore(object):
     QUADS = 7
     STRAIGHT_FLUSH = 8
 
+class HandScore(object):
     def __init__(self, type=NO_SCORE, kicker=NO_SCORE):
         """type should be one of the hand types defined here
         kicker is a tuple of card values sorted based on the hand type
@@ -78,7 +79,7 @@ class HandBuilder(object):
             return score
 
         # Find any pairs, triples or quads in the hand and score them
-        score.type = HandScore.HIGH_CARD
+        score.type = HIGH_CARD
 
         # card values run 2-15 instead of 0-13
         seen = [None,None] + [0]*13
@@ -95,20 +96,20 @@ class HandBuilder(object):
 
         # At this point, return since we can't have any pairs
         # at the same time as a straight or flush
-        if score.type > HandScore.HIGH_CARD:
+        if score.type > HIGH_CARD:
             return score
 
         # Do we have a flush?
         flush_suit = self.select_flush_suit()
         if flush_suit != -1:
-            score.type = HandScore.FLUSH
+            score.type = FLUSH
 
         # Is there a straight?
         if self.is_straight():
-            if score.type == HandScore.FLUSH:
-                score.type = HandScore.STRAIGHT_FLUSH
+            if score.type == FLUSH:
+                score.type = STRAIGHT_FLUSH
             else:
-                score.type = HandScore.STRAIGHT
+                score.type = STRAIGHT
 
         return score
 
@@ -124,23 +125,23 @@ class HandBuilder(object):
                 run += 1
             else:
                 if run == 4:
-                    score.type = HandScore.QUADS
+                    score.type = QUADS
                 elif run == 3:
-                    score.type = HandScore.TRIPS
+                    score.type = TRIPS
                 elif run == 2:
-                    if score.type == HandScore.TRIPS:
-                        score.type = HandScore.FULL_HOUSE
-                    elif score.type == HandScore.PAIR:
-                        score.type = HandScore.TWO_PAIR
+                    if score.type == TRIPS:
+                        score.type = FULL_HOUSE
+                    elif score.type == PAIR:
+                        score.type = TWO_PAIR
                     else:
-                        score.type = HandScore.PAIR
+                        score.type = PAIR
                 run = 1
             last_value = card.value
             yield card.value
 
         # the full house is the only hand where we need to match on the last card
-        if run == 2 and score.type == HandScore.TRIPS:
-            score.type = HandScore.FULL_HOUSE
+        if run == 2 and score.type == TRIPS:
+            score.type = FULL_HOUSE
 
     def is_straight(self):
         """returns True if this hand is a straight, false otherwise"""

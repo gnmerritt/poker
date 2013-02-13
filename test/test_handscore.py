@@ -7,17 +7,17 @@ class HandScoreTest(unittest.TestCase):
     def test_handscore_ordering(self):
         """Tests the total ordering on HandScore"""
         a = HandScore()
-        a.type = HandScore.HIGH_CARD
+        a.type = C.HIGH_CARD
 
         b = HandScore()
-        b.type = HandScore.HIGH_CARD
+        b.type = C.HIGH_CARD
         self.assertTrue(a == b, "scores not equal")
 
         b.kicker = C.ACE
         a.kicker = C.JACK
         self.assertTrue(a < b, "kicker doesn't work")
 
-        b.type = HandScore.FLUSH
+        b.type = C.FLUSH
         self.assertTrue(b > a, "flush didn't beat J-high")
 
 class HandBuilderTest(unittest.TestCase):
@@ -64,12 +64,12 @@ class HandBuilderTest(unittest.TestCase):
         high_card = Card(C.ACE, C.CLUBS)
         flush = self.cards1 + [high_card]
         hb_flush = HandBuilder(flush)
-        self.assertEqual(HandScore.FLUSH, hb_flush.score_hand().type, "didn't find flush")
+        self.assertEqual(C.FLUSH, hb_flush.score_hand().type, "didn't find flush")
 
         hb_s_flush = HandBuilder(self.cards2) # 10-high flush
         high_card = Card(10, C.CLUBS)
         score = hb_s_flush.score_hand()
-        self.assertEqual(HandScore.STRAIGHT_FLUSH, score.type, "didn't find straight flush")
+        self.assertEqual(C.STRAIGHT_FLUSH, score.type, "didn't find straight flush")
         self.assertEqual((10, 9, 8, 7, 6), score.kicker, "didn't get the kicker right")
 
     def test_score_hand_straight(self):
@@ -78,7 +78,7 @@ class HandBuilderTest(unittest.TestCase):
         straight = self.cards1 + [high_card] # Jack-high straight
         hb = HandBuilder(straight)
         score = hb.score_hand()
-        self.assertEqual(HandScore.STRAIGHT, score.type, "didn't score the straight")
+        self.assertEqual(C.STRAIGHT, score.type, "didn't score the straight")
         self.assertEqual((11, 10, 9, 8, 7), score.kicker)
 
     def test_score_hand_high(self):
@@ -87,7 +87,7 @@ class HandBuilderTest(unittest.TestCase):
         aceHigh = [Card(2, C.DIAMONDS), Card(4, C.SPADES), Card(C.JACK, C.CLUBS),
                    Card(7, C.HEARTS), high_card]
         score = HandBuilder(aceHigh).score_hand()
-        self.assertEqual(HandScore.HIGH_CARD, score.type, "didn't score an ace high")
+        self.assertEqual(C.HIGH_CARD, score.type, "didn't score an ace high")
         self.assertEqual((14,11,7,4,2), score.kicker)
 
     def test_score_hand_pair(self):
@@ -95,7 +95,7 @@ class HandBuilderTest(unittest.TestCase):
         pairAces = [Card(2, C.DIAMONDS), Card(4, C.SPADES), Card(C.JACK, C.CLUBS),
                    Card(C.ACE, C.HEARTS), Card(C.ACE, C.CLUBS)]
         score = HandBuilder(pairAces).score_hand()
-        self.assertEqual(HandScore.PAIR, score.type)
+        self.assertEqual(C.PAIR, score.type)
         self.assertEqual((14,14,11,4,2), score.kicker)
 
     def test_score_hand_two_pair(self):
@@ -104,7 +104,7 @@ class HandBuilderTest(unittest.TestCase):
                    Card(C.ACE, C.HEARTS), Card(C.ACE, C.CLUBS)]
         hb = HandBuilder(twoPair)
         score = hb.score_hand()
-        self.assertEqual(HandScore.TWO_PAIR, score.type, "didn't find two pair")
+        self.assertEqual(C.TWO_PAIR, score.type, "didn't find two pair")
 
         # check the kicker to make sure the pairs got sorted
         self.assertEqual((14,14,2,2,11), score.kicker)
@@ -114,7 +114,7 @@ class HandBuilderTest(unittest.TestCase):
         trips = [Card(2, C.DIAMONDS), Card(C.ACE, C.SPADES), Card(C.JACK, C.CLUBS),
                  Card(C.ACE, C.HEARTS), Card(C.ACE, C.CLUBS)]
         hb = HandBuilder(trips)
-        self.assertEqual(HandScore.TRIPS, hb.score_hand().type, "didn't find trips")
+        self.assertEqual(C.TRIPS, hb.score_hand().type, "didn't find trips")
 
     def test_score_hand_full_house(self):
         """Finds a full house"""
@@ -122,7 +122,7 @@ class HandBuilderTest(unittest.TestCase):
                       Card(2, C.CLUBS), Card(C.ACE, C.HEARTS),
                       Card(C.ACE, C.CLUBS)]
         score = HandBuilder(full_house).score_hand()
-        self.assertEqual(HandScore.FULL_HOUSE, score.type, "didn't find full house")
+        self.assertEqual(C.FULL_HOUSE, score.type, "didn't find full house")
         self.assertEqual((14,14,14,2,2), score.kicker)
 
     def test_score_hand_quads(self):
@@ -131,7 +131,7 @@ class HandBuilderTest(unittest.TestCase):
                  Card(3, C.CLUBS), Card(2, C.HEARTS),
                  Card(2, C.CLUBS)]
         score = HandBuilder(quads).score_hand()
-        self.assertEqual(HandScore.QUADS, score.type, "didn't find quads")
+        self.assertEqual(C.QUADS, score.type, "didn't find quads")
         self.assertEqual((2,2,2,2,3), score.kicker)
 
     def test_preflop_edge_cases(self):
@@ -140,7 +140,7 @@ class HandBuilderTest(unittest.TestCase):
         hand = [Card(C.ACE, C.SPADES), Card(C.KING, C.SPADES), Card(9, C.SPADES),
                 Card(8, C.SPADES), Card(2, C.SPADES)]
         score = HandBuilder(hand).score_hand()
-        self.assertEqual(HandScore.FLUSH, score.type)
+        self.assertEqual(C.FLUSH, score.type)
         self.assertEqual((14, 13, 9, 8, 2), score.kicker)
 
 class HandFinderTest(unittest.TestCase):
