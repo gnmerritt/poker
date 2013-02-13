@@ -49,11 +49,11 @@ cdef class HandScore:
 cdef enum:
     HAND_LENGTH = 5
 
-class HandBuilder(object):
+cdef class HandBuilder(object):
     """Makes the best hand from a given set of cards, scores hands
     """
+    cdef object cards
 
-    __slots__ = ('cards')
     def __init__(self, cards):
         if isinstance(cards, tuple):
             self.cards = list(cards)
@@ -78,6 +78,7 @@ class HandBuilder(object):
     def score_hand(self):
         """Returns the HandScore of a 5-card hand
         This guy runs fast. Don't feed it bad entries"""
+        cdef HandScore score
         cdef cards.Card card
 
         score = HandScore()
@@ -98,7 +99,7 @@ class HandBuilder(object):
         self.cards.sort(key=lambda card: (seen[card.value], card.value),
                         reverse=True)
         # this function also sets the handscore if there are any pairs etc.
-        score.kicker = tuple(self.score_cards_to_ranks(score))
+        score.kicker = tuple(self.__score_cards_to_ranks(score))
 
         # At this point, return since we can't have any pairs
         # at the same time as a straight or flush
@@ -119,7 +120,7 @@ class HandBuilder(object):
 
         return score
 
-    def score_cards_to_ranks(self, score):
+    def __score_cards_to_ranks(self, HandScore score):
         """Goes through a list of cards sorted by quad/trip/pair and set the hand score."""
         cdef int last_value, run
         cdef cards.Card card
@@ -149,7 +150,7 @@ class HandBuilder(object):
         if run == 2 and score.type == TRIPS:
             score.type = FULL_HOUSE
 
-    def is_straight(self):
+    cdef bint is_straight(self):
         """returns True if this hand is a straight, false otherwise"""
         cdef int last_value
         cdef cards.Card card
@@ -173,7 +174,7 @@ class HandBuilder(object):
         sort_key = lambda card: card.value
         self.cards.sort(key=sort_key,reverse=True)
 
-    def select_flush_suit(self):
+    cpdef int select_flush_suit(self):
         """If all cards match suit, return the suit. Return None otherwise."""
         cdef int suit
         cdef cards.Card card
