@@ -16,8 +16,7 @@ cdef enum:
     STRAIGHT_FLUSH = 8
 
 cdef class HandScore:
-    cdef public int type
-    cdef public object kicker
+    """The score of a hand. Contains an hand type constant and a value-sorted tuple"""
 
     def __cinit__(self, type=NO_SCORE):
         """type should be one of the hand types defined here
@@ -49,10 +48,9 @@ cdef class HandScore:
 cdef enum:
     HAND_LENGTH = 5
 
-cdef class HandBuilder(object):
+cdef class HandBuilder:
     """Makes the best hand from a given set of cards, scores hands
     """
-    cdef object cards
 
     def __init__(self, cards):
         if isinstance(cards, tuple):
@@ -150,7 +148,7 @@ cdef class HandBuilder(object):
         if run == 2 and score.type == TRIPS:
             score.type = FULL_HOUSE
 
-    cdef bint is_straight(self):
+    cpdef bint is_straight(self):
         """returns True if this hand is a straight, false otherwise"""
         cdef int last_value
         cdef cards.Card card
