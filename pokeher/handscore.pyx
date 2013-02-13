@@ -15,27 +15,33 @@ cdef enum:
     QUADS = 7
     STRAIGHT_FLUSH = 8
 
-class HandScore(object):
-    def __init__(self, type=NO_SCORE, kicker=NO_SCORE):
+cdef class HandScore:
+    cdef public int type
+    cdef public object kicker
+
+    def __cinit__(self, type=NO_SCORE):
         """type should be one of the hand types defined here
         kicker is a tuple of card values sorted based on the hand type
         e.g. kicker=(10,10,9,5,2) for a pair of tens, 9-high
         """
         self.type = type
-        self.kicker = kicker
+        self.kicker = None
 
-    # def __richcmp__(HandScore self, HandScore other not None, int op):
-    #     cdef int compare
+    def __richcmp__(HandScore self, HandScore other not None, int op):
+        cdef int compare
+        if self.type > other.type:
+            compare = 1
+        elif self.type < other.type:
+            compare = -1
+        else:
+            if self.kicker > other.kicker:
+                compare = 1
+            elif self.kicker < other.kicker:
+                compare = -1
+            else:
+                compare = 0
 
-    #     return util.richcmp_helper(compare, int)
-
-    def __eq__(self, other):
-        return (self.type, self.kicker) == \
-            (other.type, other.kicker)
-
-    def __lt__(self, other):
-        return (self.type, self.kicker) < \
-            (other.type, other.kicker)
+        return util.richcmp_helper(compare, op)
 
     def __repr__(self):
         return '{self.type}, {self.kicker}'.format(self=self)
