@@ -1,5 +1,4 @@
 import unittest
-import StringIO
 from arena.betting import Blinds, NoBetLimit
 
 class NoBetLimitTest(unittest.TestCase):
@@ -20,11 +19,9 @@ class BlindsTest(unittest.TestCase):
         else:
             self.fail("allowed big blind to be smaller")
 
-    def test_aigame_printer(self):
+    def test_blinds_printer(self):
         """Tests that the blinds are printed correctly"""
         blinds = Blinds(10, 20)
-        out = StringIO.StringIO()
-        blinds.print_for_theaigames(out)
-        output = out.getvalue()
-        self.assertTrue("smallBlind 10" in output)
-        self.assertTrue("bigBlind 20" in output)
+        hand_print = set(blinds.hand_blinds())
+        self.assertTrue("Match smallBlind 10" in hand_print)
+        self.assertTrue("Match bigBlind 20" in hand_print)

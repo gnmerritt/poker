@@ -3,6 +3,12 @@ import pokeher.cards as cards
 
 class Holdem(object):
     """Texas Hold'em. Two hole cards, 5 table cards dealt 3-1-1"""
+    def match_game(self):
+        """Info for the start of the game."""
+        # TODO: split this out so hold'em is separate
+        return ['Settings gameType NLHE',
+                'Settings gameMode tournament',]
+
     def min_players(self):
         """Can be played 1-1 (heads up), or up to 10 players at once"""
         return 2

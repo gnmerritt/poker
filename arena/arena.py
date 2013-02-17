@@ -15,6 +15,14 @@ class LoadedBot(object):
         self.state = BotState(seat)
         self.is_active = True
 
+    def tell(self, line):
+        """Writes to the bot's STDIN"""
+        pass
+
+    def kill(self):
+        """Kills the bot"""
+        self.is_active = False
+
 class PyArena(object):
     """Loads Python bots from source folders, sets up IO channels to them"""
     def __init__(self):
@@ -43,6 +51,7 @@ class PyArena(object):
                 self.bots.append(LoadedBot(bot, seat))
         except IOError as e:
             print "bot file doesn't exist, skipping"
+        # TODO: more error catching probably
 
     def bot_count(self):
         """Returns the current number of loaded bots"""
@@ -63,11 +72,34 @@ class PyArena(object):
             self.play_hand()
             self.say_hand_winner()
 
+    def say_match_updates(self):
+        """Info for the start of the match: game type, time, hands, bots"""
+        match_info = self.match_timing()
+        match_info.append(self.match_blinds())
+        match_info.append(self.match_game())
+
+        self.tell_bots(match_info)
+        self.say_seating()
+
+    def say_seating(self):
+        """Tells each bot where they're seated, and tells everyone who's seated where
+"""
+        broadcast = []
+        for bot in self.bots:
+            name = bot.state.name
+            seat = bot.state.seat
+            bot.tell('Settings yourBot {name}'.format(name=name))
+            broadcast.append('{name} seat {seat}'.format(name=name, seat=seat))
+        self.tell_bots(broadcast)
+
     def say_round_updates(self):
         pass
 
     def say_hand_winner(self):
         pass
 
-    def say_match_updates(self):
-        pass
+    def tell_bots(self, lines):
+        """Tell all bots something through STDIN"""
+        for bot in self.bots:
+            for line in lines:
+                bot.tell(line)

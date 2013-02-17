@@ -30,3 +30,18 @@ class PyArenaTest(unittest.TestCase):
         arena.load_bot("asdlfj23u90dj")
         self.assertTrue(arena)
         self.assertEqual(arena.bot_count(), 0)
+
+class LoadedBotTest(unittest.TestCase):
+    def test_tell_bot(self):
+        """Make sure that piping info to a bot works"""
+        pass # TODO
+
+    def test_lifecycle(self):
+        bot = LoadedBot(None, 0)
+
+        self.assertEqual('bot_0', bot.state.name)
+        self.assertEqual(0, bot.state.seat)
+        self.assertTrue(bot.is_active)
+
+        bot.kill()
+        self.assertFalse(bot.is_active)

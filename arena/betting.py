@@ -6,11 +6,19 @@ class Blinds(object):
         self.small_blind = small_blind
         self.big_blind = big_blind
 
-    def print_for_theaigames(self, output):
+        self.hands_per_level = 10
+        self.hands_this_level = 0
+
+    def hand_blinds(self):
         """Prints out the blinds for TheAiGame bots"""
-        output.write("Match smallBlind {sb}\n".format(sb=self.small_blind))
-        output.write("Match bigBlind {bb}\n".format(bb=self.big_blind))
-        output.flush()
+        return ["Match smallBlind {sb}".format(sb=self.small_blind),
+                "Match bigBlind {bb}".format(bb=self.big_blind),]
+
+    def check_raise_blinds(self):
+        pass # TODO
+
+    def match_blinds(self):
+        return ['Settings handsPerLevel {hpl}'.format(hpl=self.hands_per_level)]
 
 class NoBetLimit(object):
     """Players can bet any amount, at any time"""
