@@ -13,6 +13,7 @@ class LoadedBot(object):
     def __init__(self, bot, seat):
         self.bot = bot
         self.state = BotState(seat)
+        self.is_active = True
 
 class PyArena(object):
     """Loads Python bots from source folders, sets up IO channels to them"""
@@ -47,6 +48,26 @@ class PyArena(object):
         """Returns the current number of loaded bots"""
         return len(self.bots)
 
+    def living_bots(self):
+        """Returns bots that still have money"""
+        [b for b in self.bots if b.is_active]
+
     def play_match(self):
-        """Plays rounds of poker until all players are eliminated except one"""
+        """Plays rounds of poker until all players are eliminated except one
+        Uses methods from the games mixin, explodes otherwise"""
+        self.say_match_updates()
+        bots = self.living_bots()
+
+        while len(bots) >= self.min_players:
+            self.say_round_updates()
+            self.play_hand()
+            self.say_hand_winner()
+
+    def say_round_updates(self):
+        pass
+
+    def say_hand_winner(self):
+        pass
+
+    def say_match_updates(self):
         pass
