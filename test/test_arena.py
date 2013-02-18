@@ -3,6 +3,7 @@ from arena.arena import *
 
 class BotStateTest(unittest.TestCase):
     def test_constructor(self):
+        """Checks initial bot state"""
         bs = BotState(1)
         self.assertEqual(bs.name, "bot_1")
         self.assertEqual(bs.seat, 1)
@@ -37,6 +38,7 @@ class LoadedBotTest(unittest.TestCase):
         pass # TODO
 
     def test_lifecycle(self):
+        """Checks name, seat, is_active and kill for loaded bots"""
         bot = LoadedBot(None, 0)
 
         self.assertEqual('bot_0', bot.state.name)

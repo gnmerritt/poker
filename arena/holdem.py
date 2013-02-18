@@ -1,12 +1,14 @@
 import random
 import pokeher.cards as cards
+from betting import BettingRound
 
 class Holdem(object):
     """Texas Hold'em. Two hole cards, 5 table cards dealt 3-1-1"""
     def match_game(self):
         """Info for the start of the game."""
         # TODO: split this out so hold'em is separate
-        return ['Settings gameType NLHE',
+        return ['Settings arenaVersion 1.0',
+                'Settings gameType NLHE',
                 'Settings gameMode tournament',]
 
     def min_players(self):
