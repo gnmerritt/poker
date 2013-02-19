@@ -4,6 +4,6 @@ class ArenaTiming(object):
         return ['Settings timeBank {tb}'.format(tb=self.time_bank),
                 'Settings timePerMove {tph}'.format(self.time_per_hand),]
 
-class HalfSecondTiming(ArenaTiming):
+class HalfSecondTurns(ArenaTiming):
     time_bank = 5000
     time_per_hand = 500

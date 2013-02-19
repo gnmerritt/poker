@@ -8,6 +8,12 @@ class MockHoldem(Holdem):
     def bot_count(self):
         return self.count
 
+    def living_bots(self):
+        return ['a', 'b']
+
+    def living_bot_names(self):
+        return self.living_bots()
+
 class HoldemTest(unittest.TestCase):
     def test_dealer(self):
         for i in range (2, 10):
@@ -16,7 +22,7 @@ class HoldemTest(unittest.TestCase):
     def verify_dealer(self, players):
         h = MockHoldem()
         h.count = players
-        hands_list, remainder = h.deal_hands()
+        hands_list, remainder = h.deal_hands(players)
 
         self.assertTrue(hands_list)
         self.assertEqual(len(hands_list), h.bot_count())
@@ -31,3 +37,10 @@ class HoldemTest(unittest.TestCase):
                 seen.append(card)
 
         self.assertTrue(len(seen), 52 - len(remainder))
+
+    @unittest.skip("wrote too early")
+    def test_play_hand(self):
+        h = MockHoldem()
+        winners = h.play_hand()
+
+        self.assertTrue(winners)

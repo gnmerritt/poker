@@ -1,5 +1,5 @@
 import unittest
-from arena.betting import Blinds, NoBetLimit, BettingRound
+from arena.betting import *
 
 class NoBetLimitTest(unittest.TestCase):
     def test_bets(self):
@@ -25,6 +25,28 @@ class BlindsTest(unittest.TestCase):
         hand_print = set(blinds.hand_blinds())
         self.assertTrue("Match smallBlind 10" in hand_print)
         self.assertTrue("Match bigBlind 20" in hand_print)
+
+class BlindManagerTest(unittest.TestCase):
+    def setUp(self):
+        self.bots = ['a', 'b', 'c', 'd', 'e']
+        self.bm = BlindManager(5, self.bots)
+
+    def test_start_blinds(self):
+        """Checks the initial blinds conditions"""
+        bm = self.bm
+        self.assertEqual(bm.next_sb(), 'a')
+        self.assertEqual(bm.next_bb(), 'b')
+
+    def test_blinds_advance(self):
+        """Check that after one hand the blinds advance"""
+        bm = self.bm
+        bm.finish_hand()
+        self.assertEqual(bm.next_sb(), 'b')
+        self.assertEqual(bm.next_bb(), 'c')
+
+    def test_blinds_after_elimination(self):
+        """Check that blinds advance after a player is eliminated"""
+        pass # TODO
 
 class BettingRoundTest(unittest.TestCase):
     def setUp(self):

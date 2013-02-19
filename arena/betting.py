@@ -6,19 +6,46 @@ class Blinds(object):
         self.small_blind = small_blind
         self.big_blind = big_blind
 
-        self.hands_per_level = 10
-        self.hands_this_level = 0
-
     def hand_blinds(self):
         """Prints out the blinds for TheAiGame bots"""
         return ["Match smallBlind {sb}".format(sb=self.small_blind),
                 "Match bigBlind {bb}".format(bb=self.big_blind),]
 
-    def check_raise_blinds(self):
-        pass # TODO
+class BlindManager(object):
+    """Keeps track of who posts which blind, when to raise blinds"""
+    def __init__(self, hands_per_level, bots):
+        self.hands_per_level = hands_per_level
+        self.hands_this_level = 0
+        self.bots = bots
+        self.small_blinds_played = [0]*len(bots)
+        self.sb_index = 0
+        self.blind = Blinds(10, 20)
+
+    def __wrap_index(self, i):
+        return i % len(self.bots)
+
+    def next_sb(self):
+        """Returns the next bot to post the small blind"""
+        return self.bots[self.sb_index]
+
+    def next_bb(self):
+        """Returns the next bot to post the big blind"""
+        index = self.__wrap_index(self.sb_index + 1)
+        return self.bots[index]
 
     def match_blinds(self):
         return ['Settings handsPerLevel {hpl}'.format(hpl=self.hands_per_level)]
+
+    def __check_raise_blinds(self):
+        if self.hands_this_level >= self.hands_per_level:
+            self.hands_this_level = 0
+        # TODO
+
+    def finish_hand(self):
+        """Called by the game after every hand"""
+        self.sb_index = self.__wrap_index(self.sb_index + 1)
+        self.hands_this_level += 1
+        self.__check_raise_blinds()
 
 class NoBetLimit(object):
     """Players can bet any amount, at any time"""
@@ -31,15 +58,15 @@ class BettingRound(object):
     """Controls a round of betting.
     Each player has the chance to check, call, raise or fold.
     Once a player folds (or bets too small) the player is out"""
-    def __init__(self, bots, bets={}):
-        self.pot = 0
+    def __init__(self, bots, bets={}, pot=0):
+        self.pot = pot
         self.sidepot = 0
-        self.bots = bots
-        self.bets = bets
+        self.bots = bots # ordered list of bots
+        self.bets = bets # dict bot name => current bet
         self.high_better = None
         self.next_better_index = -1
 
-        # Default bets to 0, find high bettor
+        # Default bets to 0, find high better
         for i, bot in enumerate(self.bots):
             if bot in self.bets:
                 bet = self.bets.get(bot)
@@ -48,11 +75,13 @@ class BettingRound(object):
             else:
                 self.bets[bot] = 0
                 # first bot that hasn't bet yet gets to bet first
-                if self.next_better_index == -1:
-                    self.next_better_index = i
+                self.__set_better_index(i)
 
+        self.__set_better_index(0)
+
+    def __set_better_index(self, index):
         if self.next_better_index == -1:
-            self.next_better_index = 0
+            self.next_better_index = index
 
     def __process_bet(self, bet, player, is_blind=False):
         if bet > self.sidepot:

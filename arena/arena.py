@@ -59,23 +59,29 @@ class PyArena(object):
 
     def living_bots(self):
         """Returns bots that still have money"""
-        [b for b in self.bots if b.is_active]
+        return [b for b in self.bots if b.is_active]
+
+    def living_bot_names(self):
+        """Returns the names of living bots"""
+        alive = self.living_bots()
+        return [b.state.name for b in alive]
 
     def play_match(self):
         """Plays rounds of poker until all players are eliminated except one
         Uses methods from the games mixin, explodes otherwise"""
         self.say_match_updates()
         bots = self.living_bots()
+        self.init_game()
 
         while len(bots) >= self.min_players:
             self.say_round_updates()
-            self.play_hand()
-            self.say_hand_winner()
+            winners = self.play_hand()
+            self.say_hand_winner(winners)
 
     def say_match_updates(self):
         """Info for the start of the match: game type, time, hands, bots"""
         match_info = self.match_timing()
-        match_info.append(self.match_blinds())
+        match_info.append(self.ante().match_blinds())
         match_info.append(self.match_game())
 
         self.tell_bots(match_info)
@@ -95,7 +101,7 @@ class PyArena(object):
     def say_round_updates(self):
         pass
 
-    def say_hand_winner(self):
+    def say_hand_winner(self, winners):
         pass
 
     def tell_bots(self, lines):
