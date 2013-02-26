@@ -1,5 +1,6 @@
 from brain import Brain
 
+
 class IOPokerBot(object):
     """Generic Poker Bot, can read & write lines.
     Subclasses should mix-in parser & action delegates
@@ -37,6 +38,7 @@ class IOPokerBot(object):
             dest.write('\n')
             dest.flush()
 
+
 class BufferPokerBot(IOPokerBot):
     """Reads to and writes from lists of strings for easier testing """
     def write_line(self, line, dest):
@@ -47,13 +49,15 @@ class BufferPokerBot(IOPokerBot):
         for line in self.io_input:
             self.brain.parse_line(line)
 
+
 class Parser(object):
     """Parsers handle lines and store data into self.data"""
     def __init__(self, data):
         self._data = data
 
-    def handle_line(self,line):
+    def handle_line(self, line):
         pass
+
 
 class GameParserDelegate(object):
     """Generic parser delegate - passes lines to workers"""

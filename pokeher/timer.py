@@ -1,5 +1,6 @@
 import time
 
+
 class Timer(object):
     """Simple timer using a with block"""
     def __init__(self):

@@ -1,13 +1,14 @@
 import re
-from cards import *
+from cards import Card
 import constants as C
-from wiring import Parser,GameParserDelegate
+from wiring import Parser, GameParserDelegate
+
 
 class CardBuilder(object):
     """Creates our internal cards from text strings"""
 
-    VALUE_MAP = { 'T': 10, 'J' : C.JACK, 'Q' : C.QUEEN, 'K' : C.KING, 'A' : C.ACE }
-    SUIT_MAP = { 'c' : C.CLUBS, 'd' : C.DIAMONDS, 'h' : C.HEARTS, 's' : C.SPADES }
+    VALUE_MAP = {'T': 10, 'J': C.JACK, 'Q': C.QUEEN, 'K': C.KING, 'A': C.ACE}
+    SUIT_MAP = {'c': C.CLUBS, 'd': C.DIAMONDS, 'h': C.HEARTS, 's': C.SPADES}
 
     CARD_REGEXP = r'.*\[([2-9TJQKAcdhs,]+)\].*'
 
@@ -42,10 +43,11 @@ class CardBuilder(object):
         return results
 
     def is_card_list(self, string):
-        """Returns true if the string matches the card regexp, false otherwise"""
+        """Returns true if the string matches the card regexp, or False"""
         if not string:
             return False
         return re.match(self.CARD_REGEXP, string) is not None
+
 
 class AiGameParser(Parser):
     """Base class for the other STDIN parsers"""
@@ -66,8 +68,9 @@ class AiGameParser(Parser):
 
     def is_bot_directive(self, token):
         if token.startswith('bot_'):
-           return True
+            return True
         return False
+
 
 class SettingsParser(AiGameParser):
     """
@@ -126,6 +129,7 @@ class RoundParser(AiGameParser):
         self._data[key] = value
         return True
 
+
 class TurnParser(AiGameParser):
     """
     Info before we have to make a decision
@@ -178,13 +182,15 @@ class TurnParser(AiGameParser):
 
         return False
 
+
 class TheAiGameParserDelegate(GameParserDelegate):
     def set_up_parser(self, data, turn_callback):
         """Links the workers & callback up from the Brain"""
-        self.workers = [ SettingsParser(data),
-                         RoundParser(data),
-                         TurnParser(data, turn_callback) ]
+        self.workers = [SettingsParser(data),
+                        RoundParser(data),
+                        TurnParser(data, turn_callback), ]
         return self
+
 
 class TheAiGameActionDelegate(object):
     def bet(self, amount):
