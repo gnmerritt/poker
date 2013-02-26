@@ -16,6 +16,7 @@ class Holdem(object):
         self.blind_manager = BlindManager(hands_per_level=10,
                                           bots=self.living_bot_names())
         self.table_cards = []
+        self.pot = 0
 
     def min_players(self):
         """Can be played 1-1 (heads up), or up to 10 players at once"""
@@ -34,14 +35,14 @@ class Holdem(object):
     def play_hand(self):
         """Controls state for one hand of hold'em poker"""
         bots = self.living_bot_names()
-        self.hands, self.deck = self.deal_hands(len(bots))
+        self.hands = self.deal_hands(len(bots))
         blinds_round = self.post_blinds(bots)
         self.betting_round(blinds_round)
+        self.deal_table_cards()
 
         """
-        self.table_card()
         self.betting_round()
-        self.table_card()
+        self.deal_table_cards()
         self.betting_round()
         self.showdown()
         self.blind_manager.finish_hand()
@@ -49,7 +50,6 @@ class Holdem(object):
 
     def post_blinds (self, bots):
         """Returns the first betting round & posts the blinds"""
-        self.pot = 0
         sb, sb_bot = self.blind_manager.next_sb()
         bb, bb_bot = self.blind_manager.next_bb()
         self.post_bet(bb_bot, bb) # TODO: check blinds too
@@ -84,7 +84,7 @@ class Holdem(object):
         hands = []
         full_deck = cards.full_deck()
         hand_cards = random.sample(full_deck, hand_size * num_bots)
-        remaining_deck = [c for c in full_deck if not c in hand_cards]
+        self.deck = [c for c in full_deck if not c in hand_cards]
 
         for i in range(0, num_bots):
             hand = []
@@ -92,17 +92,17 @@ class Holdem(object):
                 hand.append(hand_cards.pop())
             hands.append(hand)
 
-        return hands, remaining_deck
+        return hands
 
-    def table_card(self):
+    def deal_table_cards(self):
         """Adds table cards and tells bots"""
         if not self.table_cards:
             # the flop
             self.table_cards = random.sample(self.deck, 3)
         elif len(self.table_cards) >= 3:
             # river & turn
-            self.table_cards.append(random.sample(self.deck, 1))
+            self.table_cards += random.sample(self.deck, 1)
 
         # update the deck
-        self.deck = [c for c in deck if c not in self.table_cards]
+        self.deck = [c for c in self.deck if c not in self.table_cards]
         self.say_table_cards()
