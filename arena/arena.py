@@ -17,7 +17,7 @@ class LoadedBot(object):
 
     def tell(self, line):
         """Writes to the bot's STDIN"""
-        pass
+        pass # TODO :-(
 
     def kill(self):
         """Kills the bot"""
@@ -111,8 +111,25 @@ class PyArena(object):
     def say_hand_winner(self, winners):
         pass
 
+    def say_table_cards(self):
+        """Tells the bots about table cards"""
+        pass
+
+    def get_action(self, bot_name):
+        """Tells a bot to go, waits for a response"""
+        pass
+
+    def tell_bot(self, bot_name, lines):
+        """Tells one bot something"""
+        bot = self.bot_from_name(bot_name)
+        self.__tell_bot(bot, lines)
+
     def tell_bots(self, lines):
         """Tell all bots something through STDIN"""
         for bot in self.bots:
-            for line in lines:
-                bot.tell(line)
+            self.__tell_bot(bot, lines)
+
+    def __tell_bot(self, bot, lines):
+        """Pass a message to a LoadedBot"""
+        for line in lines:
+            bot.tell(line)

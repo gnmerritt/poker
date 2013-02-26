@@ -15,6 +15,7 @@ class Holdem(object):
         """Initializes the holdem game components"""
         self.blind_manager = BlindManager(hands_per_level=10,
                                           bots=self.living_bot_names())
+        self.table_cards = []
 
     def min_players(self):
         """Can be played 1-1 (heads up), or up to 10 players at once"""
@@ -33,8 +34,9 @@ class Holdem(object):
     def play_hand(self):
         """Controls state for one hand of hold'em poker"""
         bots = self.living_bot_names()
-        hands, deck = self.deal_hands(len(bots))
-        self.post_blinds()
+        self.hands, self.deck = self.deal_hands(len(bots))
+        blinds_round = self.post_blinds(bots)
+        self.betting_round(blinds_round)
 
         """
         self.table_card()
@@ -45,15 +47,36 @@ class Holdem(object):
         self.blind_manager.finish_hand()
         """
 
-    def post_blinds (self):
-        """Starts off the post_blinds betting round"""
+    def post_blinds (self, bots):
+        """Returns the first betting round & posts the blinds"""
         self.pot = 0
         sb, sb_bot = self.blind_manager.next_sb()
         bb, bb_bot = self.blind_manager.next_bb()
+        self.post_bet(bb_bot, bb) # TODO: check blinds too
+        self.post_bet(sb_bot, sb)
+        return BettingRound(bots,
+                            bets={ sb_bot : sb, bb_bot : bb},
+                            pot=(sb + bb))
 
-    def betting_round(self):
+    def post_bet(self, bot_name, amount):
+        """Posts a bet, returns False on failure"""
+        bot = self.bot_from_name(bot_name)
+        if not bot or not bot.state.stack >= amount:
+            return False
+
+        bot.state.stack -= amount
+        self.pot += amount
+        return True
+
+    def betting_round(self, br=None):
         """Initiates a betting round"""
-        br = BettingRound([], {}, pot=self.pot)
+        if not br:
+            br = BettingRound([], {}, pot=self.pot)
+
+        next_better = br.next_better()
+        while next_better is not None:
+            action = self.get_action(next_better)
+            # TODO: parse & do the action
 
     def deal_hands(self, num_bots):
         """Deals out hands for players. Returns a tuple ([hands], remaining_deck)"""
@@ -70,3 +93,16 @@ class Holdem(object):
             hands.append(hand)
 
         return hands, remaining_deck
+
+    def table_card(self):
+        """Adds table cards and tells bots"""
+        if not self.table_cards:
+            # the flop
+            self.table_cards = random.sample(self.deck, 3)
+        elif len(self.table_cards) >= 3:
+            # river & turn
+            self.table_cards.append(random.sample(self.deck, 1))
+
+        # update the deck
+        self.deck = [c for c in deck if c not in self.table_cards]
+        self.say_table_cards()
