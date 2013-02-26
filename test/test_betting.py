@@ -50,7 +50,14 @@ class BlindManagerTest(unittest.TestCase):
 
     def test_blinds_after_elimination(self):
         """Check that blinds advance after a player is eliminated"""
-        pass # TODO
+        bm = self.bm
+        bm.finish_hand()
+        bm.finish_hand()
+        bm.eliminate_player('c')
+        _, sb = bm.next_sb()
+        self.assertEqual(sb, 'd')
+        _, bb = bm.next_bb()
+        self.assertEqual(bb, 'e')
 
 class BettingRoundTest(unittest.TestCase):
     def setUp(self):

@@ -47,6 +47,16 @@ class BlindManager(object):
         self.hands_this_level += 1
         self.__check_raise_blinds()
 
+    def eliminate_player(self, name):
+        """Removes a player from the blind rotation"""
+        for i, player in enumerate(self.bots):
+            if name == player:
+                self.bots[i] = None
+                if self.sb_index > i:
+                    self.sb_index = self.__wrap_index(self.sb_index - 1)
+
+        self.bots = [b for b in self.bots if b != None]
+
 class NoBetLimit(object):
     """Players can bet any amount, at any time"""
 
