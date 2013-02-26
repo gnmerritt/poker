@@ -25,6 +25,7 @@ class MockHoldem(Holdem):
 
 class HoldemTest(unittest.TestCase):
     def test_dealer(self):
+        """Verifies the holdem dealer for 2-10 players"""
         for i in range (2, 10):
             self.verify_dealer(i)
 

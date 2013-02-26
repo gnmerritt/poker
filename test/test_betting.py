@@ -12,6 +12,7 @@ class NoBetLimitTest(unittest.TestCase):
 
 class BlindsTest(unittest.TestCase):
     def test_preconditions(self):
+        """Checks the blinds constructor"""
         try:
             blinds = Blinds(20, 10)
         except AssertionError:
