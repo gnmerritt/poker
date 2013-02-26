@@ -4,6 +4,7 @@ import sys
 from wiring import IOPokerBot
 from theaigame import TheAiGameParserDelegate, TheAiGameActionDelegate
 
+
 class TheAiGameBot(IOPokerBot, TheAiGameParserDelegate, TheAiGameActionDelegate):
     """Poker bot for TheAiGame.com"""
     pass
