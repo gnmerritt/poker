@@ -34,15 +34,19 @@ class BlindManagerTest(unittest.TestCase):
     def test_start_blinds(self):
         """Checks the initial blinds conditions"""
         bm = self.bm
-        self.assertEqual(bm.next_sb(), 'a')
-        self.assertEqual(bm.next_bb(), 'b')
+        _, sb = bm.next_sb()
+        self.assertEqual(sb, 'a')
+        _, bb = bm.next_bb()
+        self.assertEqual(bb, 'b')
 
     def test_blinds_advance(self):
         """Check that after one hand the blinds advance"""
         bm = self.bm
         bm.finish_hand()
-        self.assertEqual(bm.next_sb(), 'b')
-        self.assertEqual(bm.next_bb(), 'c')
+        _, sb = bm.next_sb()
+        self.assertEqual(sb, 'b')
+        _, bb = bm.next_bb()
+        self.assertEqual(bb, 'c')
 
     def test_blinds_after_elimination(self):
         """Check that blinds advance after a player is eliminated"""

@@ -25,13 +25,13 @@ class BlindManager(object):
         return i % len(self.bots)
 
     def next_sb(self):
-        """Returns the next bot to post the small blind"""
-        return self.bots[self.sb_index]
+        """Returns the amount & next bot to post the small blind"""
+        return self.blind.small_blind, self.bots[self.sb_index]
 
     def next_bb(self):
-        """Returns the next bot to post the big blind"""
+        """Returns the amount & next bot to post the big blind"""
         index = self.__wrap_index(self.sb_index + 1)
-        return self.bots[index]
+        return self.blind.big_blind, self.bots[index]
 
     def match_blinds(self):
         return ['Settings handsPerLevel {hpl}'.format(hpl=self.hands_per_level)]

@@ -66,6 +66,13 @@ class PyArena(object):
         alive = self.living_bots()
         return [b.state.name for b in alive]
 
+    def bot_from_name(self, name):
+        """Returns the bot with the given name"""
+        for bot in self.bots:
+            if bot.state.name == name:
+                return bot
+        return None
+
     def play_match(self):
         """Plays rounds of poker until all players are eliminated except one
         Uses methods from the games mixin, explodes otherwise"""

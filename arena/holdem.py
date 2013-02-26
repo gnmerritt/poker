@@ -48,6 +48,8 @@ class Holdem(object):
     def post_blinds (self):
         """Starts off the post_blinds betting round"""
         self.pot = 0
+        sb, sb_bot = self.blind_manager.next_sb()
+        bb, bb_bot = self.blind_manager.next_bb()
 
     def betting_round(self):
         """Initiates a betting round"""
