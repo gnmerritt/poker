@@ -1,6 +1,7 @@
 import unittest
 from arena.betting import *
 
+
 class NoBetLimitTest(unittest.TestCase):
     def test_bets(self):
         """Makes sure all positive bets are allowed in no limit"""
@@ -10,11 +11,12 @@ class NoBetLimitTest(unittest.TestCase):
         self.assertTrue(limit.check_bet(pot, 100*pot))
         self.assertFalse(limit.check_bet(pot, -30))
 
+
 class BlindsTest(unittest.TestCase):
     def test_preconditions(self):
         """Checks the blinds constructor"""
         try:
-            blinds = Blinds(20, 10)
+            Blinds(20, 10)
         except AssertionError:
             pass
         else:
@@ -26,6 +28,7 @@ class BlindsTest(unittest.TestCase):
         hand_print = set(blinds.hand_blinds())
         self.assertTrue("Match smallBlind 10" in hand_print)
         self.assertTrue("Match bigBlind 20" in hand_print)
+
 
 class BlindManagerTest(unittest.TestCase):
     def setUp(self):
@@ -60,10 +63,11 @@ class BlindManagerTest(unittest.TestCase):
         _, bb = bm.next_bb()
         self.assertEqual(bb, 'e')
 
+
 class BettingRoundTest(unittest.TestCase):
     def setUp(self):
         self.bots = ['a', 'b', 'c']
-        self.bets = {'a' : 10, 'b' : 20}
+        self.bets = {'a': 10, 'b': 20}
         self.br = BettingRound(self.bots, self.bets)
 
     def test_constructor(self):
@@ -71,17 +75,17 @@ class BettingRoundTest(unittest.TestCase):
         br = self.br
         self.assertEqual(br.pot, 30)
         self.assertEqual(br.sidepot, 20)
-        self.assertEqual(br.high_better, None) # no high better after blinds
+        self.assertEqual(br.high_better, None)  # no high better after blinds
         self.assertEqual(br.bets['c'], 0)
         self.assertEqual(br.bots, self.bots)
 
     def test_bet_staked(self):
         """Checks the state methods"""
         br = self.br
-        self.assertTrue(br.can_bet('c')) # 0 bet so far
-        self.assertTrue(br.can_bet('a')) # small blind
-        self.assertTrue(br.can_bet('b')) # BB
-        self.assertFalse(br.can_bet('d')) # bogus
+        self.assertTrue(br.can_bet('c'))  # 0 bet so far
+        self.assertTrue(br.can_bet('a'))  # small blind
+        self.assertTrue(br.can_bet('b'))  # BB
+        self.assertFalse(br.can_bet('d'))  # bogus
 
         for name in self.bots:
             self.assertTrue(br.is_staked(name))
@@ -94,7 +98,7 @@ class BettingRoundTest(unittest.TestCase):
         """Checks that after a fold we find the next bettor"""
         br = self.br
         self.assertEqual(br.next_better(), 'c')
-        br.post_bet('c', 0) # C folds
+        br.post_bet('c', 0)  # C folds
         self.assertEqual(br.next_better(), 'a')
 
     def test_round_over(self):

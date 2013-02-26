@@ -1,6 +1,6 @@
 import random
 import pokeher.cards as cards
-from betting import BettingRound, Blinds, BlindManager
+from betting import BettingRound, BlindManager
 
 class Holdem(object):
     """Texas Hold'em. Two hole cards, 5 table cards dealt 3-1-1"""

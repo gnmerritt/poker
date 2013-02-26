@@ -1,12 +1,14 @@
 import subprocess
 
+
 class BotState(object):
     """Stuff to remember about each bot"""
     def __init__(self, seat):
-        self.name = 'bot_{s}'.format(s=seat) # name for communication
-        self.seat = seat # seat at table
-        self.stack = 0 # amount of chips
-        self.stake = 0 # chips bet currently
+        self.name = 'bot_{s}'.format(s=seat)  # name for communication
+        self.seat = seat  # seat at table
+        self.stack = 0  # amount of chips
+        self.stake = 0  # chips bet currently
+
 
 class LoadedBot(object):
     """Holds an instance of each bot, keeps track of game info about it"""
@@ -17,11 +19,12 @@ class LoadedBot(object):
 
     def tell(self, line):
         """Writes to the bot's STDIN"""
-        pass # TODO :-(
+        pass  # TODO :-(
 
     def kill(self):
         """Kills the bot"""
         self.is_active = False
+
 
 class PyArena(object):
     """Loads Python bots from source folders, sets up IO channels to them"""
@@ -36,14 +39,15 @@ class PyArena(object):
             self.play_match()
         else:
             print "Wrong # of bots ({i}) needed {k}-{j}. Can't play" \
-              .format(i=self.bot_count(), k=self.min_players(), j=self.max_players())
+                .format(i=self.bot_count(), k=self.min_players(),
+                        j=self.max_players())
 
     def load_bot(self, source_file):
         """Starts a bot as a subprocess, given its path"""
         seat = self.bot_count()
-        print "loading bot {l} from {f}".format(l=seat,f=source_file)
+        print "loading bot {l} from {f}".format(l=seat, f=source_file)
         try:
-            with open(source_file) as f:
+            with open(source_file):
                 bot = subprocess.Popen([source_file],
                                        stdin=subprocess.PIPE,
                                        stdout=subprocess.PIPE,
@@ -51,6 +55,7 @@ class PyArena(object):
                 self.bots.append(LoadedBot(bot, seat))
         except IOError as e:
             print "bot file doesn't exist, skipping"
+            print e
         # TODO: more error catching probably
 
     def bot_count(self):
@@ -95,8 +100,8 @@ class PyArena(object):
         self.say_seating()
 
     def say_seating(self):
-        """Tells each bot where they're seated, and tells everyone who's seated where
-"""
+        """Tells each bot where they're seated, individual and broadcast
+        """
         broadcast = []
         for bot in self.bots:
             name = bot.state.name

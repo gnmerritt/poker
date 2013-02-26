@@ -1,4 +1,5 @@
 
+
 class Blinds(object):
     """Players must post a blind to buy in"""
     def __init__(self, small_blind, big_blind):
@@ -9,7 +10,8 @@ class Blinds(object):
     def hand_blinds(self):
         """Prints out the blinds for TheAiGame bots"""
         return ["Match smallBlind {sb}".format(sb=self.small_blind),
-                "Match bigBlind {bb}".format(bb=self.big_blind),]
+                "Match bigBlind {bb}".format(bb=self.big_blind), ]
+
 
 class BlindManager(object):
     """Keeps track of who posts which blind, when to raise blinds"""
@@ -34,7 +36,7 @@ class BlindManager(object):
         return self.blind.big_blind, self.bots[index]
 
     def match_blinds(self):
-        return ['Settings handsPerLevel {hpl}'.format(hpl=self.hands_per_level)]
+        return ['Settings handsPerLevel {hp}'.format(hp=self.hands_per_level)]
 
     def __check_raise_blinds(self):
         if self.hands_this_level >= self.hands_per_level:
@@ -55,7 +57,8 @@ class BlindManager(object):
                 if self.sb_index > i:
                     self.sb_index = self.__wrap_index(self.sb_index - 1)
 
-        self.bots = [b for b in self.bots if b != None]
+        self.bots = [b for b in self.bots if b is not None]
+
 
 class NoBetLimit(object):
     """Players can bet any amount, at any time"""
@@ -64,6 +67,7 @@ class NoBetLimit(object):
         """Returns true if the bet is legal given the current pot"""
         return bet > 0
 
+
 class BettingRound(object):
     """Controls a round of betting.
     Each player has the chance to check, call, raise or fold.
@@ -71,8 +75,8 @@ class BettingRound(object):
     def __init__(self, bots, bets={}, pot=0):
         self.pot = pot
         self.sidepot = 0
-        self.bots = bots # ordered list of bots
-        self.bets = bets # dict bot name => current bet
+        self.bots = bots  # ordered list of bots
+        self.bets = bets  # dict bot name => current bet
         self.high_better = None
         self.next_better_index = -1
 
@@ -122,7 +126,8 @@ class BettingRound(object):
     def post_bet(self, player, bet):
         """Record a valid bet for a bot. Returns False if the bot has folded"""
         print 'posting {b} from {p}'.format(b=bet, p=player)
-        print 'next_better_index = {n} ({b})'.format(n=self.next_better_index, b=self.next_better())
+        print 'next_better_index = {n} ({b})' \
+            .format(n=self.next_better_index, b=self.next_better())
 
         # Check & update the next better index
         assert(player == self.next_better())
@@ -139,4 +144,4 @@ class BettingRound(object):
 
     def say_pot(self):
         return ['Match pot {self.pot}'.format(self=self),
-                'Match sidepots [{self.sidepot}]'.format(self=self),]
+                'Match sidepots [{self.sidepot}]'.format(self=self), ]

@@ -1,6 +1,6 @@
 from __future__ import division
 import cPickle as pickle
-import os, time, random
+import os, random
 
 from game import GameData
 from hand_simulator import HandSimulator
