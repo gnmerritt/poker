@@ -1,13 +1,14 @@
 import math
-import cards
 import constants as C
+
 
 class ChenScore(object):
     """ Scores a hand according to the Chen forumula.
-    See: http://www.thepokerbank.com/strategy/basic/starting-hand-selection/chen-formula/
+    See:
+    www.thepokerbank.com/strategy/basic/starting-hand-selection/chen-formula
     """
-    CARD_TO_POINTS = { C.ACE : 10, C.KING : 8, C.QUEEN : 7, C.JACK : 6 }
-    GAP_MINUS_POINTS = { 1 : -1, 2 : -2, 3 : -4 }
+    CARD_TO_POINTS = {C.ACE: 10, C.KING: 8, C.QUEEN: 7, C.JACK: 6}
+    GAP_MINUS_POINTS = {1: -1, 2: -2, 3: -4}
 
     def __init__(self, hand):
         self.hand = hand

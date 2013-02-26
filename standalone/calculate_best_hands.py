@@ -1,13 +1,15 @@
-import itertools, pickle
+import itertools
+import cPickle as pickle
 
 from cards import Card
 from handscore import HandBuilder
 
+
 class BestHandCalculator(object):
 
     def run(self):
-        self.calculate_best_mapping(6) # This pickle file is ~750MB
-        self.calculate_best_mapping(7) # This does not complete in my macbook
+        self.calculate_best_mapping(6)  # This pickle file is ~750MB
+        self.calculate_best_mapping(7)  # This does not complete on my macbook
 
     def calculate_best_mapping(self, num_cards):
         """Iterates through a full suite

@@ -1,5 +1,6 @@
 from __future__ import division
 
+
 class MathUtils(object):
     """Math utilities!"""
 
