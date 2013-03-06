@@ -4,6 +4,7 @@ from betting import NoBetLimit
 from arena import PyArena
 from timing import HalfSecondTurns
 
+
 class TheAiGameArena(PyArena, Holdem, NoBetLimit, HalfSecondTurns):
     """Arena for testing bots for http://theaigames.com
     Rules are heads-up, no limit hold'em"""

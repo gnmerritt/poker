@@ -138,3 +138,12 @@ class PyArena(object):
         """Pass a message to a LoadedBot"""
         for line in lines:
             bot.tell(line)
+
+    def post_bet(self, bot_name, amount):
+        """Removes money from a bot stack, or returns False"""
+        bot = self.bot_from_name(bot_name)
+        if not bot or not bot.state.stack >= amount:
+            return False
+
+        bot.state.stack -= amount
+        return True
