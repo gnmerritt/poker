@@ -2,6 +2,7 @@ import unittest
 from pokeher.theaigame import *
 import pokeher.cards as cards
 
+
 class CardBuilderTest(unittest.TestCase):
     def test_from_string(self):
         """Tests building our cards from theaigame text strings"""
@@ -17,14 +18,15 @@ class CardBuilderTest(unittest.TestCase):
         self.assertEqual(b.from_2char('2c'), Card(2, C.CLUBS))
 
     def test_to_from_list(self):
-        """Tests building a list of cards from a theaigame hand or table token"""
+        """Tests building lists of cards from a theaigame hand / table token"""
         b = CardBuilder()
 
         self.assertFalse(b.from_list('asdf2njks92'))
 
         cases = [([Card(10, C.HEARTS), Card(3, C.DIAMONDS)], '[Th,3d]'),
                  ([Card(3, C.DIAMONDS), Card(10, C.HEARTS)], '[3d,Th]'),
-                 ([Card(10, C.CLUBS), Card(8, C.DIAMONDS), Card(9, C.CLUBS)], '[Tc,8d,9c]')]
+                 ([Card(10, C.CLUBS), Card(8, C.DIAMONDS), Card(9, C.CLUBS)],
+                  '[Tc,8d,9c]')]
 
         for case in cases:
             us, aig_str = case
@@ -57,6 +59,7 @@ class CardBuilderTest(unittest.TestCase):
         self.assertEqual(c2, b.from_2char(c2.aigames_str()))
         self.assertNotEqual(c, b.from_2char(c2.aigames_str()))
 
+
 class SettingsParserTest(unittest.TestCase):
     def test_parse_settings(self):
         """Tests that the beginning settings are passed to the data model"""
@@ -78,13 +81,14 @@ class SettingsParserTest(unittest.TestCase):
 
         self.assertEqual(data['yourBot'], 'bot_0')
 
+
 class RoundParserTest(unittest.TestCase):
     def test_parse_settings(self):
         """Tests round by round parsing settings"""
-        lines = [ 'Match round 1',
-                  'Match smallBlind 10',
-                  'Match bigBlind 20',
-                  'Match onButton bot_0']
+        lines = ['Match round 1',
+                 'Match smallBlind 10',
+                 'Match bigBlind 20',
+                 'Match onButton bot_0']
 
         data = {}
         parser = RoundParser(data)
@@ -96,18 +100,20 @@ class RoundParserTest(unittest.TestCase):
         self.assertEqual(str(20), data['bigBlind'])
         self.assertEqual('bot_0', data['onButton'])
 
+
 class TurnParserTest(unittest.TestCase):
     def test_parse_settings(self):
         """Tests parsing info that indicates we need to make a decision"""
-        lines = [ 'Match pot 20',
-                  'bot_0 hand [6c,Jc]',
-                  'go 5000',
-                  'Match table [Tc,8d,9c]',
-                  'bot_1 fold 0',
-                  'bot_0 wins 30' ]
+        lines = ['Match pot 20',
+                 'bot_0 hand [6c,Jc]',
+                 'go 5000',
+                 'Match table [Tc,8d,9c]',
+                 'bot_1 fold 0',
+                 'bot_0 wins 30']
 
         data = {}
         self.goTime = 0
+
         def goCallback(time):
             self.goTime = time
 
@@ -116,11 +122,47 @@ class TurnParserTest(unittest.TestCase):
         for line in lines:
             self.assertTrue(parser.handle_line(line), 'didnt handle: ' + line)
 
-        self.assertEqual(data['table'], [Card(10, C.CLUBS), Card(8, C.DIAMONDS), Card(9, C.CLUBS)])
+        self.assertEqual(data['table'], [Card(10, C.CLUBS),
+                                         Card(8, C.DIAMONDS),
+                                         Card(9, C.CLUBS)])
         self.assertEqual(data['pot'], str(20))
-        self.assertEqual(data[('hand', 'bot_0')], [Card(6, C.CLUBS), Card(C.JACK, C.CLUBS)])
+        self.assertEqual(data[('hand', 'bot_0')], [Card(6, C.CLUBS),
+                                                   Card(C.JACK, C.CLUBS)])
         self.assertEqual(self.goTime, 5000)
         self.assertEqual(data[('wins', 'bot_0')], str(30))
+
+
+class MockTalker(object):
+    def say(self, string):
+        self.last_string = string
+
+
+class TestableTheAiGameActionDelegate(TheAiGameActionDelegate, MockTalker):
+    pass
+
+
+class ActionDelegateTest(unittest.TestCase):
+
+    def test_specific_actions(self):
+        d = TestableTheAiGameActionDelegate()
+        self.assertTrue(d)
+        d.call(100)
+        self.assertEqual('call 100', d.last_string)
+
+        d.fold()
+        self.assertEqual('fold 0', d.last_string)
+
+    def test_generic_actions(self):
+        d = TestableTheAiGameActionDelegate()
+        b = TheAiGameActionBuilder()
+        actions = ['call 0',
+                   'raise 390',
+                   'check',
+                   'fold']
+        for action_str in actions:
+            action = b.from_string(action_str)
+            d.do_action(action)
+            self.assertEqual(action_str, d.last_string)
 
 
 class ActionBuilderTest(unittest.TestCase):
@@ -142,7 +184,6 @@ class ActionBuilderTest(unittest.TestCase):
             self.assertTrue(a)
             self.assertEqual(a.action, action_set[1])
             self.assertEqual(a.amount, action_set[2])
-
 
     def test_garbage_actions(self):
         """Makes sure the action parser can handle garbage input"""
@@ -173,7 +214,7 @@ class ActionBuilderTest(unittest.TestCase):
             clean_string = action_str.strip().lower()
             self.assertTrue(action)
             self.assertEqual(b.to_string(action), clean_string,
-                             "saw {to} needed {s} from/to action string" \
+                             "saw {to} needed {s} from/to action string"
                              .format(s=clean_string, to=b.to_string(action)))
 
 if __name__ == '__main__':

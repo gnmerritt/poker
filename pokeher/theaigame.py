@@ -209,6 +209,10 @@ class TheAiGameActionDelegate(object):
     def check(self):
         self.say('check 0')
 
+    def do_action(self, action):
+        """Do a generic GameAction"""
+        b = TheAiGameActionBuilder()
+        self.say(b.to_string(action))
 
 class TheAiGameActionBuilder(object):
     """Parser for translating actions to/from strings"""
