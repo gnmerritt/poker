@@ -35,6 +35,10 @@ class BlindManagerTest(unittest.TestCase):
         self.bots = ['a', 'b', 'c', 'd', 'e']
         self.bm = BlindManager(5, self.bots)
 
+    def test_match_blinds(self):
+        match_blinds = self.bm.match_blinds()
+        self.assertEqual(match_blinds, ['Settings handsPerLevel 5'])
+
     def test_start_blinds(self):
         """Checks the initial blinds conditions"""
         bm = self.bm
@@ -70,9 +74,15 @@ class BettingRoundTest(unittest.TestCase):
         self.bets = {'a': 10, 'b': 20}
         self.br = BettingRound(self.bots, self.bets)
 
+    def test_say_pot(self):
+        br = self.br
+        pots = br.say_pot()
+        self.assertIn('Match pot 30', pots)
+        self.assertIn('Match sidepots [20]', pots)
+
     def test_constructor(self):
         """Check state after constructing a new BettingRound"""
-        br = self.br
+        br = BettingRound(self.bots, self.bets)
         self.assertEqual(br.pot, 30)
         self.assertEqual(br.sidepot, 20)
         self.assertEqual(br.high_better, None)  # no high better after blinds
