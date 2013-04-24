@@ -61,9 +61,6 @@ class HoldemHand(object):
         for phase in hand_phases:
             pass
 
-    def find_bots(self):
-        pass
-
     def post_blinds(self, bots):
         """Returns the first betting round & posts the blinds"""
         sb, sb_bot = self.blind_manager.next_sb()
@@ -84,7 +81,7 @@ class HoldemHand(object):
             return False
 
     def betting_round(self, br=None):
-        """Initiates a betting round"""
+        """Initiates and runs betting round"""
         if not br:
             br = BettingRound([], {}, pot=self.pot)
         self.br = br
@@ -92,7 +89,15 @@ class HoldemHand(object):
         next_better = self.br.next_better()
         while next_better is not None:
             action = self.get_action(next_better)
-            # TODO: parse & do the action
+
+            if action.is_fold():
+                pass
+            elif action.is_raise():
+                pass
+            elif action.is_check():
+                pass
+            elif action.is_call():
+                pass
 
     def deal_hands(self, num_bots):
         """Deals out hands for players. Returns the list of hands"""
