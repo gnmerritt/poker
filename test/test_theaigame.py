@@ -1,4 +1,3 @@
-import sys
 import unittest
 from pokeher.theaigame import *
 import pokeher.cards as cards
@@ -122,6 +121,36 @@ class TurnParserTest(unittest.TestCase):
         self.assertEqual(data[('hand', 'bot_0')], [Card(6, C.CLUBS), Card(C.JACK, C.CLUBS)])
         self.assertEqual(self.goTime, 5000)
         self.assertEqual(data[('wins', 'bot_0')], str(30))
+
+
+class ActionBuilderTest(unittest.TestCase):
+
+    def test_parse_actions(self):
+        b = TheAiGameActionBuilder()
+        actions = [['call 0', 1, 0],
+                   ['raise 390', 2, 390],
+                   ['check 0', 3, 0],
+                   ['fold 3902', 0, 3902],
+                   ['   raise  30203   ', 2, 30203],
+                   ['fold', 0, 0]]
+
+        for action_set in actions:
+            a = b.from_string(action_set[0])
+            self.assertTrue(a)
+            self.assertEqual(a.action, action_set[1])
+            self.assertEqual(a.amount, action_set[2])
+
+
+    def test_garbage_actions(self):
+        b = TheAiGameActionBuilder()
+        actions = ['caasdfll 0',
+                   '0 raise 390',
+                   '02 check 0 20 1910 30',
+                   'this\n fold']
+
+        for action_string in actions:
+            a = b.from_string(action_string)
+            self.assertFalse(a, "string pased: {s}".format(s=action_string))
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,6 +1,7 @@
 import re
 from cards import Card
 import constants as C
+from actions import GameAction
 from wiring import Parser, GameParserDelegate
 
 
@@ -207,3 +208,39 @@ class TheAiGameActionDelegate(object):
 
     def check(self):
         self.say('check 0')
+
+
+class TheAiGameActionBuilder(object):
+    """Parser for translating actions to/from strings"""
+    VERBS = ['fold', 'call', 'raise', 'check']  # Ordered by GameAction
+
+    def from_string(self, input_action_string):
+        """Returns the appropriate game action, or None for invalid strings"""
+        if not input_action_string:
+            return None
+
+        action_string = input_action_string.strip().lower()
+
+        for action_num, verb in enumerate(self.VERBS):
+            if action_string.startswith(verb):
+                return self.__from_clean_string(action_num, action_string)
+        return None
+
+    def __from_clean_string(self, action_num, string):
+        """Given a string that starts with a verb, return the GameAction"""
+        action = GameAction(action_num)
+        words = string.split()
+        amount_int = 0
+
+        if words and len(words) > 1:
+            amount_str = words[1]
+            try:
+                amount_int = int(amount_str)
+            except ValueError:
+                pass
+        action.amount = amount_int
+        return action
+
+    @staticmethod
+    def to_string(action):
+        pass
