@@ -152,6 +152,9 @@ class ActionDelegateTest(unittest.TestCase):
         d.fold()
         self.assertEqual('fold 0', d.last_string)
 
+        d.bet(100)
+        self.assertEqual('raise 100', d.last_string)
+
     def test_generic_actions(self):
         d = TestableTheAiGameActionDelegate()
         b = TheAiGameActionBuilder()
@@ -199,6 +202,12 @@ class ActionBuilderTest(unittest.TestCase):
             a = b.from_string(action_string)
             self.assertFalse(a, "string pased: {s}".format(s=action_string))
 
+        # check bad number in second position
+        check = b.from_string('check forty')
+        self.assertTrue(check)
+        self.assertEqual(check.action, 3)
+        self.assertEqual(check.amount, 0)
+
     def test_to_from_strings(self):
         """Converts actions from a string then back"""
         b = TheAiGameActionBuilder()
@@ -216,6 +225,14 @@ class ActionBuilderTest(unittest.TestCase):
             self.assertEqual(b.to_string(action), clean_string,
                              "saw {to} needed {s} from/to action string"
                              .format(s=clean_string, to=b.to_string(action)))
+
+    def test_to_string_edges(self):
+        """Tests the fail cases of to string"""
+        b = TheAiGameActionBuilder()
+        self.assertFalse(b.to_string(None))
+
+        bad_action = GameAction(-9)
+        self.assertFalse(b.to_string(bad_action))
 
 if __name__ == '__main__':
     unittest.main()
