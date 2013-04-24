@@ -202,7 +202,9 @@ class ActionBuilderTest(unittest.TestCase):
             a = b.from_string(action_string)
             self.assertFalse(a, "string pased: {s}".format(s=action_string))
 
-        # check bad number in second position
+    def test_bad_action_amount(self):
+        """Checks bad number in second position"""
+        b = TheAiGameActionBuilder()
         check = b.from_string('check forty')
         self.assertTrue(check)
         self.assertEqual(check.action, 3)
