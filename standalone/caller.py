@@ -1,5 +1,6 @@
 import sys
 
+
 class MyBot(object):
 
         def run(self):

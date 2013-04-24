@@ -16,7 +16,7 @@ KING = 13
 ACE = 14
 
 # Hand Score constants
-NO_SCORE = -1 # when we haven't calculated the score yet
+NO_SCORE = -1  # when we haven't calculated the score yet
 HIGH_CARD = 0
 PAIR = 1
 TWO_PAIR = 2

@@ -4,6 +4,7 @@ from cards import Hand
 Data classes relating to the game of poker
 """
 
+
 class Match(object):
     """Container for information about a group of games"""
     def reset_match(self):
@@ -76,7 +77,8 @@ class Round(object):
 
         if 'sidepots' in self.sharedData:
             sidepot_str = self.sharedData.pop('sidepots')
-            sidepot_str = sidepot_str.replace('[', '').replace(']', '') # strip []'s
+            # strip []'s
+            sidepot_str = sidepot_str.replace('[', '').replace(']', '')
             try:
                 self.sidepot = int(sidepot_str)
             except ValueError:
@@ -96,6 +98,7 @@ class Round(object):
                 self.big_blind = int(bb_string)
             except ValueError:
                 pass
+
 
 class GameData(Match, Round):
     """Aggregate data classes mixed in together"""

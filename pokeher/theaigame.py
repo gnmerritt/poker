@@ -1,13 +1,15 @@
 import re
-from cards import *
+from cards import Card
 import constants as C
-from wiring import Parser,GameParserDelegate
+from actions import GameAction
+from wiring import Parser, GameParserDelegate
+
 
 class CardBuilder(object):
     """Creates our internal cards from text strings"""
 
-    VALUE_MAP = { 'T': 10, 'J' : C.JACK, 'Q' : C.QUEEN, 'K' : C.KING, 'A' : C.ACE }
-    SUIT_MAP = { 'c' : C.CLUBS, 'd' : C.DIAMONDS, 'h' : C.HEARTS, 's' : C.SPADES }
+    VALUE_MAP = {'T': 10, 'J': C.JACK, 'Q': C.QUEEN, 'K': C.KING, 'A': C.ACE}
+    SUIT_MAP = {'c': C.CLUBS, 'd': C.DIAMONDS, 'h': C.HEARTS, 's': C.SPADES}
 
     CARD_REGEXP = r'.*\[([2-9TJQKAcdhs,]+)\].*'
 
@@ -42,10 +44,11 @@ class CardBuilder(object):
         return results
 
     def is_card_list(self, string):
-        """Returns true if the string matches the card regexp, false otherwise"""
+        """Returns true if the string matches the card regexp, or False"""
         if not string:
             return False
         return re.match(self.CARD_REGEXP, string) is not None
+
 
 class AiGameParser(Parser):
     """Base class for the other STDIN parsers"""
@@ -66,8 +69,9 @@ class AiGameParser(Parser):
 
     def is_bot_directive(self, token):
         if token.startswith('bot_'):
-           return True
+            return True
         return False
+
 
 class SettingsParser(AiGameParser):
     """
@@ -126,6 +130,7 @@ class RoundParser(AiGameParser):
         self._data[key] = value
         return True
 
+
 class TurnParser(AiGameParser):
     """
     Info before we have to make a decision
@@ -178,13 +183,15 @@ class TurnParser(AiGameParser):
 
         return False
 
+
 class TheAiGameParserDelegate(GameParserDelegate):
     def set_up_parser(self, data, turn_callback):
         """Links the workers & callback up from the Brain"""
-        self.workers = [ SettingsParser(data),
-                         RoundParser(data),
-                         TurnParser(data, turn_callback) ]
+        self.workers = [SettingsParser(data),
+                        RoundParser(data),
+                        TurnParser(data, turn_callback), ]
         return self
+
 
 class TheAiGameActionDelegate(object):
     def bet(self, amount):
@@ -201,3 +208,48 @@ class TheAiGameActionDelegate(object):
 
     def check(self):
         self.say('check 0')
+
+    def do_action(self, action):
+        """Do a generic GameAction"""
+        b = TheAiGameActionBuilder()
+        self.say(b.to_string(action))
+
+class TheAiGameActionBuilder(object):
+    """Parser for translating actions to/from strings"""
+    VERBS = ['fold', 'call', 'raise', 'check']  # Ordered by GameAction
+
+    def from_string(self, input_action_string):
+        """Returns the appropriate game action, or None for invalid strings"""
+        if not input_action_string:
+            return None
+
+        action_string = input_action_string.strip().lower()
+
+        for action_num, verb in enumerate(self.VERBS):
+            if action_string.startswith(verb):
+                return self.__from_clean_string(action_num, action_string)
+        return None
+
+    def __from_clean_string(self, action_num, string):
+        """Given a string that starts with a verb, return the GameAction"""
+        action = GameAction(action_num)
+        words = string.split()
+        amount_int = 0
+
+        if words and len(words) > 1:
+            amount_str = words[1]
+            try:
+                amount_int = int(amount_str)
+            except ValueError:
+                pass
+        action.amount = amount_int
+        return action
+
+    def to_string(self, action):
+        """Given an action, return its theaigames string or None on failure"""
+        if not action or action.action < 0 or action.action > len(self.VERBS):
+            return None
+        action_str = self.VERBS[action.action]
+        if action.amount >= 0 and not action.is_fold() and not action.is_check():
+            action_str += " {a}".format(a=action.amount)
+        return action_str

@@ -1,11 +1,13 @@
 from __future__ import division
 import cPickle as pickle
-import os, time, random
+import os
+import random
 
 from game import GameData
 from hand_simulator import HandSimulator
 from utility import MathUtils
 from timer import Timer
+
 
 class Brain:
     """The brain: parses lines, combines data classes to make decisions"""
@@ -61,7 +63,8 @@ class Brain:
     def __do_turn(self, timeLeft_ms):
         """Callback for when the brain has to make a decision"""
         if not self.data.hand:
-            self.bot.log("No hand, killing ourselves. Data={d}".format(d=self.data))
+            self.bot.log("No hand, killing ourselves. Data={d}"
+                         .format(d=self.data))
             self.bot.fold()
             return
 
@@ -74,12 +77,12 @@ class Brain:
         else:
             simulator = HandSimulator(hand, self.data.table_cards)
             best_hand, score = simulator.best_hand()
-            self.bot.log("best 5: {b} score: {s}" \
+            self.bot.log("best 5: {b} score: {s}"
                          .format(b=str(best_hand), s=score))
             equity = simulator.simulate(self.iterations)
 
-        self.bot.log("{h}, equity: {e}%, pot odds: {p}%" \
-          .format(h=hand, e=equity, p=pot_odds))
+        self.bot.log("{h}, equity: {e}%, pot odds: {p}%"
+                     .format(h=hand, e=equity, p=pot_odds))
 
         self.pick_action(equity, pot_odds)
 
@@ -93,7 +96,7 @@ class Brain:
                 self.bot.bet(self.big_raise())
             elif equity > 0.5 or self.r_test(0.05):
                 self.bot.minimum_bet()
-            else: # equity <= 0.3:
+            else:  # equity <= 0.3:
                 self.bot.check()
 
         # use pot odds to call/bet/fold
@@ -122,7 +125,7 @@ class Brain:
     def r_test(self, fraction):
         """Given a number [0,1], randomly return true / false
         s.t. r_test(0.5) is true ~50% of the time"""
-        passed = random.uniform(0,1) < fraction
+        passed = random.uniform(0, 1) < fraction
         if passed:
             self.bot.log("r_test() passed for %{f}".format(f=fraction))
         return passed
