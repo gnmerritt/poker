@@ -53,6 +53,18 @@ class HoldemTest(unittest.TestCase):
 
         self.assertTrue(len(seen), 52 - len(remainder))
 
+    def test_constants(self):
+        """Tests holdem constants"""
+        holdem = MockHoldem()
+        self.assertEqual(holdem.max_players(), 10)
+        self.assertEqual(holdem.min_players(), 2)
+        self.assertEqual(holdem.hand_size(), 2)
+
+    def test_ante(self):
+        holdem = MockHoldem()
+        holdem.init_game()
+        self.assertTrue(holdem.ante())
+
     def test_post_bet(self):
         """Tests that posting a bet increases the pot & decreases the player"""
         holdem = MockHoldem()
