@@ -241,6 +241,11 @@ class TheAiGameActionBuilder(object):
         action.amount = amount_int
         return action
 
-    @staticmethod
-    def to_string(action):
-        pass
+    def to_string(self, action):
+        """Given an action, return its theaigames string or None on failure"""
+        if not action or action.action < 0 or action.action > len(self.VERBS):
+            return None
+        action_str = self.VERBS[action.action]
+        if action.amount >= 0 and not action.is_fold() and not action.is_check():
+            action_str += " {a}".format(a=action.amount)
+        return action_str

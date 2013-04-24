@@ -126,13 +126,16 @@ class TurnParserTest(unittest.TestCase):
 class ActionBuilderTest(unittest.TestCase):
 
     def test_parse_actions(self):
+        """Tests parsing out actions & amounts"""
         b = TheAiGameActionBuilder()
         actions = [['call 0', 1, 0],
                    ['raise 390', 2, 390],
                    ['check 0', 3, 0],
                    ['fold 3902', 0, 3902],
+                   ['FOLD', 0, 0],
                    ['   raise  30203   ', 2, 30203],
-                   ['fold', 0, 0]]
+                   ['fold', 0, 0],
+                   ['call 100 100', 1, 100]]
 
         for action_set in actions:
             a = b.from_string(action_set[0])
@@ -142,15 +145,36 @@ class ActionBuilderTest(unittest.TestCase):
 
 
     def test_garbage_actions(self):
+        """Makes sure the action parser can handle garbage input"""
         b = TheAiGameActionBuilder()
         actions = ['caasdfll 0',
                    '0 raise 390',
                    '02 check 0 20 1910 30',
-                   'this\n fold']
+                   'this\n fold',
+                   None,
+                   '']
 
         for action_string in actions:
             a = b.from_string(action_string)
             self.assertFalse(a, "string pased: {s}".format(s=action_string))
+
+    def test_to_from_strings(self):
+        """Converts actions from a string then back"""
+        b = TheAiGameActionBuilder()
+        actions = ['call 0',
+                   'raise 390',
+                   '  check',
+                   'fold',
+                   'raise 30203    ',
+                   '   fold',
+                   'call 100']
+        for action_str in actions:
+            action = b.from_string(action_str)
+            clean_string = action_str.strip().lower()
+            self.assertTrue(action)
+            self.assertEqual(b.to_string(action), clean_string,
+                             "saw {to} needed {s} from/to action string" \
+                             .format(s=clean_string, to=b.to_string(action)))
 
 if __name__ == '__main__':
     unittest.main()
