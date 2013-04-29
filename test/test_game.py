@@ -42,6 +42,13 @@ class MatchTest(unittest.TestCase):
         self.assertTrue(parser.handle_line('Match round lkfashfas'))
         self.assertEqual(match.round, 8392) # shouldn't change or explode
 
+    def test_bad_match_values(self):
+        """Checks for bad round"""
+        sharedData = {'round' : 'ROUND'}
+        match = GameData(sharedData)
+        match.update()
+        self.assertNotEqual(match.round, 'ROUND')
+
 class RoundTest(unittest.TestCase):
     """Tests for round by round stuff - cards and bots and blinds etc"""
 
@@ -61,6 +68,22 @@ class RoundTest(unittest.TestCase):
         self.assertEqual(the_round.small_blind, 10)
         self.assertEqual(the_round.big_blind, 20)
         self.assertEqual(the_round.button, 'bot_0')
+
+    def test_bad_round_values(self):
+        """Makes sure the round doesn't explode when we pass it bad data"""
+        sharedData = {'smallBlind' : 'SMALL',
+                      'bigBlind' : 'BIG',
+                      'pot' : 'POT',
+                      'sidepots' : 'SIDEPOTS'}
+        the_round = Round()
+        the_round.sharedData = sharedData
+        the_round.reset_round()
+
+        the_round.update_round()
+        self.assertNotEqual(the_round.small_blind, 'SMALL')
+        self.assertNotEqual(the_round.big_blind, 'BIG')
+        self.assertNotEqual(the_round.pot, 'POT')
+        self.assertNotEqual(the_round.sidepot, 'SIDEPOTS')
 
     def test_cards(self):
         """Tests finding the cards"""

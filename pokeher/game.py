@@ -58,7 +58,7 @@ class Round(object):
                 self.reset_round()
 
     def parse_cards(self):
-        if self.me:
+        if hasattr(self, 'me') and self.me:
             key = ('hand', self.me)
             if key in self.sharedData:
                 cards = self.sharedData.pop(key)
