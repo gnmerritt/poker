@@ -46,9 +46,10 @@ class HoldemHand(object):
 
     def play_hand(self):
         """Controls state for one hand of hold'em poker"""
-        bots = self.living_bot_names()
+        bots = self.parent.living_bot_names()
         self.hands = self.deal_hands(len(bots))
         blinds_round = self.post_blinds(bots)
+        self.parent.say_hands(bots, self.hands)
         self.betting_round(blinds_round)
 
         hand_phases = [self.deal_table_cards,
@@ -56,15 +57,16 @@ class HoldemHand(object):
                        self.deal_table_cards,
                        self.betting_round,
                        self.showdown,
-                       self.blind_manager.finish_hand, ]
+                       self.parent.blind_manager.finish_hand, ]
 
         for phase in hand_phases:
             pass
 
     def post_blinds(self, bots):
         """Returns the first betting round & posts the blinds"""
-        sb, sb_bot = self.blind_manager.next_sb()
-        bb, bb_bot = self.blind_manager.next_bb()
+        bm = self.parent.blind_manager
+        sb, sb_bot = bm.next_sb()
+        bb, bb_bot = bm.next_bb()
         self.post_bet(bb_bot, bb)  # TODO: check blinds too
         self.post_bet(sb_bot, sb)
         return BettingRound(bots,

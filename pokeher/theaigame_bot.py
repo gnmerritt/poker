@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys
+sys.path.append('/Users/nathan/sources/poker/') ## TODO fix
 from wiring import IOPokerBot
 from theaigame import TheAiGameParserDelegate, TheAiGameActionDelegate
 

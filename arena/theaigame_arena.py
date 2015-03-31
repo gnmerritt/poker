@@ -1,4 +1,5 @@
 import sys
+sys.path.append('/Users/nathan/sources/poker/') ## TODO fix
 from holdem import Holdem
 from betting import NoBetLimit
 from arena import PyArena

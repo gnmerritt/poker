@@ -1,5 +1,5 @@
 import subprocess
-
+import pokeher.cards as cards
 
 class BotState(object):
     """Stuff to remember about each bot"""
@@ -81,20 +81,26 @@ class PyArena(object):
     def play_match(self):
         """Plays rounds of poker until all players are eliminated except one
         Uses methods from the games mixin, explodes otherwise"""
-        self.say_match_updates()
-        bots = self.living_bots()
         self.init_game()
+        self.say_match_updates()
 
-        while len(bots) >= self.min_players:
+        rounds = 0
+        while len(self.living_bots()) >= self.min_players() and rounds == 0:
             self.say_round_updates()
             winners = self.play_hand()
             self.say_hand_winner(winners)
+            rounds += 1
+
+    def play_hand(self):
+        """"""
+        hand = self.new_hand()
+        hand.play_hand()
 
     def say_match_updates(self):
         """Info for the start of the match: game type, time, hands, bots"""
         match_info = self.match_timing()
-        match_info.append(self.ante().match_blinds())
-        match_info.append(self.match_game())
+        match_info.extend(self.ante().match_blinds())
+        match_info.extend(self.match_game())
 
         self.tell_bots(match_info)
         self.say_seating()
@@ -106,19 +112,28 @@ class PyArena(object):
         for bot in self.bots:
             name = bot.state.name
             seat = bot.state.seat
-            bot.tell('Settings yourBot {name}'.format(name=name))
+            self.tell_bot(name, ['Settings yourBot {name}'.format(name=name)])
             broadcast.append('{name} seat {seat}'.format(name=name, seat=seat))
         self.tell_bots(broadcast)
 
+    def say_hands(self, bots, hands):
+        for i, bot in enumerate(bots):
+            hand = cards.to_aigames_list(hands[i])
+            hand_line = '{b} hand {h}'.format(b=bot, h=hand)
+            self.tell_bot(bot, [hand_line])
+
     def say_round_updates(self):
-        pass
+        print "Round updates"
 
     def say_hand_winner(self, winners):
         pass
 
     def say_table_cards(self):
         """Tells the bots about table cards"""
-        pass
+        table_list = 'Match table [' \
+          + ','.join(self.table_cards) \
+          + ']'
+        self.tell_bots([table_list])
 
     def get_action(self, bot_name):
         """Tells a bot to go, waits for a response"""
@@ -129,15 +144,18 @@ class PyArena(object):
         bot = self.bot_from_name(bot_name)
         self.__tell_bot(bot, lines)
 
-    def tell_bots(self, lines):
+    def tell_bots(self, lines, silently=False):
         """Tell all bots something through STDIN"""
         for bot in self.bots:
-            self.__tell_bot(bot, lines)
+            self.__tell_bot(bot, lines, silently)
+            silently = True
 
-    def __tell_bot(self, bot, lines):
+    def __tell_bot(self, bot, lines, silently=False):
         """Pass a message to a LoadedBot"""
         for line in lines:
             bot.tell(line)
+            if not silently:
+                print "Telling {b}: {l}".format(b=bot.state.name, l=line)
 
     def post_bet(self, bot_name, amount):
         """Removes money from a bot stack, or returns False"""
