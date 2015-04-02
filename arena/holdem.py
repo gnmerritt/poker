@@ -1,7 +1,7 @@
 import random
 import pokeher.cards as cards
 from betting import BettingRound, BlindManager
-
+from poker import PokerHand
 
 class Holdem(object):
     def new_hand(self):
@@ -35,7 +35,7 @@ class Holdem(object):
                 'Settings gameMode tournament', ]
 
 
-class HoldemHand(object):
+class HoldemHand(PokerHand):
     """Texas Hold'em. Two hole cards, 5 table cards dealt 3-1-1"""
     def __init__(self, parent, players):
         """Initializes the holdem game components"""
@@ -68,6 +68,12 @@ class HoldemHand(object):
         sb, sb_bot = bm.next_sb()
         bb, bb_bot = bm.next_bb()
         self.post_bet(bb_bot, bb)  # TODO: check blinds too
+        # TODO: formatting shouldn't live here
+        blinds = [
+            '{sb_bot} post {sb}'.format(sb_bot=sb_bot, sb=sb),
+            '{bb_bot} post {bb}'.format(bb_bot=bb_bot, bb=bb),
+        ]
+        self.parent.tell_bots(blinds)
         self.post_bet(sb_bot, sb)
         return BettingRound(bots,
                             bets={sb_bot: sb, bb_bot: bb},
@@ -81,25 +87,6 @@ class HoldemHand(object):
             return True
         else:
             return False
-
-    def betting_round(self, br=None):
-        """Initiates and runs betting round"""
-        if not br:
-            br = BettingRound([], {}, pot=self.pot)
-        self.br = br
-
-        next_better = self.br.next_better()
-        while next_better is not None:
-            action = self.get_action(next_better)
-
-            if action.is_fold():
-                pass
-            elif action.is_raise():
-                pass
-            elif action.is_check():
-                pass
-            elif action.is_call():
-                pass
 
     def deal_hands(self, num_bots):
         """Deals out hands for players. Returns the list of hands"""

@@ -114,10 +114,22 @@ class BettingRoundTest(unittest.TestCase):
     def test_round_over(self):
         """Tests that after a C fold, B check and A call the round ends"""
         br = self.br
-        self.assertFalse(br.post_bet('c', 0))
+        self.assertFalse(br.post_fold('c'))
         self.assertTrue(br.post_bet('a', 10))
         self.assertTrue(br.post_bet('b', 0))
         self.assertEqual(br.next_better(), None)
+        remaining = br.remaining_players()
+        self.assertEqual(len(remaining), 2)
+        self.assertTrue('a' in remaining)
+        self.assertTrue('b' in remaining)
+
+    def test_heads_up_fold(self):
+        br = self.br
+        self.assertFalse(br.post_fold('c'))
+        self.assertFalse(br.post_fold('a'))
+        # A & C fold, so B (BB) wins
+        self.assertEqual(br.next_better(), None)
+        self.assertEqual(br.remaining_players(), ['b'])
 
     def test_post_bet(self):
         """Checks posting a new bet"""

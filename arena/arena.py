@@ -1,5 +1,7 @@
 import subprocess
 import pokeher.cards as cards
+from pokeher.theaigame import TheAiGameActionBuilder
+
 
 class BotState(object):
     """Stuff to remember about each bot"""
@@ -125,6 +127,12 @@ class PyArena(object):
     def say_round_updates(self):
         print "Round updates"
 
+    def say_action(self, bot, action):
+        """Tells the bots that one of them has performed an action"""
+        b = TheAiGameActionBuilder()
+        action_string = b.to_string(action)
+        self.tell_bots(["{b} {a}".format(b=bot, a=action_string)])
+
     def say_hand_winner(self, winners):
         pass
 
@@ -137,7 +145,7 @@ class PyArena(object):
 
     def get_action(self, bot_name):
         """Tells a bot to go, waits for a response"""
-        pass
+        self.tell_bot(bot_name, ['go 5000']) # TODO hook up to timing per bot
 
     def tell_bot(self, bot_name, lines):
         """Tells one bot something"""

@@ -72,13 +72,16 @@ class BettingRound(object):
     """Controls a round of betting.
     Each player has the chance to check, call, raise or fold.
     Once a player folds (or bets too small) the player is out"""
-    def __init__(self, bots, bets={}, pot=0):
+    def __init__(self, bots, bets=None, pot=0):
         self.pot = pot
         self.sidepot = 0
         self.bots = bots  # ordered list of bots
+        if bets is None:
+            bets = {}
         self.bets = bets  # dict bot name => current bet
         self.high_better = None
         self.next_better_index = -1
+        self.finished = (len(bots) == 1)
 
         # Default bets to 0, find high better
         for i, bot in enumerate(self.bots):
@@ -109,7 +112,7 @@ class BettingRound(object):
     def next_better(self):
         """Returns the next bettor, or None if the round is over"""
         next_better = self.bots[self.next_better_index]
-        if self.can_bet(next_better):
+        if self.can_bet(next_better) and not self.finished:
             return next_better
         else:
             return None
@@ -123,6 +126,9 @@ class BettingRound(object):
         """Is a player currently active and betting"""
         return player in self.bets
 
+    def remaining_players(self):
+        return [p for p, _ in self.bets.iteritems()]
+
     def post_bet(self, player, bet):
         """Record a valid bet for a bot. Returns False if the bot has folded"""
         print 'posting {b} from {p}'.format(b=bet, p=player)
@@ -131,7 +137,7 @@ class BettingRound(object):
 
         # Check & update the next better index
         assert(player == self.next_better())
-        self.next_better_index = (self.next_better_index + 1) % len(self.bots)
+        self.__forward()
 
         current_bet = self.bets[player] + bet
         if current_bet >= self.sidepot:
@@ -139,8 +145,20 @@ class BettingRound(object):
             self.__process_bet(current_bet, player)
             return True
         else:
-            del self.bets[player]
+            self.__fold(player)
             return False
+
+    def post_fold(self, player):
+        self.__fold(player)
+        self.__forward()
+        return False
+
+    def __fold(self, player):
+        del self.bets[player]
+        self.finished = (len(self.bets) == 1)
+
+    def __forward(self):
+        self.next_better_index = (self.next_better_index + 1) % len(self.bots)
 
     def say_pot(self):
         return ['Match pot {self.pot}'.format(self=self),
