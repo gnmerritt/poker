@@ -128,6 +128,7 @@ class BettingRoundTest(unittest.TestCase):
         self.assertFalse(br.post_fold('c'))
         self.assertFalse(br.post_fold('a'))
         # A & C fold, so B (BB) wins
+        self.assertEqual(br.pot, 30)
         self.assertEqual(br.next_better(), None)
         self.assertEqual(br.remaining_players(), ['b'])
 

@@ -7,7 +7,7 @@ class BotStateTest(unittest.TestCase):
         bs = BotState(1)
         self.assertEqual(bs.name, "bot_1")
         self.assertEqual(bs.seat, 1)
-        self.assertEqual(bs.stack, 0)
+        self.assertEqual(bs.stack, bs.INITIAL_CHIPS)
         self.assertEqual(bs.stake, 0)
 
 class PyArenaTest(unittest.TestCase):

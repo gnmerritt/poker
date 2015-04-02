@@ -4,11 +4,13 @@ from pokeher.theaigame import TheAiGameActionBuilder
 
 
 class BotState(object):
+    INITIAL_CHIPS = 1000 # TODO
+
     """Stuff to remember about each bot"""
     def __init__(self, seat):
         self.name = 'bot_{s}'.format(s=seat)  # name for communication
         self.seat = seat  # seat at table
-        self.stack = 0  # amount of chips
+        self.stack = self.INITIAL_CHIPS # amount of chips
         self.stake = 0  # chips bet currently
 
 
@@ -23,6 +25,19 @@ class LoadedBot(object):
         """Writes to the bot's STDIN"""
         pass  # TODO :-(
 
+    def change_chips(self, delta):
+        self.state.stack += delta
+        if self.state.stack <= 0:
+            self.kill()
+
+    def name(self):
+        return self.state.name
+
+    def chips(self):
+        if not self.is_active:
+            return 0
+        return self.state.stack
+
     def kill(self):
         """Kills the bot"""
         self.is_active = False
@@ -31,7 +46,7 @@ class LoadedBot(object):
 class PyArena(object):
     """Loads Python bots from source folders, sets up IO channels to them"""
     def __init__(self):
-        self.bots = []
+        self.bots = [] # [LoadedBot]
 
     def run(self, args):
         for file in args:
@@ -87,16 +102,32 @@ class PyArena(object):
         self.say_match_updates()
 
         rounds = 0
-        while len(self.living_bots()) >= self.min_players() and rounds == 0:
+        while len(self.living_bots()) >= self.min_players() and rounds < 2:
             self.say_round_updates()
-            winners = self.play_hand()
-            self.say_hand_winner(winners)
+            self.play_hand()
             rounds += 1
+        self.say_round_updates()
 
     def play_hand(self):
-        """"""
+        """Plays a hand of poker, updating chip counts at the end."""
         hand = self.new_hand()
-        hand.play_hand()
+        winners, pot = hand.play_hand()
+        self.__update_chips(winners, pot)
+        return winners
+
+    def __update_chips(self, winners, pot):
+        num_winners = len(winners)
+        prize_per_winner = pot / num_winners
+        assert prize_per_winner >= 0
+
+        updates = []
+
+        for name in winners:
+            bot = self.bot_from_name(name)
+            bot.change_chips(prize_per_winner)
+            updates.append("{n} wins {p}".format(n=name, p=prize_per_winner))
+
+        self.tell_bots(updates)
 
     def say_match_updates(self):
         """Info for the start of the match: game type, time, hands, bots"""
@@ -125,16 +156,18 @@ class PyArena(object):
             self.tell_bot(bot, [hand_line])
 
     def say_round_updates(self):
-        print "Round updates"
+        round_updates = []
+        for bot in self.bots:
+            round_updates.append(
+                "{n} stack {s}".format(n=bot.name(), s=bot.chips())
+            )
+        self.tell_bots(round_updates)
 
     def say_action(self, bot, action):
         """Tells the bots that one of them has performed an action"""
         b = TheAiGameActionBuilder()
         action_string = b.to_string(action)
         self.tell_bots(["{b} {a}".format(b=bot, a=action_string)])
-
-    def say_hand_winner(self, winners):
-        pass
 
     def say_table_cards(self):
         """Tells the bots about table cards"""
@@ -168,8 +201,7 @@ class PyArena(object):
     def post_bet(self, bot_name, amount):
         """Removes money from a bot stack, or returns False"""
         bot = self.bot_from_name(bot_name)
-        if not bot or not bot.state.stack >= amount:
+        if not bot or bot.chips() < amount:
             return False
-
-        bot.state.stack -= amount
+        bot.change_chips(amount * -1)
         return True

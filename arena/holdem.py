@@ -50,17 +50,26 @@ class HoldemHand(PokerHand):
         self.hands = self.deal_hands(len(bots))
         blinds_round = self.post_blinds(bots)
         self.parent.say_hands(bots, self.hands)
-        self.betting_round(blinds_round)
 
-        hand_phases = [self.deal_table_cards,
+        def blinds(bots):
+            return self.betting_round(br=blinds_round)
+
+        def winner(bots):
+            """Method that runs at the end of a hand. Updates chips, blinds, etc"""
+            self.parent.blind_manager.finish_hand()
+
+        hand_phases = [blinds,
+                       self.deal_table_cards,
                        self.betting_round,
                        self.deal_table_cards,
                        self.betting_round,
-                       self.showdown,
-                       self.parent.blind_manager.finish_hand, ]
+                       self.showdown]
 
         for phase in hand_phases:
-            pass
+            hand_finished, bots = phase(bots)
+            assert bots
+            if hand_finished:
+                return bots, self.pot
 
     def post_blinds(self, bots):
         """Returns the first betting round & posts the blinds"""
@@ -68,16 +77,16 @@ class HoldemHand(PokerHand):
         sb, sb_bot = bm.next_sb()
         bb, bb_bot = bm.next_bb()
         self.post_bet(bb_bot, bb)  # TODO: check blinds too
+        self.post_bet(sb_bot, sb)
         # TODO: formatting shouldn't live here
         blinds = [
             '{sb_bot} post {sb}'.format(sb_bot=sb_bot, sb=sb),
             '{bb_bot} post {bb}'.format(bb_bot=bb_bot, bb=bb),
         ]
         self.parent.tell_bots(blinds)
-        self.post_bet(sb_bot, sb)
         return BettingRound(bots,
                             bets={sb_bot: sb, bb_bot: bb},
-                            pot=(sb + bb))
+                            pot=0)
 
     def post_bet(self, bot_name, amount):
         """Posts a bet, returns False on failure"""

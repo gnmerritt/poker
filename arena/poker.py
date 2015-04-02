@@ -7,13 +7,16 @@ class PokerHand(object):
     Various stages of gameplay are defined here for use among multiple
     specific games of poker
     """
-    def betting_round(self, br=None):
-        """Initiates and runs betting round"""
+    def betting_round(self, bots=None, br=None):
+        """Initiates and runs a betting round.
+        Returns a tuple of hand_finished, [remaining_players]
+        """
+        if bots is None:
+            bots = []
         if not br:
-            br = BettingRound([], {}, pot=self.pot)
-        self.br = br
+            br = BettingRound(bots, {}, pot=self.pot)
 
-        current_better = self.br.next_better()
+        current_better = br.next_better()
         while current_better is not None:
             action = self.parent.get_action(current_better)
 
@@ -27,12 +30,18 @@ class PokerHand(object):
             elif action.is_check():
                 br.post_bet(current_better, 0)
 
+            self.pot = br.pot
             self.parent.say_action(current_better, action)
+            self.parent.tell_bots(br.say_pot())
 
-            current_better = self.br.next_better()
+            current_better = br.next_better()
 
-        return br.remaining_players()
+        remaining = br.remaining_players()
+        # A hand ends if only one player remains after betting
+        return len(remaining) == 1, remaining
 
-    def showdown(self, highlow=False):
-        """"""
-        pass
+    def showdown(self, bots=None, highlow=False):
+        """
+        Returns the player(s) who won the showdown
+        """
+        return True, []
