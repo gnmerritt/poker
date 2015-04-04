@@ -145,6 +145,27 @@ class BettingRoundTest(unittest.TestCase):
         for bot in self.bots:
             self.assertTrue(br.is_staked(bot))
 
+    def test_heads_up_blinds(self):
+        bots = ['a', 'b']
+        bets = {'a': 10, 'b': 20}
+        br = BettingRound(bots, bets)
+        self.assertTrue(br.post_bet('a', 10))
+        self.assertTrue(br.post_bet('b', 0))
+        self.assertEqual(br.big_blind, 'b')
+        # Betting round should be over after 'b' checks
+        self.assertEqual(br.next_better(), None)
+
+    def test_heads_up_bb_bets(self):
+        bots = ['a', 'b']
+        bets = {'a': 10, 'b': 20}
+        br = BettingRound(bots, bets)
+        self.assertTrue(br.post_bet('a', 10))
+        self.assertTrue(br.post_bet('b', 10))
+        self.assertEqual(br.big_blind, 'b')
+        self.assertEqual(br.next_better(), 'a')
+        self.assertEqual(br.pot, 50)
+        self.assertEqual(br.sidepot, 30)
+
     def test_fold(self):
         """Tests that betting 0 causes a fold"""
         br = self.br

@@ -78,6 +78,8 @@ class BettingRound(object):
         self.bots = bots  # ordered list of bots
         if bets is None:
             bets = {}
+        else:
+            self.big_blind = max(bets, key=bets.get)
         self.bets = bets  # dict bot name => current bet
         self.high_better = None
         self.next_better_index = -1
@@ -131,13 +133,15 @@ class BettingRound(object):
 
     def post_bet(self, player, bet):
         """Record a valid bet for a bot. Returns False if the bot has folded"""
-        print 'posting {b} from {p}'.format(b=bet, p=player)
-        print 'next_better_index = {n} ({b})' \
-            .format(n=self.next_better_index, b=self.next_better())
-
         # Check & update the next better index
         assert(player == self.next_better())
         self.__forward()
+
+        # Special case for calls around to the big blind
+        if self.high_better is None and player == self.big_blind \
+          and self.sidepot == self.bets[player]:
+            self.high_better = self.big_blind
+            self.finished = (bet == 0)
 
         current_bet = self.bets[player] + bet
         if current_bet >= self.sidepot:

@@ -65,9 +65,10 @@ class HoldemHand(PokerHand):
                        self.betting_round,
                        self.showdown]
 
-        for phase in hand_phases:
+        for i, phase in enumerate(hand_phases):
             hand_finished, bots = phase(bots)
             assert bots
+            print "Ran hand phase {}".format(i)
             if hand_finished:
                 return bots, self.pot
 

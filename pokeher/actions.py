@@ -7,9 +7,9 @@ class GameAction(object):
     RAISE = 2
     CHECK = 3
 
-    def __init__(self, action):
+    def __init__(self, action, amount=0):
         self.action = action
-        self.amount = 0
+        self.amount = amount
 
     def __match(self, query):
         return query == self.action
