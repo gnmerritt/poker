@@ -1,6 +1,6 @@
 from betting import BettingRound
 from pokeher.actions import GameAction
-
+from pokeher.handscore import HandBuilder
 
 class PokerHand(object):
     """A hand of poker
@@ -26,7 +26,10 @@ class PokerHand(object):
             if action.is_fold():
                 br.post_fold(current_better)
             elif action.is_raise() or action.is_call():
-                br.post_bet(current_better, action.amount)
+                if self.parent.post_bet(current_better, action.amount):
+                    br.post_bet(current_better, action.amount)
+                else:
+                    br.post_fold(current_better)
             elif action.is_check():
                 br.post_bet(current_better, 0)
 
@@ -40,8 +43,30 @@ class PokerHand(object):
         # A hand ends if only one player remains after betting
         return len(remaining) == 1, remaining
 
-    def showdown(self, bots=None, highlow=False):
+    def showdown(self, bots):
         """
         Returns the player(s) who won the showdown
         """
-        return True, []
+        return True, bots
+
+
+class Showdown(object):
+    """Finds the best hand for each bot given their hole and table cards
+    Returns a list of winning bot names
+    """
+    def __init__(self, bot_hands, table_cards):
+        self.winners = []
+        bot_best_hands = {}
+        for bot, hand in bot_hands.iteritems():
+            _, score = HandBuilder(hand + table_cards).find_hand()
+            bot_best_hands[bot] = score
+
+        best_score = None
+        for bot, score in bot_best_hands.iteritems():
+            if best_score is None:
+                best_score = score
+            if score >= best_score:
+                if score > best_score:
+                    best_score = hand
+                    self.winners = []
+                self.winners.append(bot)
