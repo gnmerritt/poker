@@ -100,15 +100,15 @@ class PyArena(object):
         self.init_game()
         self.say_match_updates()
         starting_money = sum(b.state.stack for b in self.living_bots())
-        rounds = 0
+        current_round = 0
 
         while len(self.living_bots()) >= self.min_players():
-            self.say_round_updates()
+            self.say_round_updates(current_round)
             self.play_hand()
             self.__remove_dead_players()
-            rounds += 1
+            current_round += 1
             assert sum(b.state.stack for b in self.living_bots()) == starting_money
-        self.say_round_updates()
+        self.say_round_updates(current_round)
 
     def play_hand(self):
         """Plays a hand of poker, updating chip counts at the end."""
@@ -162,12 +162,13 @@ class PyArena(object):
             hand_line = '{b} hand {h}'.format(b=bot, h=hand_string)
             self.tell_bot(bot, [hand_line])
 
-    def say_round_updates(self):
+    def say_round_updates(self, current_round):
         round_updates = []
         for bot in self.bots:
             round_updates.append(
                 "{n} stack {s}".format(n=bot.name(), s=bot.chips())
             )
+            round_updates.append("Match round {}".format(current_round))
         self.tell_bots(round_updates)
 
     def say_action(self, bot, action):

@@ -85,6 +85,9 @@ class HoldemHand(PokerHand):
         posted_sb = self.post_bet(sb_bot, sb)
         # TODO: formatting shouldn't live here
         blinds = [
+            'Match onButton {sb}'.format(sb=sb_bot), # TODO only for heads up
+            'Match smallBlind {sb}'.format(sb=sb),
+            'Match bigBlind {bb}'.format(bb=bb),
             '{sb_bot} post {sb}'.format(sb_bot=sb_bot, sb=posted_sb),
             '{bb_bot} post {bb}'.format(bb_bot=bb_bot, bb=posted_bb),
         ]
