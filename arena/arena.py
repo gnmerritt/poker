@@ -112,6 +112,7 @@ class PyArena(object):
     def play_hand(self):
         """Plays a hand of poker, updating chip counts at the end."""
         hand = self.new_hand()
+        self.called = False ## Hack until real actions are hooked up
         winners, pot = hand.play_hand()
         self.__update_chips(winners, pot)
         return winners
@@ -175,8 +176,6 @@ class PyArena(object):
         table_list = 'Match table {}'.format(cards.to_aigames_list(dealt_cards))
         self.tell_bots([table_list])
 
-    called = False ## HACK :-P
-
     def get_action(self, bot_name):
         """Tells a bot to go, waits for a response"""
         self.tell_bot(bot_name, ['go 5000']) # TODO hook up to timing per bot
@@ -206,9 +205,11 @@ class PyArena(object):
                 print "Telling {b}: {l}".format(b=bot.state.name, l=line)
 
     def post_bet(self, bot_name, amount):
-        """Removes money from a bot stack, or returns False"""
+        """Removes money from a bot stack, returns how much was removed"""
         bot = self.bot_from_name(bot_name)
-        if not bot or bot.chips() < amount:
-            return False
+        chips = bot.chips()
+        if chips < amount:
+            bot.change_chips(chips * -1)
+            return chips
         bot.change_chips(amount * -1)
-        return True
+        return amount

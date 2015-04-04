@@ -15,6 +15,8 @@ class Blinds(object):
 
 class BlindManager(object):
     """Keeps track of who posts which blind, when to raise blinds"""
+    BLIND_MULTIPLIER = 2
+
     def __init__(self, hands_per_level, bots):
         self.hands_per_level = hands_per_level
         self.hands_this_level = 0
@@ -41,7 +43,12 @@ class BlindManager(object):
     def __check_raise_blinds(self):
         if self.hands_this_level >= self.hands_per_level:
             self.hands_this_level = 0
-        # TODO
+            self.__increment_blinds()
+
+    def __increment_blinds(self):
+        new_sb = self.blind.small_blind * self.BLIND_MULTIPLIER
+        new_bb = self.blind.big_blind * self.BLIND_MULTIPLIER
+        self.blind = Blinds(new_sb, new_bb)
 
     def finish_hand(self):
         """Called by the game after every hand"""

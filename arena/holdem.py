@@ -59,9 +59,11 @@ class HoldemHand(PokerHand):
             self.parent.blind_manager.finish_hand()
 
         hand_phases = [blinds,
-                       self.deal_table_cards,
+                       self.deal_table_cards, # flop
                        self.betting_round,
-                       self.deal_table_cards,
+                       self.deal_table_cards, # turn
+                       self.betting_round,
+                       self.deal_table_cards, # river
                        self.betting_round,
                        self.showdown]
 
@@ -79,8 +81,8 @@ class HoldemHand(PokerHand):
         bm = self.parent.blind_manager
         sb, sb_bot = bm.next_sb()
         bb, bb_bot = bm.next_bb()
-        self.post_bet(bb_bot, bb)  # TODO: check blinds too
-        self.post_bet(sb_bot, sb)
+        if not self.post_bet(bb_bot, bb) or not self.post_bet(sb_bot, sb):
+            raise ValueError
         # TODO: formatting shouldn't live here
         blinds = [
             '{sb_bot} post {sb}'.format(sb_bot=sb_bot, sb=sb),
@@ -93,9 +95,9 @@ class HoldemHand(PokerHand):
 
     def post_bet(self, bot_name, amount):
         """Posts a bet, returns False on failure"""
-        canPost = self.parent.post_bet(bot_name, amount)
-        if canPost:
-            self.pot += amount
+        posted = self.parent.post_bet(bot_name, amount)
+        if posted > 0:
+            self.pot += posted
             return True
         else:
             return False
