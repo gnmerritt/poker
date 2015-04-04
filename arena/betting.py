@@ -137,7 +137,7 @@ class BettingRound(object):
     def remaining_players(self):
         return [p for p, _ in self.bets.iteritems()]
 
-    def post_bet(self, player, bet):
+    def post_bet(self, player, bet, all_in=False):
         """Record a valid bet for a bot. Returns False if the bot has folded"""
         # Check & update the next better index
         assert(player == self.next_better())

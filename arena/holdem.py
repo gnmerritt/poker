@@ -51,14 +51,14 @@ class HoldemHand(PokerHand):
         blinds_round = self.post_blinds(bots)
         self.parent.say_hands(self.hands)
 
-        def blinds(bots):
+        def blinds_and_preflop(bots):
             return self.betting_round(br=blinds_round)
 
         def winner(bots):
             """Method that runs at the end of a hand. Updates chips, blinds, etc"""
             self.parent.blind_manager.finish_hand()
 
-        hand_phases = [blinds,
+        hand_phases = [blinds_and_preflop,
                        self.deal_table_cards, # flop
                        self.betting_round,
                        self.deal_table_cards, # turn
@@ -70,9 +70,9 @@ class HoldemHand(PokerHand):
         for i, phase in enumerate(hand_phases):
             hand_finished, bots = phase(bots)
             assert bots
-            #print "Ran hand phase {}".format(i)
+            #print "--Ran hand phase {}".format(i)
             if hand_finished:
-                #print "Hand finished after phase {}".format(i)
+                #print "--Hand finished after phase {}".format(i)
                 winner(bots)
                 return bots, self.pot
 
@@ -81,26 +81,23 @@ class HoldemHand(PokerHand):
         bm = self.parent.blind_manager
         sb, sb_bot = bm.next_sb()
         bb, bb_bot = bm.next_bb()
-        if not self.post_bet(bb_bot, bb) or not self.post_bet(sb_bot, sb):
-            raise ValueError
+        posted_bb = self.post_bet(bb_bot, bb)
+        posted_sb = self.post_bet(sb_bot, sb)
         # TODO: formatting shouldn't live here
         blinds = [
-            '{sb_bot} post {sb}'.format(sb_bot=sb_bot, sb=sb),
-            '{bb_bot} post {bb}'.format(bb_bot=bb_bot, bb=bb),
+            '{sb_bot} post {sb}'.format(sb_bot=sb_bot, sb=posted_sb),
+            '{bb_bot} post {bb}'.format(bb_bot=bb_bot, bb=posted_bb),
         ]
         self.parent.tell_bots(blinds)
         return BettingRound(bots,
-                            bets={sb_bot: sb, bb_bot: bb},
+                            bets={sb_bot: posted_sb, bb_bot: posted_bb},
                             pot=0)
 
     def post_bet(self, bot_name, amount):
-        """Posts a bet, returns False on failure"""
+        """Posts a bet, returns posted amount"""
         posted = self.parent.post_bet(bot_name, amount)
-        if posted > 0:
-            self.pot += posted
-            return True
-        else:
-            return False
+        self.pot += posted
+        return posted
 
     def deal_hands(self, bots):
         """Deals out hands for players. Returns a map of bots to hands"""

@@ -2,7 +2,7 @@ import unittest
 from arena.holdem import *
 from arena.arena import LoadedBot
 
-class MockHoldem(Holdem):
+class MockHoldemArena(Holdem):
     """Mocks out mixin methods that would usually be defined"""
     count = 2
 
@@ -24,7 +24,7 @@ class MockHoldem(Holdem):
         pass
 
     def post_bet(self, bot_name, amount):
-        return True
+        return amount
 
 class HoldemTest(unittest.TestCase):
     def test_dealer(self):
@@ -33,7 +33,7 @@ class HoldemTest(unittest.TestCase):
             self.verify_dealer(i)
 
     def verify_dealer(self, players):
-        holdem = MockHoldem()
+        holdem = MockHoldemArena()
         holdem.count = players
         hand = holdem.new_hand()
         hands_map = hand.deal_hands(['a{}'.format(i) for i in range(0, players)])
@@ -55,19 +55,19 @@ class HoldemTest(unittest.TestCase):
 
     def test_constants(self):
         """Tests holdem constants"""
-        holdem = MockHoldem()
+        holdem = MockHoldemArena()
         self.assertEqual(holdem.max_players(), 10)
         self.assertEqual(holdem.min_players(), 2)
         self.assertEqual(holdem.hand_size(), 2)
 
     def test_ante(self):
-        holdem = MockHoldem()
+        holdem = MockHoldemArena()
         holdem.init_game()
         self.assertTrue(holdem.ante())
 
     def test_post_bet(self):
         """Tests that posting a bet increases the pot & decreases the player"""
-        holdem = MockHoldem()
+        holdem = MockHoldemArena()
         holdem.init_game()
         hand = holdem.new_hand()
         self.assertEqual(0, hand.pot)
@@ -77,7 +77,7 @@ class HoldemTest(unittest.TestCase):
 
     def test_table_cards(self):
         """Tests that table cards are dealt 3-1-1"""
-        holdem = MockHoldem()
+        holdem = MockHoldemArena()
         holdem.init_game()
         hand = holdem.new_hand()
         hand.deal_hands(['a','b'])
@@ -101,7 +101,7 @@ class HoldemTest(unittest.TestCase):
 
     @unittest.skip("wrote too early")
     def test_play_hand(self):
-        holdem = MockHoldem()
+        holdem = MockHoldemArena()
         winners = holdem.play_hand()
 
         self.assertTrue(winners)

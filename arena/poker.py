@@ -18,30 +18,38 @@ class PokerHand(object):
 
         current_better = br.next_better()
         while current_better is not None:
-            action = self.parent.get_action(current_better)
-
-            if action is None:
-                action = GameAction(GameAction.FOLD)
-
-            if action.is_fold():
-                br.post_fold(current_better)
-            elif action.is_raise() or action.is_call():
-                if self.parent.post_bet(current_better, action.amount):
-                    br.post_bet(current_better, action.amount)
-                else:
-                    br.post_fold(current_better)
-            elif action.is_check():
-                br.post_bet(current_better, 0)
-
+            self.__handle_bet(br, current_better)
             self.pot = br.pot
-            self.parent.say_action(current_better, action)
             self.parent.tell_bots(br.say_pot())
-
             current_better = br.next_better()
 
         remaining = br.remaining_players()
         # A hand ends if only one player remains after betting
         return len(remaining) == 1, remaining
+
+    def __handle_bet(self, br, current_better):
+        action = self.parent.get_action(current_better)
+
+        if action is None:
+            action = GameAction(GameAction.FOLD)
+
+        if action.is_fold():
+            br.post_fold(current_better)
+        elif action.is_raise() or action.is_call():
+            if self.parent.post_bet(current_better, action.amount):
+                big_enough_bet = br.post_bet(current_better, action.amount)
+                if not big_enough_bet:
+                    if self.parent.is_all_in(current_better):
+                        print "{} is all in!".format(current_better)
+                        br.post_bet(current_better, action.amount, all_in=True)
+                    else:
+                        self.parent.refund(current_better, action.amount)
+            else:
+                br.post_fold(current_better)
+        elif action.is_check():
+            br.post_bet(current_better, 0)
+
+        self.parent.say_action(current_better, action)
 
     def showdown(self, bots):
         """

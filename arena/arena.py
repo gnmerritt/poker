@@ -28,8 +28,6 @@ class LoadedBot(object):
 
     def change_chips(self, delta):
         self.state.stack += delta
-        if self.state.stack <= 0:
-            self.kill()
 
     def name(self):
         return self.state.name
@@ -101,12 +99,15 @@ class PyArena(object):
         Uses methods from the games mixin, explodes otherwise"""
         self.init_game()
         self.say_match_updates()
-
+        starting_money = sum(b.state.stack for b in self.living_bots())
         rounds = 0
+
         while len(self.living_bots()) >= self.min_players():
             self.say_round_updates()
             self.play_hand()
+            self.__remove_dead_players()
             rounds += 1
+            assert sum(b.state.stack for b in self.living_bots()) == starting_money
         self.say_round_updates()
 
     def play_hand(self):
@@ -121,7 +122,6 @@ class PyArena(object):
         num_winners = len(winners)
         prize_per_winner = pot / num_winners
         assert prize_per_winner >= 0
-
         updates = []
 
         for name in winners:
@@ -130,6 +130,11 @@ class PyArena(object):
             updates.append("{n} wins {p}".format(n=name, p=prize_per_winner))
 
         self.tell_bots(updates)
+
+    def __remove_dead_players(self):
+        for bot in self.living_bots():
+            if bot.chips() == 0:
+                bot.kill()
 
     def say_match_updates(self):
         """Info for the start of the match: game type, time, hands, bots"""
@@ -213,3 +218,13 @@ class PyArena(object):
             return chips
         bot.change_chips(amount * -1)
         return amount
+
+    def refund(self, bot_name, amount):
+        """Returns money to a bot after an illegal bet"""
+        bot = self.bot_from_name(bot_name)
+        bot.change_chips(amount)
+
+    def is_all_in(self, bot_name):
+        """Returns True if a bot is all in (has no chips left)"""
+        bot = self.bot_from_name(bot_name)
+        return bot.chips() == 0
