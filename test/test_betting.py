@@ -166,6 +166,14 @@ class BettingRoundTest(unittest.TestCase):
         self.assertEqual(br.pot, 50)
         self.assertEqual(br.sidepot, 30)
 
+    def test_checks_around(self):
+        bots = ['a', 'b']
+        bets = {}
+        br = BettingRound(bots, bets)
+        self.assertTrue(br.post_bet('a', 0))
+        self.assertTrue(br.post_bet('b', 0))
+        self.assertEqual(br.next_better(), None)
+
     def test_fold(self):
         """Tests that betting 0 causes a fold"""
         br = self.br

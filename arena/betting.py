@@ -74,12 +74,11 @@ class BettingRound(object):
     Once a player folds (or bets too small) the player is out"""
     def __init__(self, bots, bets=None, pot=0):
         self.pot = pot
-        self.sidepot = 0
+        self.sidepot = None
         self.bots = bots  # ordered list of bots
         if bets is None:
             bets = {}
-        else:
-            self.big_blind = max(bets, key=bets.get)
+        self.big_blind = max(bets, key=bets.get) if bets else None
         self.bets = bets  # dict bot name => current bet
         self.high_better = None
         self.next_better_index = -1
