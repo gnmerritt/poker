@@ -17,10 +17,11 @@ class IOPokerBot(object):
             try:
                 rawline = self.io_input.readline()
                 if len(rawline) == 0:
-                    break
+                    continue
                 line = rawline.strip()
                 self.brain.parse_line(line)
-            except EOFError:
+            except EOFError as e:
+                print e
                 return
 
     def say(self, line):
@@ -30,7 +31,7 @@ class IOPokerBot(object):
 
     def log(self, line):
         """Writes a line somewhere we can log it"""
-        self.write_line(line, self.log)
+        self.write_line(line, self.log_out)
 
     def write_line(self, line, dest):
         if line and dest:

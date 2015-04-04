@@ -1,45 +1,8 @@
-import subprocess
+import time
+
 import pokeher.cards as cards
-import pokeher.actions
 from pokeher.theaigame import TheAiGameActionBuilder
-
-
-class BotState(object):
-    INITIAL_CHIPS = 1000 # TODO
-
-    """Stuff to remember about each bot"""
-    def __init__(self, seat):
-        self.name = 'bot_{s}'.format(s=seat)  # name for communication
-        self.seat = seat  # seat at table
-        self.stack = self.INITIAL_CHIPS # amount of chips
-        self.stake = 0  # chips bet currently
-
-
-class LoadedBot(object):
-    """Holds an instance of each bot, keeps track of game info about it"""
-    def __init__(self, bot, seat):
-        self.bot = bot
-        self.state = BotState(seat)
-        self.is_active = True
-
-    def tell(self, line):
-        """Writes to the bot's STDIN"""
-        pass  # TODO :-(
-
-    def change_chips(self, delta):
-        self.state.stack += delta
-
-    def name(self):
-        return self.state.name
-
-    def chips(self):
-        if not self.is_active:
-            return 0
-        return self.state.stack
-
-    def kill(self):
-        """Kills the bot"""
-        self.is_active = False
+from bots import LoadedBot
 
 
 class PyArena(object):
@@ -51,7 +14,8 @@ class PyArena(object):
         for file in args:
             self.load_bot(file)
         if self.min_players() <= self.bot_count() <= self.max_players:
-            print "Have enough bots, starting match"
+            print "Have enough bots, starting match in 2s"
+            time.sleep(2)
             self.play_match()
         else:
             print "Wrong # of bots ({i}) needed {k}-{j}. Can't play" \
@@ -62,17 +26,7 @@ class PyArena(object):
         """Starts a bot as a subprocess, given its path"""
         seat = self.bot_count()
         print "loading bot {l} from {f}".format(l=seat, f=source_file)
-        try:
-            with open(source_file):
-                bot = subprocess.Popen([source_file],
-                                       stdin=subprocess.PIPE,
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
-                self.bots.append(LoadedBot(bot, seat))
-        except IOError as e:
-            print "bot file doesn't exist, skipping"
-            print e
-        # TODO: more error catching probably
+        self.bots.append(LoadedBot(source_file, seat))
 
     def bot_count(self):
         """Returns the current number of loaded bots"""
@@ -184,12 +138,11 @@ class PyArena(object):
 
     def get_action(self, bot_name):
         """Tells a bot to go, waits for a response"""
-        self.tell_bot(bot_name, ['go 5000']) # TODO hook up to timing per bot
-        if "bot_0" == bot_name and not self.called:
-            action = pokeher.actions.GameAction(1, amount=10) # SB call
-            self.called = True
-        else:
-            action = pokeher.actions.GameAction(3) # check
+        self.tell_bot(bot_name, ['go 500']) # TODO hook up to timing per bot
+        bot = self.bot_from_name(bot_name)
+        time, response = bot.ask()
+        print "Got response '{}' from {} in {}s".format(response, bot_name, time)
+        action = TheAiGameActionBuilder().from_string(response)
         return action
 
     def tell_bot(self, bot_name, lines):

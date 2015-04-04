@@ -61,8 +61,11 @@ class AiGameParser(Parser):
         if line.startswith('go '):
             line = 'go ' + line
 
-        token, key, value = line.split()
-        return self._handle_line(token, key, value)
+        try:
+            token, key, value = line.split()
+            return self._handle_line(token, key, value)
+        except ValueError:
+            pass # TODO: figure these out
 
     def _handle_line(self, token, key, line):
         return False
