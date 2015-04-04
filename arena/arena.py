@@ -1,5 +1,6 @@
 import subprocess
 import pokeher.cards as cards
+import pokeher.actions
 from pokeher.theaigame import TheAiGameActionBuilder
 
 
@@ -102,7 +103,7 @@ class PyArena(object):
         self.say_match_updates()
 
         rounds = 0
-        while len(self.living_bots()) >= self.min_players() and rounds < 2:
+        while len(self.living_bots()) >= self.min_players():
             self.say_round_updates()
             self.play_hand()
             rounds += 1
@@ -149,10 +150,10 @@ class PyArena(object):
             broadcast.append('{name} seat {seat}'.format(name=name, seat=seat))
         self.tell_bots(broadcast)
 
-    def say_hands(self, bots, hands):
-        for i, bot in enumerate(bots):
-            hand = cards.to_aigames_list(hands[i])
-            hand_line = '{b} hand {h}'.format(b=bot, h=hand)
+    def say_hands(self, bot_hands):
+        for bot, hand in bot_hands.iteritems():
+            hand_string = cards.to_aigames_list(hand)
+            hand_line = '{b} hand {h}'.format(b=bot, h=hand_string)
             self.tell_bot(bot, [hand_line])
 
     def say_round_updates(self):
@@ -169,16 +170,22 @@ class PyArena(object):
         action_string = b.to_string(action)
         self.tell_bots(["{b} {a}".format(b=bot, a=action_string)])
 
-    def say_table_cards(self):
+    def say_table_cards(self, dealt_cards):
         """Tells the bots about table cards"""
-        table_list = 'Match table [' \
-          + ','.join(self.table_cards) \
-          + ']'
+        table_list = 'Match table {}'.format(cards.to_aigames_list(dealt_cards))
         self.tell_bots([table_list])
+
+    called = False ## HACK :-P
 
     def get_action(self, bot_name):
         """Tells a bot to go, waits for a response"""
         self.tell_bot(bot_name, ['go 5000']) # TODO hook up to timing per bot
+        if "bot_0" == bot_name and not self.called:
+            action = pokeher.actions.GameAction(1, amount=10) # SB call
+            self.called = True
+        else:
+            action = pokeher.actions.GameAction(3) # check
+        return action
 
     def tell_bot(self, bot_name, lines):
         """Tells one bot something"""

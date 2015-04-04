@@ -47,9 +47,9 @@ class HoldemHand(PokerHand):
     def play_hand(self):
         """Controls state for one hand of hold'em poker"""
         bots = self.parent.living_bot_names()
-        self.hands = self.deal_hands(len(bots))
+        self.hands = self.deal_hands(bots)
         blinds_round = self.post_blinds(bots)
-        self.parent.say_hands(bots, self.hands)
+        self.parent.say_hands(self.hands)
 
         def blinds(bots):
             return self.betting_round(br=blinds_round)
@@ -68,8 +68,10 @@ class HoldemHand(PokerHand):
         for i, phase in enumerate(hand_phases):
             hand_finished, bots = phase(bots)
             assert bots
-            print "Ran hand phase {}".format(i)
+            #print "Ran hand phase {}".format(i)
             if hand_finished:
+                #print "Hand finished after phase {}".format(i)
+                winner(bots)
                 return bots, self.pot
 
     def post_blinds(self, bots):
@@ -98,23 +100,23 @@ class HoldemHand(PokerHand):
         else:
             return False
 
-    def deal_hands(self, num_bots):
-        """Deals out hands for players. Returns the list of hands"""
+    def deal_hands(self, bots):
+        """Deals out hands for players. Returns a map of bots to hands"""
         hand_size = self.parent.hand_size()
-        hands = []
+        hands = {}
         full_deck = cards.full_deck()
-        hand_cards = random.sample(full_deck, hand_size * num_bots)
+        hand_cards = random.sample(full_deck, hand_size * len(bots))
         self.deck = [c for c in full_deck if not c in hand_cards]
 
-        for i in range(0, num_bots):
+        for bot in bots:
             hand = []
-            for j in range(0, hand_size):
+            for _ in range(0, hand_size):
                 hand.append(hand_cards.pop())
-            hands.append(hand)
+            hands[bot] = hand
 
         return hands
 
-    def deal_table_cards(self):
+    def deal_table_cards(self, bots):
         """Adds table cards and tells bots"""
         if not self.table_cards:
             # the flop
@@ -125,4 +127,5 @@ class HoldemHand(PokerHand):
 
         # update the deck
         self.deck = [c for c in self.deck if c not in self.table_cards]
-        self.parent.say_table_cards()
+        self.parent.say_table_cards(self.table_cards)
+        return False, bots

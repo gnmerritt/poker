@@ -47,7 +47,9 @@ class PokerHand(object):
         """
         Returns the player(s) who won the showdown
         """
-        return True, bots
+        bots_hands = {b: self.hands[b] for b in bots}
+        showdown = Showdown(bots_hands, self.table_cards)
+        return True, showdown.winners
 
 
 class Showdown(object):
