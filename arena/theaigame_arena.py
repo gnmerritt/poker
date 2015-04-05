@@ -12,6 +12,6 @@ class TheAiGameArena(PyArena, Holdem, NoBetLimit, HalfSecondTurns):
     pass
 
 if __name__ == '__main__':
-    arena = TheAiGameArena()
-    bot_list = sys.argv[1:]
-    arena.run(bot_list)
+    with TheAiGameArena() as arena:
+        bot_list = sys.argv[1:]
+        arena.run(bot_list)

@@ -20,6 +20,8 @@ def enqueue_output(out, queue):
 
 class BotProcess(object):
     def __init__(self, source_file):
+        self.exploded = False
+        self.process = self.process_out = None
         try:
             self.process = p = sp.Popen([source_file],
                                         stdin=sp.PIPE,
@@ -32,14 +34,15 @@ class BotProcess(object):
             t.daemon = True # thread dies with the program
             t.start()
         except OSError as e:
-            print "bot file doesn't exist, skipping"
-            print e
+            print "bot file doesn't exist, skipping {}".format(repr(e))
+            self.exploded = True
         # TODO: more error catching probably
 
     def put(self, line):
-        self.process.stdin.write(line)
-        self.process.stdin.write('\n')
-        self.process.stdin.flush()
+        if self.process:
+            self.process.stdin.write(line)
+            self.process.stdin.write('\n')
+            self.process.stdin.flush()
 
     def get(self, timeout=0.5):
         """Gets the most recent line
@@ -51,6 +54,10 @@ class BotProcess(object):
             except Empty:
                 pass
         return t.secs, line
+
+    def shutdown(self):
+        if self.process:
+            self.process.kill()
 
 
 class BotState(object):
@@ -94,3 +101,4 @@ class LoadedBot(object):
     def kill(self):
         """Kills the bot"""
         self.is_active = False
+        self.process.shutdown()

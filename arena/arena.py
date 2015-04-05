@@ -10,6 +10,13 @@ class PyArena(object):
     def __init__(self):
         self.bots = [] # [LoadedBot]
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        for bot in self.bots:
+            bot.kill()
+
     def run(self, args):
         for file in args:
             self.load_bot(file)
@@ -26,7 +33,9 @@ class PyArena(object):
         """Starts a bot as a subprocess, given its path"""
         seat = self.bot_count()
         print "loading bot {l} from {f}".format(l=seat, f=source_file)
-        self.bots.append(LoadedBot(source_file, seat))
+        bot = LoadedBot(source_file, seat)
+        if bot and not bot.process.exploded:
+            self.bots.append(bot)
 
     def bot_count(self):
         """Returns the current number of loaded bots"""

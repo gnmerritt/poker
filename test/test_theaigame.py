@@ -109,7 +109,9 @@ class TurnParserTest(unittest.TestCase):
                  'go 5000',
                  'Match table [Tc,8d,9c]',
                  'bot_1 fold 0',
-                 'bot_0 wins 30']
+                 'bot_0 wins 30',
+                 'bot_1 check',
+                 'bot_1 fold']
 
         data = {}
         self.goTime = 0
@@ -180,7 +182,12 @@ class ActionBuilderTest(unittest.TestCase):
                    ['FOLD', 0, 0],
                    ['   raise  30203   ', 2, 30203],
                    ['fold', 0, 0],
-                   ['call 100 100', 1, 100]]
+                   ['call 100 100', 1, 100],
+                   ["""call 10
+                   """, 1, 10],
+                   ["""raise 390
+                   """, 2, 390],
+        ]
 
         for action_set in actions:
             a = b.from_string(action_set[0])

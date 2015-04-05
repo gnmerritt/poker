@@ -61,11 +61,14 @@ class AiGameParser(Parser):
         if line.startswith('go '):
             line = 'go ' + line
 
-        try:
-            token, key, value = line.split()
-            return self._handle_line(token, key, value)
-        except ValueError:
-            pass # TODO: figure these out
+        token, key, value = self.__unpack_line(line)
+        return self._handle_line(token, key, value)
+
+    def __unpack_line(self, line):
+        words = line.split()
+        while len(words) < 3:
+            words.append("")
+        return words[0], words[1], words[2]
 
     def _handle_line(self, token, key, line):
         return False
@@ -146,6 +149,7 @@ class TurnParser(AiGameParser):
       bot_0 wins 30
       Match sidepots [10]
       bot_0 raise 20
+      bot_0 check
       bot_0 hand [6c,Jc]
       Match pot 20
       Match table [Tc,8d,9c]
