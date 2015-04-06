@@ -25,3 +25,7 @@ class GameAction(object):
 
     def is_check(self):
         return self.__match(self.CHECK)
+
+    def __repr__(self):
+        return "<GameAction type={}, amount={}>" \
+          .format(self.action, self.amount)

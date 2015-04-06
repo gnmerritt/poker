@@ -150,7 +150,6 @@ class PyArena(object):
         self.tell_bot(bot_name, ['go 500']) # TODO hook up to timing per bot
         bot = self.bot_from_name(bot_name)
         time, response = bot.ask()
-        print "Got response '{}' from {} in {}s".format(response, bot_name, time)
         action = TheAiGameActionBuilder().from_string(response)
         return action
 
