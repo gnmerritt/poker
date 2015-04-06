@@ -24,7 +24,10 @@ class CardBuilder(object):
             mapped_value = int(value)
         mapped_suit = self.SUIT_MAP.get(suit)
 
-        return Card(mapped_value, mapped_suit)
+        try:
+            return Card(mapped_value, mapped_suit)
+        except:
+            return None
 
     def from_list(self, token_string):
         """Returns a list of Cards from a string token like [Ah,9d]"""
@@ -142,10 +145,10 @@ class TurnParser(AiGameParser):
     Info before we have to make a decision
       bot_0 stack 1500 (ignored)
       bot_1 stack 1500 (ignored)
-      bot_0 post 10 (ignored)
-      bot_1 post 20 (ignored)
       bot_1 fold 0 (ignored)
 
+      bot_0 post 10
+      bot_1 post 20
       bot_0 wins 30
       Match sidepots [10]
       bot_0 raise 20
@@ -155,8 +158,9 @@ class TurnParser(AiGameParser):
       Match table [Tc,8d,9c]
       go 5000 (transformed into go go 5000)
     """
-    BOT_DATA = ['raise', 'call', 'wins', 'check', 'hand']
-    IGNORED_ACTIONS = ['fold', 'post', 'stack']
+    BOT_DATA = ['raise', 'call', 'wins', 'check', 'hand', 'post']
+    BET_VERBS = ['raise', 'call', 'post']
+    IGNORED_ACTIONS = ['fold', 'stack']
 
     def __init__(self, data, goCallback):
         self._data = data
@@ -173,7 +177,16 @@ class TurnParser(AiGameParser):
 
         # Save the data as (key, bot_x) = value
         if self.is_bot_directive(token) and key in self.BOT_DATA:
-            self._data[(key, token)] = value
+            if key in self.BET_VERBS:
+                try:
+                    value_int = int(value)
+                except:
+                    value = 0
+                bet_tuple = ('bet', token)
+                current_bet = self._data.get(bet_tuple, 0)
+                self._data[bet_tuple] = current_bet + value_int
+            else:
+                self._data[(key, token)] = value
             return True
 
         # Ignored stuff

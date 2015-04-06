@@ -116,5 +116,46 @@ class RoundTest(unittest.TestCase):
         self.assertFalse(data.hand)
         self.assertEqual(data.pot, 0)
 
+    def test_bets(self):
+        sharedData = {}
+        data = GameData(sharedData)
+        data.me = 'bot_0'
+        data.opponents = ['bot_1']
+        callback = None
+        parser = TurnParser(sharedData, callback)
+        lines = [
+            "Match onButton bot_0",
+            "Match smallBlind 10",
+            "Match bigBlind 20",
+            "bot_0 post 10",
+            "bot_1 post 20",
+            "bot_1 hand [8c,Ts]",
+            "bot_0 hand [Qc,9d]",
+            "Match pot 30",
+            "Match sidepots [20]",
+        ]
+
+        for line in lines:
+            self.assertTrue(parser.handle_line(line))
+        data.update()
+
+        # Did we pick up the blinds correctly?
+        print "{}".format(data.bets)
+        self.assertEqual(data.bets["bot_0"], 10)
+        self.assertEqual(data.bets["bot_1"], 20)
+
+        more_bets = [
+            'bot_0 raise 40',
+            'bot_1 call 40',
+        ]
+
+        for line in more_bets:
+            self.assertTrue(parser.handle_line(line))
+        data.update()
+
+        # and more bets
+        self.assertEqual(data.bets["bot_0"], 50)
+        self.assertEqual(data.bets["bot_1"], 60)
+
 if __name__ == '__main__':
     unittest.main()

@@ -19,6 +19,8 @@ class BrainTest(unittest.TestCase):
         self.data.pot = 140
         self.data.hand = Hand(Card(C.ACE, C.DIAMONDS), Card(C.ACE, C.HEARTS))
         self.data.table_cards = []
+        self.data.me = 'bot_0'
+        self.data.bets = {}
 
     def test_got_output(self):
         """Tests that the bot does something when it hits the turn marker"""

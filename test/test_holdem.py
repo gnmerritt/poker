@@ -98,10 +98,3 @@ class HoldemTest(unittest.TestCase):
         self.assertEqual(5, len(river))
         for c in turn:
             self.assertTrue(c in river)
-
-    @unittest.skip("wrote too early")
-    def test_play_hand(self):
-        holdem = MockHoldemArena()
-        winners = holdem.play_hand()
-
-        self.assertTrue(winners)

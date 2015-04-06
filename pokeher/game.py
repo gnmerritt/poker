@@ -40,6 +40,7 @@ class Round(object):
         self.hand = None
         self.pot = 0
         self.sidepot = 0
+        self.bets = {}
         self.big_blind = 0
         self.small_blind = 0
         self.button = None
@@ -48,6 +49,7 @@ class Round(object):
         self.parse_blinds()
         self.parse_cards()
         self.parse_pot()
+        self.parse_bets()
 
         if 'onButton' in self.sharedData:
             self.button = self.sharedData.pop('onButton')
@@ -76,13 +78,16 @@ class Round(object):
                 pass
 
         if 'sidepots' in self.sharedData:
-            sidepot_str = self.sharedData.pop('sidepots')
-            # strip []'s
-            sidepot_str = sidepot_str.replace('[', '').replace(']', '')
+            sidepot_str = self.sharedData.get("sidepots", "[0]")
             try:
-                self.sidepot = int(sidepot_str)
-            except ValueError:
-                self.sidepot = 0
+                # strip []'s
+                sidepot_str = sidepot_str.replace('[', '').replace(']', '')
+                if sidepot_str == '':
+                    self.sidepot = 0
+                else:
+                    self.sidepot = int(sidepot_str)
+            except:
+                pass
 
     def parse_blinds(self):
         if 'smallBlind' in self.sharedData:
@@ -98,6 +103,15 @@ class Round(object):
                 self.big_blind = int(bb_string)
             except ValueError:
                 pass
+
+    def parse_bets(self):
+        if not hasattr(self, 'opponents') or not self.opponents:
+            return
+        for bot in self.opponents + [self.me]:
+            bet_key = ('bet', bot)
+            bet = self.sharedData.get(bet_key)
+            if bet:
+                self.bets[bot] = bet
 
 
 class GameData(Match, Round):

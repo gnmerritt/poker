@@ -18,9 +18,9 @@ class PokerHand(object):
 
         current_better = br.next_better()
         while current_better is not None:
-            self.__handle_bet(br, current_better)
             self.pot = br.pot
             self.parent.tell_bots(br.say_pot())
+            self.__handle_bet(br, current_better)
             current_better = br.next_better()
 
         remaining = br.remaining_players()

@@ -171,5 +171,6 @@ class BettingRound(object):
         self.next_better_index = (self.next_better_index + 1) % len(self.bots)
 
     def say_pot(self):
+        sidepot = self.sidepot if self.sidepot is not None else 0
         return ['Match pot {self.pot}'.format(self=self),
-                'Match sidepots [{self.sidepot}]'.format(self=self), ]
+                'Match sidepots [{sidepot}]'.format(sidepot=sidepot), ]

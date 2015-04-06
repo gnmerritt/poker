@@ -46,11 +46,21 @@ class Brain:
         else:
             self.bot.log("didn't handle line: " + line + "\n")
 
+    def to_call(self):
+        stake = self.our_stake()
+        to_call = self.data.sidepot - stake
+        self.bot.log("bot={}, stake={}, sidepot={}, to call={}" \
+                     .format(self.data.me, stake, self.data.sidepot, to_call))
+        return to_call
+
     def pot_odds(self):
         """Return the pot odds, or how much we need to gain to call"""
-        to_call = self.data.sidepot
+        to_call = self.data.sidepot - self.our_stake()
         pot_total = to_call + self.data.pot
         return MathUtils.percentage(to_call, pot_total)
+
+    def our_stake(self):
+        return self.data.bets.get(self.data.me, 0)
 
     def do_turn(self, timeLeft_ms):
         """Wraps internal __do_turn so we can time how long each turn takes"""
@@ -89,7 +99,7 @@ class Brain:
     def pick_action(self, equity, pot_odds):
         """Look at our expected return and do something.
         Will be a semi-random mix of betting, folding, calling"""
-        to_call = self.data.sidepot
+        to_call = self.to_call()
         # action to us: check or bet
         if to_call == 0:
             if equity > 0.7 or self.r_test(0.03):
@@ -113,14 +123,18 @@ class Brain:
         """Returns a big raise, 30-50% of the pot"""
         pot = self.data.pot
         bet_raise = random.uniform(0.3, 0.5) * pot
-        self.bot.log("big raise of {r}".format(r=bet_raise))
-        return bet_raise
+        self.bot.log("big raise of {r} (pot={p})".format(r=bet_raise, p=pot))
+        return self.__round_bet(bet_raise)
+
+    def __round_bet(self, val):
+        if val is not None:
+            return int(round(val))
 
     def minimum_bet(self):
         """Returns a minimum bet, 2.5-4 BB"""
         bet = self.data.big_blind * random.uniform(2, 4)
         self.bot.log("min bet of {b}".format(b=bet))
-        return bet
+        return self.__round_bet(bet)
 
     def r_test(self, fraction):
         """Given a number [0,1], randomly return true / false
