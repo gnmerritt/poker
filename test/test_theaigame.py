@@ -111,7 +111,8 @@ class TurnParserTest(unittest.TestCase):
                  'bot_1 fold 0',
                  'bot_0 wins 30',
                  'bot_1 check',
-                 'bot_1 fold']
+                 'bot_1 fold',
+                 'Match sidepots [30]']
 
         data = {}
         self.goTime = 0
@@ -132,7 +133,10 @@ class TurnParserTest(unittest.TestCase):
                                                    Card(C.JACK, C.CLUBS)])
         self.assertEqual(self.goTime, 5000)
         self.assertEqual(data[('wins', 'bot_0')], str(30))
+        self.assertEqual(data['sidepots'], '[30]')
 
+        self.assertTrue(parser.handle_line("Match sidepots [99]"))
+        self.assertEqual(data['sidepots'], '[99]')
 
 class MockTalker(object):
     def say(self, string):

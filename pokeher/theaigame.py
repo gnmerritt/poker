@@ -11,7 +11,7 @@ class CardBuilder(object):
     VALUE_MAP = {'T': 10, 'J': C.JACK, 'Q': C.QUEEN, 'K': C.KING, 'A': C.ACE}
     SUIT_MAP = {'c': C.CLUBS, 'd': C.DIAMONDS, 'h': C.HEARTS, 's': C.SPADES}
 
-    CARD_REGEXP = r'.*\[([2-9TJQKAcdhs,]+)\].*'
+    CARD_REGEXP = r'.*\[(([2-9TJQKA][cdhs],?)+)\].*'
 
     def from_2char(self, string):
         """Returns a Card from a 2-char token like 9c"""
