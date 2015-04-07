@@ -154,9 +154,15 @@ class BettingRound(object):
             self.pot += bet
             self.__process_bet(current_bet, player)
             return True
+        elif all_in:
+            pass # TODO
         else:
             self.__fold(player)
             return False
+
+    def check_bet_size(self, player, bet):
+        current_bet = self.bets[player] + bet
+        return current_bet >= self.sidepot
 
     def post_fold(self, player):
         self.__fold(player)

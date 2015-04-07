@@ -88,7 +88,8 @@ class BettingFunctionalTests(BrainTest):
         brain = Brain(bot)
         brain.data = self.data
 
-        self.assertEqual(brain.pot_odds(), 12.5) # 20 to call, 140 in the pot
+        # 20 to call, 140 in the pot
+        self.assertAlmostEqual(brain.pot_odds(), 100*2.0/14)
         brain.do_turn(1000)
         self.assertTrue(bot.raise_amount > 0) # shouldn't fold with a pair of aces
 

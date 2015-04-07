@@ -157,5 +157,11 @@ class RoundTest(unittest.TestCase):
         self.assertEqual(data.bets["bot_0"], 50)
         self.assertEqual(data.bets["bot_1"], 60)
 
+        self.assertTrue(parser.handle_line("Match sidepots [0]"))
+        data.update()
+
+        self.assertEqual(data.bets["bot_0"], 0)
+        self.assertEqual(data.bets["bot_1"], 0)
+
 if __name__ == '__main__':
     unittest.main()

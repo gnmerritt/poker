@@ -115,6 +115,8 @@ class BettingRoundTest(unittest.TestCase):
         """Tests that after a C fold, B check and A call the round ends"""
         br = self.br
         self.assertFalse(br.post_fold('c'))
+        self.assertFalse(br.check_bet_size('a', 9)) # too small
+        self.assertTrue(br.check_bet_size('a', 50)) # big enough
         self.assertTrue(br.post_bet('a', 10))
         self.assertTrue(br.post_bet('b', 0))
         self.assertEqual(br.next_better(), None)

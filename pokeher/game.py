@@ -107,10 +107,13 @@ class Round(object):
     def parse_bets(self):
         if not hasattr(self, 'opponents') or not self.opponents:
             return
+        reset = (self.sidepot == 0)
         for bot in self.opponents + [self.me]:
             bet_key = ('bet', bot)
             bet = self.sharedData.get(bet_key)
-            if bet:
+            if reset:
+                self.bets[bot] = 0
+            elif bet:
                 self.bets[bot] = bet
 
 
