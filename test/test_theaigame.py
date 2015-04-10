@@ -106,7 +106,7 @@ class TurnParserTest(unittest.TestCase):
         """Tests parsing info that indicates we need to make a decision"""
         lines = ['Match pot 20',
                  'bot_0 hand [6c,Jc]',
-                 'go 5000',
+                 'Action bot_0 5000',
                  'Match table [Tc,8d,9c]',
                  'bot_1 fold 0',
                  'bot_0 wins 30',
@@ -117,7 +117,7 @@ class TurnParserTest(unittest.TestCase):
         data = {}
         self.goTime = 0
 
-        def goCallback(time):
+        def goCallback(bot, time):
             self.goTime = time
 
         parser = TurnParser(data, goCallback)

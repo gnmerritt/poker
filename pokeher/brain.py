@@ -61,8 +61,10 @@ class Brain:
     def our_stake(self):
         return self.data.bets.get(self.data.me, 0)
 
-    def do_turn(self, timeLeft_ms):
+    def do_turn(self, bot, timeLeft_ms):
         """Wraps internal __do_turn so we can time how long each turn takes"""
+        if not bot or bot != self.data.me:
+            return
         with Timer() as t:
             self.__do_turn(timeLeft_ms)
         self.bot.log("Finished turn in {t}s ({i} sims), had {l}s remaining"

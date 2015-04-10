@@ -26,7 +26,7 @@ class BrainTest(unittest.TestCase):
         """Tests that the bot does something when it hits the turn marker"""
         self.fake_in = ['Settings yourBot bot_0',
                         'bot_0 hand [Ac,As]',
-                        'go 5000']
+                        'Action bot_0 5000']
         bot = BrainTestBot(self.fake_in, self.fake_out, self.fake_log)
         bot.run()
 
@@ -90,7 +90,7 @@ class BettingFunctionalTests(BrainTest):
 
         # 20 to call, 140 in the pot
         self.assertAlmostEqual(brain.pot_odds(), 100*2.0/14)
-        brain.do_turn(1000)
+        brain.do_turn('bot_0', 1000)
         self.assertTrue(bot.raise_amount > 0) # shouldn't fold with a pair of aces
 
     def test_river_betting(self):
@@ -102,7 +102,7 @@ class BettingFunctionalTests(BrainTest):
         brain = Brain(bot)
         brain.data = self.data
         brain.iterations = 100 # smaller for unit tests
-        brain.do_turn(500)
+        brain.do_turn('bot_0', 500)
         self.assertTrue(bot.raise_amount > 0)
 
 class MockBot(object):

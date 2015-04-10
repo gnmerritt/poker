@@ -60,10 +60,6 @@ class AiGameParser(Parser):
         if not line:
             return False
 
-        # Special case: make 'go 5000 -> go go 5000'
-        if line.startswith('go '):
-            line = 'go ' + line
-
         token, key, value = self.__unpack_line(line)
         return self._handle_line(token, key, value)
 
@@ -156,7 +152,7 @@ class TurnParser(AiGameParser):
       bot_0 hand [6c,Jc]
       Match pot 20
       Match table [Tc,8d,9c]
-      go 5000 (transformed into go go 5000)
+      Action bot_0 5000
     """
     BOT_DATA = ['raise', 'call', 'wins', 'check', 'hand', 'post']
     BET_VERBS = ['raise', 'call', 'post']
@@ -196,9 +192,10 @@ class TurnParser(AiGameParser):
         elif token == 'Match':
             self._data[key] = value
             return True
-        elif token == 'go':
+
+        elif token == 'Action':
             if self._goCallback:
-                self._goCallback(int(value))
+                self._goCallback(key, int(value))
                 return True
 
         return False

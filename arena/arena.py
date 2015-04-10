@@ -151,7 +151,8 @@ class PyArena(object):
 
     def get_action(self, bot_name):
         """Tells a bot to go, waits for a response"""
-        self.tell_bot(bot_name, ['go 500']) # TODO hook up to timing per bot
+        # TODO hook up to timing per bot
+        self.tell_bots(['Action {b} 500'.format(b=bot_name)])
         bot = self.bot_from_name(bot_name)
         time, response = bot.ask()
         print "bot {b} submitted action {a} (chips={c})" \
