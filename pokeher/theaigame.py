@@ -181,7 +181,7 @@ class TurnParser(AiGameParser):
                 try:
                     value_int = int(value)
                 except:
-                    value = 0
+                    value_int = 0
                 bet_tuple = ('bet', token)
                 current_bet = self._data.get(bet_tuple, 0)
                 self._data[bet_tuple] = current_bet + value_int

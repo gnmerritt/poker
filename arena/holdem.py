@@ -20,7 +20,7 @@ class Holdem(object):
 
     def init_game(self):
         """Sets up things that last for longer than a hand"""
-        self.blind_manager = BlindManager(hands_per_level=10,
+        self.blind_manager = BlindManager(hands_per_level=20,
                                           bots=self.living_bot_names())
 
     def ante(self):
@@ -70,9 +70,9 @@ class HoldemHand(PokerHand):
         for i, phase in enumerate(hand_phases):
             hand_finished, bots = phase(bots)
             assert bots
-            #print "--Ran hand phase {}".format(i)
+            print "--Ran hand phase {}".format(i)
             if hand_finished:
-                #print "--Hand finished after phase {}".format(i)
+                print "--Hand finished after phase {}".format(i)
                 winner(bots)
                 return bots, self.pot
 

@@ -55,9 +55,8 @@ class Brain:
 
     def pot_odds(self):
         """Return the pot odds, or how much we need to gain to call"""
-        to_call = self.data.sidepot - self.our_stake()
-        pot_total = to_call + self.data.pot
-        return MathUtils.percentage(to_call, pot_total)
+        to_call = self.to_call()
+        return MathUtils.percentage(to_call, self.data.pot)
 
     def our_stake(self):
         return self.data.bets.get(self.data.me, 0)
@@ -88,7 +87,7 @@ class Brain:
             simulator = HandSimulator(hand, self.data.table_cards)
             best_hand, score = simulator.best_hand()
             self.bot.log("best 5: {b} score: {s}"
-                         .format(b=str(best_hand), s=score))
+                         .format(b=[str(c) for c in best_hand], s=score))
             equity = simulator.simulate(self.iterations)
 
         self.bot.log("{h}, equity: {e}%, pot odds: {p}%"
@@ -100,11 +99,12 @@ class Brain:
         """Look at our expected return and do something.
         Will be a semi-random mix of betting, folding, calling"""
         to_call = self.to_call()
+
         # action to us: check or bet
         if to_call == 0:
-            if equity > 0.7 or self.r_test(0.03):
+            if equity > 0.8 or self.r_test(0.03):
                 self.bot.bet(self.big_raise())
-            elif equity > 0.5 or self.r_test(0.05):
+            elif equity > 0.6 or self.r_test(0.05):
                 self.bot.minimum_bet()
             else:  # equity <= 0.3:
                 self.bot.check()

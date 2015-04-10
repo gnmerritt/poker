@@ -70,6 +70,9 @@ class PyArena(object):
             self.play_hand()
             self.__remove_dead_players()
             current_round += 1
+            print "after winnings, bot money:"
+            for b in self.living_bots():
+                print "  {} -> {}".format(b.state.name, b.state.stack)
             assert sum(b.state.stack for b in self.living_bots()) == starting_money
         self.say_round_updates(current_round)
 
@@ -90,6 +93,7 @@ class PyArena(object):
         for name in winners:
             bot = self.bot_from_name(name)
             bot.change_chips(prize_per_winner)
+            print "{n} wins {p}".format(n=name, p=prize_per_winner)
             updates.append("{n} wins {p}".format(n=name, p=prize_per_winner))
 
         self.tell_bots(updates)
@@ -150,6 +154,8 @@ class PyArena(object):
         self.tell_bot(bot_name, ['go 500']) # TODO hook up to timing per bot
         bot = self.bot_from_name(bot_name)
         time, response = bot.ask()
+        print "bot {b} submitted action {a} (chips={c})" \
+          .format(b=bot_name, a=response, c=bot.state.stack)
         action = TheAiGameActionBuilder().from_string(response)
         return action
 
@@ -175,7 +181,8 @@ class PyArena(object):
         """Removes money from a bot stack, returns how much was removed"""
         bot = self.bot_from_name(bot_name)
         chips = bot.chips()
-        if chips < amount:
+        if chips <= amount:
+            print "posted an all-in bet for {}".format(bot_name)
             bot.change_chips(chips * -1)
             return chips
         bot.change_chips(amount * -1)
@@ -189,4 +196,5 @@ class PyArena(object):
     def is_all_in(self, bot_name):
         """Returns True if a bot is all in (has no chips left)"""
         bot = self.bot_from_name(bot_name)
+        print "All-in check: {} has {}".format(bot_name, bot.chips())
         return bot.chips() == 0
