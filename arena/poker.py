@@ -36,25 +36,28 @@ class PokerHand(object):
         if action.is_fold():
             br.post_fold(current_better)
         elif action.is_raise():
-            self.__check_bet(br, current_better, action.amount) # TODO fix raises
+            self.__check_bet(br, current_better, action) # TODO fix raises
         elif action.is_call():
-            self.__check_bet(br, current_better, action.amount) # TODO
+            self.__check_bet(br, current_better, action) # TODO
         elif action.is_check():
             br.post_bet(current_better, 0)
 
         self.parent.say_action(current_better, action)
 
-    def __check_bet(self, br, better, amount):
-        posted = self.parent.post_bet(better, amount)
+    def __check_bet(self, br, better, action):
+        posted = self.parent.post_bet(better, action.amount)
+        action.amount = posted
         big_enough_bet = br.check_bet_size(better, posted)
         if big_enough_bet:
             br.post_bet(better, posted)
         else:
             if self.parent.is_all_in(better):
-                print "{} is all in!".format(better)
+                action.action = GameAction.CALL
                 br.post_bet(better, posted, all_in=True)
             else:
                 self.parent.refund(better, posted)
+                action.action = GameAction.FOLD
+                action.amount = 0
                 br.post_fold(better)
 
     def showdown(self, bots):

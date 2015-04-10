@@ -155,8 +155,8 @@ class PyArena(object):
         self.tell_bots(['Action {b} 500'.format(b=bot_name)])
         bot = self.bot_from_name(bot_name)
         time, response = bot.ask()
-        print "bot {b} submitted action {a} (chips={c})" \
-          .format(b=bot_name, a=response, c=bot.state.stack)
+        print "bot {b} submitted action {a} chips={c} time={t}" \
+          .format(b=bot_name, a=response, c=bot.state.stack, t=time)
         action = TheAiGameActionBuilder().from_string(response)
         return action
 
