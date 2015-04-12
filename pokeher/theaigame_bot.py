@@ -2,7 +2,13 @@
 
 import sys
 sys.path.append('/Users/nathan/sources/poker/') ## TODO fix
-from wiring import IOPokerBot
+try:
+    from wiring import IOPokerBot
+except ImportError as e:
+    import os, platform
+    print "Couldn't load bot on os={os}, sys={s}, rel={r}, e={e}" \
+      .format(os=os.name, s=platform.system(), r=platform.release(), e=e)
+    sys.exit()
 from theaigame import TheAiGameParserDelegate, TheAiGameActionDelegate
 
 
