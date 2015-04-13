@@ -37,13 +37,6 @@ class Holdem(object):
 
 class HoldemHand(PokerHand):
     """Texas Hold'em. Two hole cards, 5 table cards dealt 3-1-1"""
-    def __init__(self, parent, players):
-        """Initializes the holdem game components"""
-        self.parent = parent
-        self.players = players
-        self.table_cards = []
-        self.pot = 0
-
     def play_hand(self):
         """Controls state for one hand of hold'em poker"""
         bots = self.parent.living_bot_names()

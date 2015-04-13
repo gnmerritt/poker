@@ -2,11 +2,19 @@ from betting import BettingRound
 from pokeher.actions import GameAction
 from pokeher.handscore import HandBuilder
 
+
 class PokerHand(object):
     """A hand of poker
     Various stages of gameplay are defined here for use among multiple
     specific games of poker
     """
+    def __init__(self, parent, players):
+        """Initializes the holdem game components"""
+        self.parent = parent
+        self.players = players
+        self.table_cards = []
+        self.pot = 0
+
     def betting_round(self, bots=None, br=None):
         """Initiates and runs a betting round.
         Returns a tuple of hand_finished, [remaining_players]
@@ -14,7 +22,7 @@ class PokerHand(object):
         if bots is None:
             bots = []
         if not br:
-            br = BettingRound(bots, {}, pot=self.pot)
+            br = BettingRound(bots, bets={}, pot=self.pot)
 
         current_better = br.next_better()
         while current_better is not None:

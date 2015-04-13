@@ -2,9 +2,23 @@ import unittest
 import pokeher.cards as cards
 import pokeher.constants as C
 from arena.poker import *
+from arena_mocks import ScriptedArena
 
 class BettingRoundTest(unittest.TestCase):
-    pass # TODO
+    """"Tests that PokerHand can adjucate a full betting round"""
+    def setUp(self):
+        pass
+
+    def test_raise_call(self):
+        """Tests that a betting round ends after rase & call"""
+        actions = [
+            ['bot_0', 'raise 20'],
+            ['bot_1', 'call 20'],
+        ]
+        bots = [a[0] for a in actions]
+        arena = ScriptedArena(actions)
+        hand = PokerHand(arena, actions)
+        self.assertFalse(hand.betting_round(), "hand shouldnt have ended")
 
 
 class ShowdownTest(unittest.TestCase):
