@@ -7,5 +7,8 @@ cython:
 test: all
 	nosetests
 
+zipfile: all
+	zip -r bot.zip data/ pokeher/
+
 clean:
 	$(MAKE) clean -C pokeher
