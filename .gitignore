@@ -5,3 +5,5 @@ data/*
 *.c
 *.so
 pokeher/*.html
+bot.zip
+.coverage
