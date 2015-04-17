@@ -31,6 +31,7 @@ class PokerHand(object):
             self.__handle_bet(br, current_better)
             current_better = br.next_better()
 
+        self.pot = br.pot
         remaining = br.remaining_players()
         # A hand ends if only one player remains after betting
         return len(remaining) == 1, remaining
@@ -41,12 +42,16 @@ class PokerHand(object):
         if action is None:
             action = GameAction(GameAction.FOLD)
 
+        to_call = br.to_call(current_better)
+
         if action.is_fold():
             br.post_fold(current_better)
         elif action.is_raise():
-            self.__check_bet(br, current_better, action) # TODO fix raises
+            action.amount += to_call
+            self.__check_bet(br, current_better, action)
         elif action.is_call():
-            self.__check_bet(br, current_better, action) # TODO
+            action.amount = to_call
+            self.__check_bet(br, current_better, action)
         elif action.is_check():
             br.post_bet(current_better, 0)
 
@@ -56,6 +61,7 @@ class PokerHand(object):
         posted = self.parent.post_bet(better, action.amount)
         action.amount = posted
         big_enough_bet = br.check_bet_size(better, posted)
+
         if big_enough_bet:
             br.post_bet(better, posted)
         else:

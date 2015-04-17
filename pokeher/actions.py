@@ -7,6 +7,8 @@ class GameAction(object):
     RAISE = 2
     CHECK = 3
 
+    NAMES = ['F', 'C', 'R', 'C']
+
     def __init__(self, action, amount=0):
         self.action = action
         self.amount = amount
@@ -28,4 +30,4 @@ class GameAction(object):
 
     def __repr__(self):
         return "<GameAction type={}, amount={}>" \
-          .format(self.action, self.amount)
+          .format(self.NAMES[self.action], self.amount)

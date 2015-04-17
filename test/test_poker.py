@@ -6,11 +6,13 @@ from arena_mocks import ScriptedArena
 
 class BettingRoundTest(unittest.TestCase):
     """"Tests that PokerHand can adjucate a full betting round"""
-    def build_run_hand(self, actions):
+    def build_run_hand(self, actions, all_ins=[]):
         bots = [a[0] for a in actions]
         arena = ScriptedArena(actions)
+        for bot, bet in all_ins:
+            arena.all_ins[bot] = bet
         hand = PokerHand(arena, bots)
-        return hand.betting_round(bots)
+        return hand, hand.betting_round(bots)
 
     def test_raise_call(self):
         """Tests that a betting round ends after rase & call"""
@@ -18,7 +20,7 @@ class BettingRoundTest(unittest.TestCase):
             ['bot_0', 'raise 20'],
             ['bot_1', 'call 20'],
         ]
-        ended, remaining = self.build_run_hand(actions)
+        _, (ended, remaining) = self.build_run_hand(actions)
         self.assertFalse(ended, "hand shouldnt have ended")
         self.assertEqual(len(remaining), 2)
 
@@ -28,9 +30,19 @@ class BettingRoundTest(unittest.TestCase):
             ['bot_1', 'raise 10'],
             ['bot_0', 'fold'],
         ]
-        ended, remaining = self.build_run_hand(actions)
+        _, (ended, remaining) = self.build_run_hand(actions)
         self.assertTrue(ended)
         self.assertEqual(len(remaining), 1)
+
+    def test_all_in_call(self):
+        actions = [
+            ['bot_0', 'raise 10'],
+            ['bot_1', 'raise 100'], # pot now 120
+            ['bot_0', 'call 100'], # bot_0 all in, only posts 10 (pot 130)
+        ]
+        hand, (ended, remaining) = self.build_run_hand(actions, [['bot_0',10]])
+        self.assertFalse(ended, "all in shouldn't end the hand")
+        self.assertEqual(hand.pot, 130, "all in added wrong")
 
 class ShowdownTest(unittest.TestCase):
     def test_winner(self):

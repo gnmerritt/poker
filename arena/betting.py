@@ -89,6 +89,7 @@ class BettingRound(object):
         self.bets = bets  # dict bot name => current bet
         self.high_better = None
         self.next_better_index = -1
+        self.all_in = []
         self.finished = (len(bots) == 1)
 
         # Default bets to 0, find high better
@@ -128,7 +129,9 @@ class BettingRound(object):
     def can_bet(self, player):
         """Returns true if a player can bet right now"""
         # The high bettor can't bet again
-        return self.is_staked(player) and player != self.high_better
+        return self.is_staked(player) \
+          and player != self.high_better \
+          and not player in self.all_in
 
     def is_staked(self, player):
         """Is a player currently active and betting"""
@@ -150,12 +153,12 @@ class BettingRound(object):
             self.finished = (bet == 0)
 
         current_bet = self.bets[player] + bet
-        if current_bet >= self.sidepot:
+        if current_bet >= self.sidepot or all_in:
             self.pot += bet
             self.__process_bet(current_bet, player)
+            if all_in:
+                self.all_in.append(player)
             return True
-        elif all_in:
-            pass # TODO
         else:
             self.__fold(player)
             return False
@@ -163,6 +166,14 @@ class BettingRound(object):
     def check_bet_size(self, player, bet):
         current_bet = self.bets[player] + bet
         return current_bet >= self.sidepot
+
+    def to_call(self, player):
+        """Returns the amount a player needs to bet to call the current bet"""
+        bet = self.bets.get(player, 0)
+        sidepot = self.sidepot
+        if sidepot is None:
+            sidepot = 0
+        return sidepot - bet
 
     def post_fold(self, player):
         self.__fold(player)
