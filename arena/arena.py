@@ -79,7 +79,6 @@ class PyArena(object):
     def play_hand(self):
         """Plays a hand of poker, updating chip counts at the end."""
         hand = self.new_hand()
-        self.called = False ## Hack until real actions are hooked up
         winners, pot = hand.play_hand()
         self.__update_chips(winners, pot)
         return winners
