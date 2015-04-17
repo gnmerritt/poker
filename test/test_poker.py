@@ -6,8 +6,11 @@ from arena_mocks import ScriptedArena
 
 class BettingRoundTest(unittest.TestCase):
     """"Tests that PokerHand can adjucate a full betting round"""
-    def setUp(self):
-        pass
+    def build_run_hand(self, actions):
+        bots = [a[0] for a in actions]
+        arena = ScriptedArena(actions)
+        hand = PokerHand(arena, bots)
+        return hand.betting_round(bots)
 
     def test_raise_call(self):
         """Tests that a betting round ends after rase & call"""
@@ -15,13 +18,19 @@ class BettingRoundTest(unittest.TestCase):
             ['bot_0', 'raise 20'],
             ['bot_1', 'call 20'],
         ]
-        bots = [a[0] for a in actions]
-        arena = ScriptedArena(actions)
-        hand = PokerHand(arena, bots)
-        ended, remaining = hand.betting_round(bots)
+        ended, remaining = self.build_run_hand(actions)
         self.assertFalse(ended, "hand shouldnt have ended")
         self.assertEqual(len(remaining), 2)
 
+    def test_raise_fold(self):
+        actions = [
+            ['bot_0', 'check 0'],
+            ['bot_1', 'raise 10'],
+            ['bot_0', 'fold'],
+        ]
+        ended, remaining = self.build_run_hand(actions)
+        self.assertTrue(ended)
+        self.assertEqual(len(remaining), 1)
 
 class ShowdownTest(unittest.TestCase):
     def test_winner(self):
