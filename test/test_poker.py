@@ -17,8 +17,10 @@ class BettingRoundTest(unittest.TestCase):
         ]
         bots = [a[0] for a in actions]
         arena = ScriptedArena(actions)
-        hand = PokerHand(arena, actions)
-        self.assertFalse(hand.betting_round(), "hand shouldnt have ended")
+        hand = PokerHand(arena, bots)
+        ended, remaining = hand.betting_round(bots)
+        self.assertFalse(ended, "hand shouldnt have ended")
+        self.assertEqual(len(remaining), 2)
 
 
 class ShowdownTest(unittest.TestCase):
