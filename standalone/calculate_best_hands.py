@@ -1,8 +1,11 @@
 import itertools
 import cPickle as pickle
 
-from cards import Card
-from handscore import HandBuilder
+import utility
+utility.fix_paths()
+
+from pokeher.cards import Card
+from pokeher.handscore import HandBuilder
 
 
 class BestHandCalculator(object):

@@ -1,11 +1,13 @@
 #!/usr/bin/python
 from __future__ import print_function
 import sys
-sys.path.append('/Users/nathan/sources/poker/') ## TODO fix
+
 try:
+    import utility
+    utility.fix_paths()
     from wiring import IOPokerBot
 except ImportError as e:
-    import os, platform
+    import platform, os
     error = "Couldn't load bot on os={os}, sys={s}, rel={r}, e={e}" \
           .format(os=os.name, s=platform.system(), r=platform.release(), e=e)
     print(error, file=sys.stderr)

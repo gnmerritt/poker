@@ -7,3 +7,5 @@ data/*
 pokeher/*.html
 bot.zip
 .coverage
+arena/utility.py
+standalone/utility.py

@@ -2,7 +2,6 @@
 
 all:
 
-
 clean:
 	rm -f *.so
 	rm -f *.c

@@ -4,7 +4,8 @@ import itertools
 import os
 import time
 
-sys.path.append('/Users/nathan/sources/poker/')
+import utility
+utility.fix_paths()
 
 import pokeher.cards as c
 from pokeher.hand_simulator import HandSimulator
