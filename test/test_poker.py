@@ -38,11 +38,13 @@ class BettingRoundTest(unittest.TestCase):
         actions = [
             ['bot_0', 'raise 10'],
             ['bot_1', 'raise 100'], # pot now 120
-            ['bot_0', 'call 100'], # bot_0 all in, only posts 10 (pot 130)
+            ['bot_0', 'call 100'], # bot_0 all in, only posts 10 (pot down to 40)
         ]
         hand, (ended, remaining) = self.build_run_hand(actions, [['bot_0',10]])
         self.assertFalse(ended, "all in shouldn't end the hand")
         self.assertEqual(hand.pot, 130, "all in added wrong")
+        # TODO: this is wrong, pot should be 40 - refund big raise the
+        # difference that bot_0 couldn't call
 
 class ShowdownTest(unittest.TestCase):
     def test_winner(self):

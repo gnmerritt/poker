@@ -1,4 +1,7 @@
-import random
+try:
+    import random
+except:
+    import fake_random as random
 cimport cards
 cimport handscore
 import cards
