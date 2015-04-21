@@ -72,11 +72,6 @@ class AiGameParser(Parser):
     def _handle_line(self, token, key, line):
         return False
 
-    def is_bot_directive(self, token):
-        if token.startswith('bot_'):
-            return True
-        return False
-
 
 class SettingsParser(AiGameParser):
     """
@@ -96,7 +91,7 @@ class SettingsParser(AiGameParser):
 
     def _handle_line(self, token, key, value):
         # Just pull out any active bots, don't worry about seats yet
-        if self.is_bot_directive(token) and key == 'seat':
+        if key in ['seat', 'post', 'stack']:
             if not 'bots' in self._data:
                 self._data['bots'] = [token]
             else:
@@ -139,10 +134,10 @@ class RoundParser(AiGameParser):
 class TurnParser(AiGameParser):
     """
     Info before we have to make a decision
-      bot_0 stack 1500 (ignored)
-      bot_1 stack 1500 (ignored)
       bot_1 fold 0 (ignored)
 
+      bot_0 stack 1500
+      bot_1 stack 1500
       bot_0 post 10
       bot_1 post 20
       bot_0 wins 30
@@ -154,9 +149,9 @@ class TurnParser(AiGameParser):
       Match table [Tc,8d,9c]
       Action bot_0 5000
     """
-    BOT_DATA = ['raise', 'call', 'wins', 'check', 'hand', 'post']
+    BOT_DATA = ['raise', 'call', 'wins', 'check', 'hand', 'post', 'stack']
     BET_VERBS = ['raise', 'call', 'post']
-    IGNORED_ACTIONS = ['fold', 'stack']
+    IGNORED_ACTIONS = ['fold']
 
     def __init__(self, data, goCallback):
         self._data = data
@@ -172,7 +167,12 @@ class TurnParser(AiGameParser):
             self._data['roundOver'] = True
 
         # Save the data as (key, bot_x) = value
-        if self.is_bot_directive(token) and key in self.BOT_DATA:
+        if key in self.BOT_DATA:
+            if not 'bots' in self._data:
+                self._data['bots'] = [token]
+            else:
+                self._data['bots'].append(token)
+
             if key in self.BET_VERBS:
                 try:
                     value_int = int(value)
@@ -186,7 +186,7 @@ class TurnParser(AiGameParser):
             return True
 
         # Ignored stuff
-        elif self.is_bot_directive(token) and key in self.IGNORED_ACTIONS:
+        elif key in self.IGNORED_ACTIONS:
             return True
 
         elif token == 'Match':

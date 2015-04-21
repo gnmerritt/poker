@@ -120,13 +120,14 @@ class RoundTest(unittest.TestCase):
         sharedData = {}
         data = GameData(sharedData)
         data.me = 'bot_0'
-        data.opponents = ['bot_1']
         callback = None
         parser = TurnParser(sharedData, callback)
         lines = [
             "Match on_button bot_0",
             "Match small_blind 10",
             "Match big_blind 20",
+            "bot_0 stack 3920",
+            "bot_1 stack 1000",
             "bot_0 post 10",
             "bot_1 post 20",
             "bot_1 hand [8c,Ts]",
@@ -137,7 +138,7 @@ class RoundTest(unittest.TestCase):
 
         for line in lines:
             self.assertTrue(parser.handle_line(line))
-        data.update()
+            data.update()
 
         # Did we pick up the blinds correctly?
         print "{}".format(data.bets)

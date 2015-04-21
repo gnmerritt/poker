@@ -77,7 +77,7 @@ class SettingsParserTest(unittest.TestCase):
 
         for line in lines:
             handled = parser.handle_line(line)
-            self.assertTrue(handled)
+            self.assertTrue(handled, "didn't handle '{}'".format(line))
 
         self.assertEqual(data['your_bot'], 'bot_0')
 
@@ -104,7 +104,9 @@ class RoundParserTest(unittest.TestCase):
 class TurnParserTest(unittest.TestCase):
     def test_parse_settings(self):
         """Tests parsing info that indicates we need to make a decision"""
-        lines = ['Match pot 20',
+        lines = ['bot_0 stack 1000',
+                 'bot_1 stack 392',
+                 'Match pot 20',
                  'bot_0 hand [6c,Jc]',
                  'Action bot_0 5000',
                  'Match table [Tc,8d,9c]',
@@ -123,7 +125,7 @@ class TurnParserTest(unittest.TestCase):
         parser = TurnParser(data, goCallback)
 
         for line in lines:
-            self.assertTrue(parser.handle_line(line), 'didnt handle: ' + line)
+            self.assertTrue(parser.handle_line(line), 'didnt handle: "{}"'.format(line))
 
         self.assertEqual(data['table'], [Card(10, C.CLUBS),
                                          Card(8, C.DIAMONDS),
@@ -137,6 +139,7 @@ class TurnParserTest(unittest.TestCase):
 
         self.assertTrue(parser.handle_line("Match sidepots [99]"))
         self.assertEqual(data['sidepots'], '[99]')
+
 
 class MockTalker(object):
     def say(self, string):
