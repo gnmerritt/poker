@@ -4,6 +4,7 @@ all:
 
 
 clean:
-	rm *.so
-	rm *.c
-	rm *.html
+	rm -f *.so
+	rm -f *.c
+	rm -f *.html
+	rm -f *.pyc
