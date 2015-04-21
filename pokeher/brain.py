@@ -6,9 +6,9 @@ try:
 except:
     import fake_random as random
 
+import utility
 from game import GameData
 from hand_simulator import HandSimulator
-from utility import MathUtils
 from timer import Timer
 
 
@@ -30,7 +30,7 @@ class Brain:
 
     def load_precalc_data(self):
         """Loads pre-computed hand data"""
-        infile = os.path.join('data', 'preflop_wins_5000.pickle')
+        infile = utility.get_data_file('preflop_wins_5000.pickle')
         try:
             in_stream = open(infile, 'r')
             try:
@@ -60,7 +60,7 @@ class Brain:
     def pot_odds(self):
         """Return the pot odds, or how much we need to gain to call"""
         to_call = self.to_call()
-        return MathUtils.percentage(to_call, self.data.pot)
+        return utility.MathUtils.percentage(to_call, self.data.pot)
 
     def our_stake(self):
         return self.data.bets.get(self.data.me, 0)
