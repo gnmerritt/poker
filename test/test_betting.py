@@ -26,8 +26,8 @@ class BlindsTest(unittest.TestCase):
         """Tests that the blinds are printed correctly"""
         blinds = Blinds(10, 20)
         hand_print = set(blinds.hand_blinds())
-        self.assertTrue("Match smallBlind 10" in hand_print)
-        self.assertTrue("Match bigBlind 20" in hand_print)
+        self.assertTrue("Match small_blind 10" in hand_print)
+        self.assertTrue("Match big_blind 20" in hand_print)
 
 
 class BlindManagerTest(unittest.TestCase):

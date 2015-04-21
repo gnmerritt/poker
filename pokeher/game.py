@@ -13,8 +13,8 @@ class Match(object):
         self.me = None
 
     def update_match(self):
-        if 'yourBot' in self.sharedData:
-            self.me = self.sharedData.pop('yourBot')
+        if 'your_bot' in self.sharedData:
+            self.me = self.sharedData.pop('your_bot')
             if self.me in self.opponents:
                 del self.opponents[self.me]
 
@@ -51,8 +51,8 @@ class Round(object):
         self.parse_pot()
         self.parse_bets()
 
-        if 'onButton' in self.sharedData:
-            self.button = self.sharedData.pop('onButton')
+        if 'on_button' in self.sharedData:
+            self.button = self.sharedData.pop('on_button')
 
         if 'roundOver' in self.sharedData:
             round_is_over = self.sharedData.pop('roundOver')
@@ -90,15 +90,15 @@ class Round(object):
                 pass
 
     def parse_blinds(self):
-        if 'smallBlind' in self.sharedData:
-            sb_string = self.sharedData.pop('smallBlind')
+        if 'small_blind' in self.sharedData:
+            sb_string = self.sharedData.pop('small_blind')
             try:
                 self.small_blind = int(sb_string)
             except ValueError:
                 pass
 
-        if 'bigBlind' in self.sharedData:
-            bb_string = self.sharedData.pop('bigBlind')
+        if 'big_blind' in self.sharedData:
+            bb_string = self.sharedData.pop('big_blind')
             try:
                 self.big_blind = int(bb_string)
             except ValueError:

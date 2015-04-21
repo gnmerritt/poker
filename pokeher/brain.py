@@ -1,6 +1,5 @@
 from __future__ import division
 import cPickle as pickle
-import os
 try:
     import random
 except:
@@ -48,7 +47,7 @@ class Brain:
         if success:
             self.data.update()
         else:
-            self.bot.log("didn't handle line: " + line + "\n")
+            self.bot.log("didn't handle line: '{}'".format(line))
 
     def to_call(self):
         stake = self.our_stake()

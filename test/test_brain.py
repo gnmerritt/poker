@@ -24,7 +24,7 @@ class BrainTest(unittest.TestCase):
 
     def test_got_output(self):
         """Tests that the bot does something when it hits the turn marker"""
-        self.fake_in = ['Settings yourBot bot_0',
+        self.fake_in = ['Settings your_bot bot_0',
                         'bot_0 hand [Ac,As]',
                         'Action bot_0 5000']
         bot = BrainTestBot(self.fake_in, self.fake_out, self.fake_log)

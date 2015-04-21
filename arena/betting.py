@@ -9,8 +9,8 @@ class Blinds(object):
 
     def hand_blinds(self):
         """Prints out the blinds for TheAiGame bots"""
-        return ["Match smallBlind {sb}".format(sb=self.small_blind),
-                "Match bigBlind {bb}".format(bb=self.big_blind), ]
+        return ["Match small_blind {sb}".format(sb=self.small_blind),
+                "Match big_blind {bb}".format(bb=self.big_blind), ]
 
 
 class BlindManager(object):

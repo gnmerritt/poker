@@ -83,16 +83,16 @@ class SettingsParser(AiGameParser):
     Parses the following lines from an input stream
       Settings gameType NLHE (ignored)
       Settings gameMode tournament (ignored)
-      Settings timeBank 5000 (ignored)
-      Settings timePerMove 500 (ignored)
-      Settings handsPerLevel 10 (ignored)
+      Settings time_bank 5000 (ignored)
+      Settings time_per_move 500 (ignored)
+      Settings hands_per_level 10 (ignored)
 
       bot_0 seat 0
       bot_1 seat 1
-      Settings yourBot bot_0
+      Settings your_bot bot_0
     """
     START_TOKEN = 'Settings'
-    YOUR_BOT = 'yourBot'
+    YOUR_BOT = 'your_bot'
 
     def _handle_line(self, token, key, value):
         # Just pull out any active bots, don't worry about seats yet
@@ -118,12 +118,12 @@ class RoundParser(AiGameParser):
     """
     For Info at the start of every hand
       Match round 1
-      Match smallBlind 10
-      Match bigBlind 20
-      Match onButton bot_0
+      Match small_blind 10
+      Match big_blind 20
+      Match on_button bot_0
     """
     TOKEN = 'Match'
-    KEYS = ['round', 'smallBlind', 'bigBlind', 'onButton']
+    KEYS = ['round', 'small_blind', 'big_blind', 'on_button']
 
     def _handle_line(self, token, key, value):
         if token != self.TOKEN:

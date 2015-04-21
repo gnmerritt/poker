@@ -118,7 +118,7 @@ class PyArena(object):
         for bot in self.bots:
             name = bot.state.name
             seat = bot.state.seat
-            self.tell_bot(name, ['Settings yourBot {name}'.format(name=name)])
+            self.tell_bot(name, ['Settings your_bot {name}'.format(name=name)])
             broadcast.append('{name} seat {seat}'.format(name=name, seat=seat))
         self.tell_bots(broadcast)
 

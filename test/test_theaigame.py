@@ -63,12 +63,12 @@ class CardBuilderTest(unittest.TestCase):
 class SettingsParserTest(unittest.TestCase):
     def test_parse_settings(self):
         """Tests that the beginning settings are passed to the data model"""
-        lines = ['Settings gameType NLHE',
-                 'Settings gameMode tournament',
-                 'Settings timeBank 5000',
-                 'Settings timePerMove 500',
-                 'Settings handsPerLevel 10',
-                 'Settings yourBot bot_0',
+        lines = ['Settings gameType NLHE', # unused, TODO remove
+                 'Settings gameMode tournament', # unused, TODO remove
+                 'Settings time_bank 5000',
+                 'Settings time_per_move 500',
+                 'Settings hands_per_level 10',
+                 'Settings your_bot bot_0',
                  'bot_0 seat 0',
                  'bot_1 seat 1']
 
@@ -79,16 +79,16 @@ class SettingsParserTest(unittest.TestCase):
             handled = parser.handle_line(line)
             self.assertTrue(handled)
 
-        self.assertEqual(data['yourBot'], 'bot_0')
+        self.assertEqual(data['your_bot'], 'bot_0')
 
 
 class RoundParserTest(unittest.TestCase):
     def test_parse_settings(self):
         """Tests round by round parsing settings"""
         lines = ['Match round 1',
-                 'Match smallBlind 10',
-                 'Match bigBlind 20',
-                 'Match onButton bot_0']
+                 'Match small_blind 10',
+                 'Match big_blind 20',
+                 'Match on_button bot_0']
 
         data = {}
         parser = RoundParser(data)
@@ -96,9 +96,9 @@ class RoundParserTest(unittest.TestCase):
         for line in lines:
             self.assertTrue(parser.handle_line(line))
 
-        self.assertEqual(str(10), data['smallBlind'])
-        self.assertEqual(str(20), data['bigBlind'])
-        self.assertEqual('bot_0', data['onButton'])
+        self.assertEqual(str(10), data['small_blind'])
+        self.assertEqual(str(20), data['big_blind'])
+        self.assertEqual('bot_0', data['on_button'])
 
 
 class TurnParserTest(unittest.TestCase):

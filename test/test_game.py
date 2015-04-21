@@ -14,7 +14,7 @@ class MatchTest(unittest.TestCase):
         lines = ['bot_0 seat 0',
                  'bot_1 seat 1',
                  'bot_4 seat 3',
-                 'Settings yourBot bot_0']
+                 'Settings your_bot bot_0']
         for line in lines:
             self.assertTrue(parser.handle_line(line))
         match.update()
@@ -57,9 +57,9 @@ class RoundTest(unittest.TestCase):
         sharedData = {}
         the_round = GameData(sharedData)
         parser = RoundParser(sharedData)
-        lines = ['Match smallBlind 10',
-                 'Match bigBlind 20',
-                 'Match onButton bot_0']
+        lines = ['Match small_blind 10',
+                 'Match big_blind 20',
+                 'Match on_button bot_0']
 
         for line in lines:
             self.assertTrue(parser.handle_line(line))
@@ -71,8 +71,8 @@ class RoundTest(unittest.TestCase):
 
     def test_bad_round_values(self):
         """Makes sure the round doesn't explode when we pass it bad data"""
-        sharedData = {'smallBlind' : 'SMALL',
-                      'bigBlind' : 'BIG',
+        sharedData = {'small_blind' : 'SMALL',
+                      'big_blind' : 'BIG',
                       'pot' : 'POT',
                       'sidepots' : 'SIDEPOTS'}
         the_round = Round()
@@ -124,9 +124,9 @@ class RoundTest(unittest.TestCase):
         callback = None
         parser = TurnParser(sharedData, callback)
         lines = [
-            "Match onButton bot_0",
-            "Match smallBlind 10",
-            "Match bigBlind 20",
+            "Match on_button bot_0",
+            "Match small_blind 10",
+            "Match big_blind 20",
             "bot_0 post 10",
             "bot_1 post 20",
             "bot_1 hand [8c,Ts]",
