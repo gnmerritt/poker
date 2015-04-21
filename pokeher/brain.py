@@ -38,8 +38,9 @@ class Brain:
                 self.bot.log("Loaded preflop equity file")
             finally:
                 in_stream.close()
-        except IOError:
-            self.bot.log("IO error loading {f}".format(f=infile))
+        except IOError as e:
+            self.bot.log("IO error loading {f} (e={e})" \
+                         .format(f=infile, e=e))
 
     def parse_line(self, line):
         """Feeds a line to the parsers"""
