@@ -6,7 +6,7 @@ import os
 pokeher_cythons = ["cards.pyx", "handscore.pyx", "hand_simulator.pyx"]
 sources = map(lambda filename: os.path.join('pokeher', filename), pokeher_cythons)
 
-ext_modules = cythonize(sources)
+ext_modules = cythonize(sources, annotate=True)
 
 setup(
   name = 'Pokeher core ops',

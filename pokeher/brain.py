@@ -106,7 +106,7 @@ class Brain:
             if equity > 0.65 or self.r_test(0.03):
                 self.bot.bet(self.big_raise())
             elif equity > 0.5 or self.r_test(0.05):
-                self.bot.minimum_bet()
+                self.minimum_bet()
             else:  # equity <= 0.3:
                 self.bot.check()
 
