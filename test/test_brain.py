@@ -72,7 +72,7 @@ class TestBrainBets(unittest.TestCase):
         """Tests the big bet range"""
         bet = self.brain.big_raise()
         pot = self.brain.data.pot
-        self.verify_bet(bet, pot * 0.3, pot * 0.5)
+        self.verify_bet(bet, pot * 0.7, pot * 1.5)
 
     def test_minimum_bet(self):
         """Tests the minimum bet range"""
