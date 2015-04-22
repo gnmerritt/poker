@@ -1,10 +1,7 @@
 from __future__ import division
 import cPickle as pickle
-try:
-    import random
-except:
-    import fake_random as random
 
+import cython_random as random
 import utility
 from game import GameData
 from hand_simulator import HandSimulator

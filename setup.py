@@ -3,7 +3,9 @@ from Cython.Distutils import build_ext
 from Cython.Build import cythonize
 import os
 
-pokeher_cythons = ["cards.pyx", "handscore.pyx", "hand_simulator.pyx"]
+pokeher_cythons = ["cards.pyx", "handscore.pyx",
+                   "hand_simulator.pyx", "cython_random.pyx"
+                   ]
 sources = map(lambda filename: os.path.join('pokeher', filename), pokeher_cythons)
 
 # add annotate=True to cythonize call to generate cython HTML files
