@@ -198,7 +198,11 @@ class TurnParser(AiGameParser):
 
         elif token == 'Action':
             if self._goCallback:
-                self._goCallback(key, int(value))
+                try:
+                    int_val = int(value)
+                except:
+                    int_val = 500
+                self._goCallback(key, int_val)
                 return True
 
         return False

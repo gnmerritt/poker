@@ -6,6 +6,7 @@ import os
 pokeher_cythons = ["cards.pyx", "handscore.pyx", "hand_simulator.pyx"]
 sources = map(lambda filename: os.path.join('pokeher', filename), pokeher_cythons)
 
+# add annotate=True to cythonize call to generate cython HTML files
 ext_modules = cythonize(sources, annotate=True)
 
 setup(

@@ -21,7 +21,7 @@ class HandSimulatorTest(unittest.TestCase):
         self.assertTrue(win_percentage > 0)
 
     def test_constructor_with_table(self):
-        """Checks that adding table cards works, and that 4ok always wins"""
+        """Checks that adding table cards works, and that quads always win"""
         hand = Hand(Card(10, C.SPADES), Card(3, C.SPADES))
         table_cards = [Card(3, C.CLUBS),
                        Card(3, C.HEARTS),

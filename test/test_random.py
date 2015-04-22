@@ -18,7 +18,8 @@ class RandomTest(unittest.TestCase):
             self.assertEqual(len(sample), i, "sample wrong length")
             counts = {}
             for p in sample:
-                self.assertTrue(p in population, "member in sample not from population")
+                self.assertTrue(p in population,
+                                "member in sample not from population")
                 count = counts.get(p, 0)
                 counts[p] = count + 1
 
