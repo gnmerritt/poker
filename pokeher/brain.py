@@ -103,9 +103,9 @@ class Brain:
 
         # action to us: check or bet
         if to_call == 0:
-            if equity > 0.8 or self.r_test(0.03):
+            if equity > 0.65 or self.r_test(0.03):
                 self.bot.bet(self.big_raise())
-            elif equity > 0.6 or self.r_test(0.05):
+            elif equity > 0.5 or self.r_test(0.05):
                 self.bot.minimum_bet()
             else:  # equity <= 0.3:
                 self.bot.check()
@@ -113,17 +113,17 @@ class Brain:
         # use pot odds to call/bet/fold
         else:
             return_ratio = equity / pot_odds
-            if return_ratio > 1.5 or self.r_test(0.02):
+            if return_ratio > 1.8 or self.r_test(0.02):
                 self.bot.bet(self.big_raise())
-            elif return_ratio > 1:
+            elif return_ratio > 1 or self.r_test(0.02):
                 self.bot.call(to_call)
             else:
                 self.bot.fold()
 
     def big_raise(self):
-        """Returns a big raise, 30-50% of the pot"""
+        """Returns a big raise, 70-150% of the pot"""
         pot = self.data.pot
-        bet_raise = random.uniform(0.3, 0.5) * pot
+        bet_raise = random.uniform(0.7, 1.5) * pot
         self.bot.log("big raise of {r} (pot={p})".format(r=bet_raise, p=pot))
         return self.__round_bet(bet_raise)
 
