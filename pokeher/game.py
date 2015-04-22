@@ -39,7 +39,8 @@ class Round(object):
         self.table_cards = []
         self.hand = None
         self.pot = 0
-        self.sidepot = 0
+        self.to_call = 0
+        self.sidepot = 0 # TODO: deprecated, fix arena & remove
         self.bets = {}
         self.big_blind = 0
         self.small_blind = 0
@@ -74,6 +75,13 @@ class Round(object):
             pot_str = self.sharedData.pop('pot')
             try:
                 self.pot = int(pot_str)
+            except ValueError:
+                pass
+
+        if 'amount_to_call' in self.sharedData:
+            call_str = self.sharedData.pop('amount_to_call')
+            try:
+                self.to_call = int(call_str)
             except ValueError:
                 pass
 

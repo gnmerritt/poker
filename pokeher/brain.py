@@ -18,7 +18,7 @@ class Brain:
             self.bot = bot
             self.load_realtime_data()
             self.load_precalc_data()
-            self.iterations = 400
+            self.iterations = 1000
         self.bot.log("Brain started up in {t} secs".format(t=t.secs))
 
     def load_realtime_data(self):
@@ -50,19 +50,15 @@ class Brain:
             self.bot.log("didn't handle line: '{}'".format(line))
 
     def to_call(self):
-        stake = self.our_stake()
-        to_call = self.data.sidepot - stake
-        self.bot.log("bot={}, stake={}, sidepot={}, to call={}" \
-                     .format(self.data.me, stake, self.data.sidepot, to_call))
+        to_call = self.data.to_call
+        self.bot.log("bot={}, pot={}, to call={}" \
+                     .format(self.data.me, self.data.pot, to_call))
         return to_call
 
     def pot_odds(self):
         """Return the pot odds, or how much we need to gain to call"""
         to_call = self.to_call()
         return utility.MathUtils.percentage(to_call, self.data.pot)
-
-    def our_stake(self):
-        return self.data.bets.get(self.data.me, 0)
 
     def do_turn(self, bot, timeLeft_ms):
         """Wraps internal __do_turn so we can time how long each turn takes"""
