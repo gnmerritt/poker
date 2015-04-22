@@ -81,15 +81,17 @@ class Brain:
 
         if not self.data.table_cards:
             equity = self.preflop_equity[repr(hand)]
+            source = "preflop"
         else:
             simulator = HandSimulator(hand, self.data.table_cards)
             best_hand, score = simulator.best_hand()
             self.bot.log("best 5: {b} score: {s}"
                          .format(b=[str(c) for c in best_hand], s=score))
             equity = simulator.simulate(self.iterations)
+            source = "sim"
 
-        self.bot.log("{h}, equity: {e}%, pot odds: {p}%"
-                     .format(h=hand, e=equity, p=pot_odds))
+        self.bot.log("{h}, equity: {e}% ({s}), pot odds: {p}%"
+                     .format(h=hand, e=equity, s=source, p=pot_odds))
 
         self.pick_action(equity, pot_odds)
 
