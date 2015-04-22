@@ -77,7 +77,7 @@ class BettingRoundTest(unittest.TestCase):
     def test_say_pot(self):
         br = self.br
         pots = br.say_pot()
-        self.assertIn('Match pot 30', pots)
+        self.assertIn('Match max_win_pot 30', pots)
         self.assertIn('Match sidepots [20]', pots)
 
     def test_constructor(self):

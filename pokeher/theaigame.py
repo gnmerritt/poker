@@ -145,7 +145,7 @@ class TurnParser(AiGameParser):
       bot_0 raise 20
       bot_0 check
       bot_0 hand [6c,Jc]
-      Match pot 20
+      Match max_win_pot 20
       Match table [Tc,8d,9c]
       Action bot_0 5000
     """
@@ -190,7 +190,10 @@ class TurnParser(AiGameParser):
             return True
 
         elif token == 'Match':
-            self._data[key] = value
+            if key == 'max_win_pot':
+                self._data['pot'] = value
+            else:
+                self._data[key] = value
             return True
 
         elif token == 'Action':

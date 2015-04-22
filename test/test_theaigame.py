@@ -106,7 +106,7 @@ class TurnParserTest(unittest.TestCase):
         """Tests parsing info that indicates we need to make a decision"""
         lines = ['bot_0 stack 1000',
                  'bot_1 stack 392',
-                 'Match pot 20',
+                 'Match max_win_pot 20',
                  'bot_0 hand [6c,Jc]',
                  'Action bot_0 5000',
                  'Match table [Tc,8d,9c]',

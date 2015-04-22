@@ -189,5 +189,5 @@ class BettingRound(object):
 
     def say_pot(self):
         sidepot = self.sidepot if self.sidepot is not None else 0
-        return ['Match pot {self.pot}'.format(self=self),
+        return ['Match max_win_pot {self.pot}'.format(self=self),
                 'Match sidepots [{sidepot}]'.format(sidepot=sidepot), ]

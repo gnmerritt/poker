@@ -93,7 +93,7 @@ class RoundTest(unittest.TestCase):
         callback = None
         parser = TurnParser(sharedData, callback)
         lines = ['bot_0 hand [6c,Jc]',
-                 'Match pot 20',
+                 'Match max_win_pot 20',
                  'Match table [Tc,8d,9c]',
                  'Match sidepots [10]']
 
@@ -132,7 +132,7 @@ class RoundTest(unittest.TestCase):
             "bot_1 post 20",
             "bot_1 hand [8c,Ts]",
             "bot_0 hand [Qc,9d]",
-            "Match pot 30",
+            "Match max_win_pot 30",
             "Match sidepots [20]",
         ]
 
