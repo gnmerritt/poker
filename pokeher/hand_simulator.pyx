@@ -41,7 +41,7 @@ cdef class HandSimulator:
 
         return MathUtils.percentage(wins, iterations)
 
-    def __try_hand(self):
+    cdef float __try_hand(HandSimulator self):
         """Deal out two opponent cards and 5 table cards"""
         cdef int cards_needed
         cdef handscore.HandScore our_score, their_score

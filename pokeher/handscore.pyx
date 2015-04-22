@@ -1,3 +1,5 @@
+from cpython cimport array as c_array
+from array import array
 cimport cython_util as util
 cimport cards
 import cards
@@ -48,6 +50,8 @@ cdef class HandScore:
 cdef enum:
     HAND_LENGTH = 5
 
+cdef c_array.array int_array_template = array('i', [])
+
 cdef class HandBuilder:
     """Makes the best hand from a given set of cards, scores hands
     """
@@ -78,6 +82,9 @@ cdef class HandBuilder:
         This guy runs fast. Don't feed it bad entries"""
         cdef HandScore score
         cdef cards.Card card
+        cdef int i
+        # card values run 2-15 instead of 0-13
+        cdef c_array.array c_seen = c_array.clone(int_array_template, 15, zero=True)
 
         score = HandScore()
         if not self.cards or len(self.cards) != HAND_LENGTH:
@@ -86,16 +93,19 @@ cdef class HandBuilder:
         # Find any pairs, triples or quads in the hand and score them
         score.type = HIGH_CARD
 
-        # card values run 2-15 instead of 0-13
-        seen = [None,None] + [0]*13
-        for card in self.cards:
-            seen[card.value] += 1
+        for i in range(HAND_LENGTH):
+            card = self.cards[i]
+            c_seen[card.value] += 1
 
         # sort by # of times each value was seen
         # this puts quads in front of triples in front of pairs etc
         # if there aren't any pairs, then this sorts by rank order
-        self.cards.sort(key=lambda card: (seen[card.value], card.value),
-                        reverse=True)
+        def card_val(cards.Card card):
+            cdef int value = card.value
+            return (c_seen[value], value)
+
+        self.cards.sort(key=card_val, reverse=True)
+
         # this function also sets the handscore if there are any pairs etc.
         score.kicker = tuple(self.__score_cards_to_ranks(score))
 
@@ -118,14 +128,16 @@ cdef class HandBuilder:
 
         return score
 
-    def __score_cards_to_ranks(self, HandScore score):
+    cpdef list __score_cards_to_ranks(self, HandScore score):
         """Goes through a list of cards sorted by quad/trip/pair and set the hand score."""
-        cdef int last_value, run
+        cdef int last_value, run, i
         cdef cards.Card card
+        cdef list results = []
 
         last_value = -1
         run = 0
-        for card in self.cards:
+        for i in range(HAND_LENGTH):
+            card = self.cards[i]
             if card.value == last_value:
                 run += 1
             else:
@@ -142,19 +154,22 @@ cdef class HandBuilder:
                         score.type = PAIR
                 run = 1
             last_value = card.value
-            yield card.value
+            results.append(last_value)
 
         # the full house is the only hand where we need to match on the last card
         if run == 2 and score.type == TRIPS:
             score.type = FULL_HOUSE
 
+        return results
+
     cpdef bint is_straight(self):
         """returns True if this hand is a straight, false otherwise"""
-        cdef int last_value
+        cdef int last_value, i
         cdef cards.Card card
 
         last_value = -1
-        for card in self.cards:
+        for i in range(HAND_LENGTH):
+            card = self.cards[i]
             if last_value > 0:
                 gap = last_value - card.value
                 if gap != 1:
@@ -174,14 +189,15 @@ cdef class HandBuilder:
 
     cpdef int select_flush_suit(self):
         """If all cards match suit, return the suit. Return None otherwise."""
-        cdef int suit
+        cdef int suit, i
         cdef cards.Card card
 
         if not self.cards:
             return -1
 
         suit = self.cards[0].suit
-        for card in self.cards:
+        for i in range(len(self.cards)):
+            card = self.cards[i]
             if suit != card.suit:
                 return -1
 
