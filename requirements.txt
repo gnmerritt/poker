@@ -1,3 +1,4 @@
 ipython
 cython
 nose
+pyprof2calltree

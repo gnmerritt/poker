@@ -13,6 +13,6 @@ zipfile: test
 	zip -r bot.zip data/ pokeher/
 
 clean:
-	rm -r bot.zip
+	rm -f bot.zip
 	rm -rf build
 	$(MAKE) clean -C pokeher
