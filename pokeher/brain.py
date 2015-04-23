@@ -8,7 +8,7 @@ from hand_simulator import HandSimulator
 from timer import Timer
 
 
-class Brain:
+class Brain(object):
     """The brain: parses lines, combines data classes to make decisions"""
     def __init__(self, bot):
         with Timer() as t:
@@ -57,17 +57,17 @@ class Brain:
         to_call = self.to_call()
         return utility.MathUtils.percentage(to_call, self.data.pot)
 
-    def do_turn(self, bot, timeLeft_ms):
+    def do_turn(self, bot, time_left_ms):
         """Wraps internal __do_turn so we can time how long each turn takes"""
         if not bot or bot != self.data.me:
             return
         with Timer() as t:
-            self.__do_turn(timeLeft_ms)
+            self.__do_turn(time_left_ms)
         self.bot.log("Finished turn in {t}s ({i} sims), had {l}s remaining"
                      .format(t=t.secs, i=self.iterations,
-                             l=(timeLeft_ms/1000 - t.secs)))
+                             l=(time_left_ms/1000 - t.secs)))
 
-    def __do_turn(self, timeLeft_ms):
+    def __do_turn(self, time_left_ms):
         """Callback for when the brain has to make a decision"""
         if not self.data.hand:
             self.bot.log("No hand, killing ourselves. Data={d}"

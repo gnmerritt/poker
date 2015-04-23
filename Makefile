@@ -5,6 +5,7 @@ cython:
 	python setup.py build_ext --inplace
 	cp pokeher/utility.py arena
 	cp pokeher/utility.py standalone
+	cp pokeher/utility.py agents
 
 test: all
 	nosetests
