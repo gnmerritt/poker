@@ -7,7 +7,7 @@ from check_fold_bot import CheckBrain, CheckFoldBot
 class CallRaiseBrain(CheckBrain):
     def do_turn(self, bot, time_left_ms):
         if random.uniform(0, 1) > 0.5:
-            self.bot.bet(10)
+            self.bot.bet(20)
         else:
             self.bot.call(0)
 

@@ -5,7 +5,7 @@ from check_fold_bot import CheckBrain, CheckFoldBot
 
 class RaiseBrain(CheckBrain):
     def do_turn(self, bot, time_left_ms):
-        self.bot.bet(10)
+        self.bot.bet(20)
 
 
 class RaiseBot(CheckFoldBot):
