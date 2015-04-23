@@ -9,6 +9,7 @@ class GauntletArena(object):
         "agents/check_fold_bot.py",
         "agents/call_bot.py",
         "agents/raise_bot.py",
+        "agents/call_raise_bot.py",
     ]
     ATTEMPTS = 10
     BOT_LOAD_DELAY_SECS = 0.25
