@@ -5,11 +5,12 @@ from arena.bots import *
 class BotStateTest(unittest.TestCase):
     def test_constructor(self):
         """Checks initial bot state"""
-        bs = BotState(1)
+        bs = BotState(1, "filename")
         self.assertEqual(bs.name, "bot_1")
         self.assertEqual(bs.seat, 1)
         self.assertEqual(bs.stack, bs.INITIAL_CHIPS)
         self.assertEqual(bs.stake, 0)
+        self.assertEqual(bs.source, "filename")
 
 
 class LoadedBotTest(unittest.TestCase):

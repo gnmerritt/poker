@@ -21,8 +21,8 @@ class PyArena(object):
         for file in args:
             self.load_bot(file)
         if self.min_players() <= self.bot_count() <= self.max_players:
-            print "Have enough bots, starting match in 2s"
-            time.sleep(2)
+            print "Have enough bots, starting match in 1s"
+            time.sleep(1)
             self.play_match()
         else:
             print "Wrong # of bots ({i}) needed {k}-{j}. Can't play" \
@@ -74,7 +74,22 @@ class PyArena(object):
             for b in self.living_bots():
                 print "  {} -> {}".format(b.state.name, b.state.stack)
             assert sum(b.state.stack for b in self.living_bots()) == starting_money
+
         self.say_round_updates(current_round)
+        self.declare_winners()
+
+    def declare_winners(self):
+        winners = self.living_bots()
+        lines = [
+            "",
+            "Match survivors: ",
+        ]
+        for b in winners:
+            lines.append("  {c} chips : {n} ({f})".format(c=b.state.stack,
+                                                          n=b.state.name,
+                                                          f=b.state.source))
+        lines.append("")
+        print "\n".join(lines)
 
     def play_hand(self):
         """Plays a hand of poker, updating chip counts at the end."""

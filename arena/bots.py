@@ -64,7 +64,8 @@ class BotState(object):
     INITIAL_CHIPS = 1000 # TODO
 
     """Stuff to remember about each bot"""
-    def __init__(self, seat):
+    def __init__(self, seat, source_file):
+        self.source = source_file
         self.name = 'bot_{s}'.format(s=seat)  # name for communication
         self.seat = seat  # seat at table
         self.stack = self.INITIAL_CHIPS # amount of chips
@@ -75,7 +76,7 @@ class LoadedBot(object):
     """Holds an instance of each bot, keeps track of game info about it"""
     def __init__(self, source_file, seat):
         self.process = BotProcess(source_file)
-        self.state = BotState(seat)
+        self.state = BotState(seat, source_file)
         self.is_active = True
 
     def tell(self, line):
