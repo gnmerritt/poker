@@ -6,6 +6,9 @@ from pokeher.cards import Card, Hand
 import pokeher.constants as C
 
 class BrainTestBot(BufferPokerBot, TheAiGameParserDelegate, TheAiGameActionDelegate):
+    def add_brain(self):
+        self.brain = Brain(self)
+
     def log(self, msg):
         pass
 

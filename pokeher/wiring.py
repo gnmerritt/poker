@@ -1,6 +1,3 @@
-from brain import Brain
-
-
 class IOPokerBot(object):
     """Generic Poker Bot, can read & write lines.
     Subclasses should mix-in parser & action delegates
@@ -9,7 +6,11 @@ class IOPokerBot(object):
         self.io_input = io_input
         self.action_out = io_output
         self.log_out = log_output
-        self.brain = Brain(self)
+        self.add_brain()
+
+    def add_brain(self):
+        """Overridden by subclasses to make this bot go"""
+        pass
 
     def run(self):
         """ Main run loop """
@@ -21,8 +22,7 @@ class IOPokerBot(object):
                 line = rawline.strip()
                 self.brain.parse_line(line)
             except EOFError as e:
-                print e
-                return
+                self.log("EOFerror: '{}'".format(e))
 
     def say(self, line):
         """Writes a line where the game controller can see it"""

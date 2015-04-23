@@ -14,12 +14,14 @@ except ImportError as e:
     sys.exit()
 
 from theaigame import TheAiGameParserDelegate, TheAiGameActionDelegate
+from brain import Brain
 
 
 class TheAiGameBot(IOPokerBot,
                    TheAiGameParserDelegate, TheAiGameActionDelegate):
     """Poker bot for TheAiGame.com"""
-    pass
+    def add_brain(self):
+        self.brain = Brain(self)
 
 if __name__ == '__main__':
     bot = TheAiGameBot(sys.stdin, sys.stdout, sys.stderr)
