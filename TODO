@@ -1,11 +1,6 @@
-PokeHer TODO list:
+TODO list:
 
 * Fix pot odds to only check next card
-* game simulator
-* Automated bot vs bot framework
-** reporting
-
-** jenkins?
 
 * Opponent modelling
 ** record % hands to each street
