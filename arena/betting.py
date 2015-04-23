@@ -170,9 +170,7 @@ class BettingRound(object):
     def to_call(self, player):
         """Returns the amount a player needs to bet to call the current bet"""
         bet = self.bets.get(player, 0)
-        sidepot = self.sidepot
-        if sidepot is None:
-            sidepot = 0
+        sidepot = 0 if self.sidepot is None else self.sidepot
         return sidepot - bet
 
     def post_fold(self, player):
@@ -188,6 +186,8 @@ class BettingRound(object):
         self.next_better_index = (self.next_better_index + 1) % len(self.bots)
 
     def say_pot(self):
-        sidepot = self.sidepot if self.sidepot is not None else 0
-        return ['Match max_win_pot {self.pot}'.format(self=self),
-                'Match sidepots [{sidepot}]'.format(sidepot=sidepot), ]
+        return ['Match max_win_pot {self.pot}'.format(self=self)]
+
+    def say_to_call(self, better):
+        to_call = self.to_call(better)
+        return ["Match amount_to_call {}".format(to_call)]

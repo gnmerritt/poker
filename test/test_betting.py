@@ -78,7 +78,8 @@ class BettingRoundTest(unittest.TestCase):
         br = self.br
         pots = br.say_pot()
         self.assertIn('Match max_win_pot 30', pots)
-        self.assertIn('Match sidepots [20]', pots)
+        self.assertIn('Match amount_to_call 10', br.say_to_call('a'))
+        self.assertIn('Match amount_to_call 0', br.say_to_call('b'))
 
     def test_constructor(self):
         """Check state after constructing a new BettingRound"""

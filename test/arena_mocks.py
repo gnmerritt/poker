@@ -6,6 +6,9 @@ class MockArena(object):
     def tell_bots(self, what):
         pass
 
+    def tell_bot(self, who, what):
+        pass
+
     def say_action(self, better, action):
         print "{} performed '{}'".format(better, action)
 
