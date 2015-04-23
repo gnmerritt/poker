@@ -83,7 +83,11 @@ class LoadedBot(object):
         """Writes to the bot's STDIN"""
         assert type(line) is types.StringType, \
           "can't tell non-string '{}'".format(line)
-        self.process.put(line)
+        try:
+            self.process.put(line)
+        except IOError as e:
+            print "Error talking to bot {}: {}" \
+              .format(self.state.source, e)
 
     def ask(self):
         return self.process.get()

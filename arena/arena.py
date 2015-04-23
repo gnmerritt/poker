@@ -7,8 +7,9 @@ from bots import LoadedBot
 
 class PyArena(object):
     """Loads Python bots from source folders, sets up IO channels to them"""
-    def __init__(self):
+    def __init__(self, delay_secs=1):
         self.bots = [] # [LoadedBot]
+        self.delay_secs = delay_secs
 
     def __enter__(self):
         return self
@@ -21,9 +22,9 @@ class PyArena(object):
         for file in args:
             self.load_bot(file)
         if self.min_players() <= self.bot_count() <= self.max_players:
-            print "Have enough bots, starting match in 1s"
-            time.sleep(1)
-            self.play_match()
+            print "Have enough bots, starting match in {}s".format(self.delay_secs)
+            time.sleep(self.delay_secs)
+            return self.play_match()
         else:
             print "Wrong # of bots ({i}) needed {k}-{j}. Can't play" \
                 .format(i=self.bot_count(), k=self.min_players(),
@@ -76,7 +77,7 @@ class PyArena(object):
             assert sum(b.state.stack for b in self.living_bots()) == starting_money
 
         self.say_round_updates(current_round)
-        self.declare_winners()
+        return self.declare_winners()
 
     def declare_winners(self):
         winners = self.living_bots()
@@ -90,6 +91,7 @@ class PyArena(object):
                                                           f=b.state.source))
         lines.append("")
         print "\n".join(lines)
+        return winners
 
     def play_hand(self):
         """Plays a hand of poker, updating chip counts at the end."""
