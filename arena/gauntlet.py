@@ -10,6 +10,7 @@ class GauntletArena(object):
         "agents/call_bot.py",
     ]
     ATTEMPTS = 10
+    BOT_LOAD_DELAY_SECS = 0.25
 
     def __init__(self, challenger, percentage=100):
         self.challenger = challenger
@@ -18,12 +19,15 @@ class GauntletArena(object):
 
     def run(self):
         for enemy in self.ENEMIES:
+            if enemy == self.challenger:
+                continue
             for i in range(self.ATTEMPTS):
                 winners = self.run_match(challenger, enemy)
                 self.handle_winners(enemy, winners)
 
     def run_match(self, challenger, enemy):
         with TheAiGameArena() as arena:
+            arena.delay_secs = self.BOT_LOAD_DELAY_SECS
             bot_list = [challenger, enemy]
             winners = arena.run(bot_list)
             return [b.state.source for b in winners]
@@ -40,7 +44,7 @@ class GauntletArena(object):
         for enemy, wins in self.wins.iteritems():
             win_percentage = utility.MathUtils.percentage(wins, self.ATTEMPTS)
             grade = "PASS" if win_percentage >= self.percentage else "FAIL"
-            line = "    {g}  {e} - {w}/{a} ({p}%)" \
+            line = "    {g}  {e:^30} - {w}/{a} ({p}%)" \
               .format(g=grade, e=enemy, w=wins, a=self.ATTEMPTS, p=win_percentage)
             lines.append(line)
         return "\n".join(lines)
