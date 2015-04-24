@@ -45,7 +45,7 @@ class GauntletArena(object):
     def __repr__(self):
         lines = []
         lines.append("Challenger: {}".format(self.challenger))
-        for enemy, wins in self.wins.iteritems():
+        for enemy, wins in iter(sorted(self.wins.items())):
             win_percentage = utility.MathUtils.percentage(wins, self.ATTEMPTS)
             grade = "PASS" if win_percentage >= self.percentage else "FAIL"
             line = "    {g}  {e:^30} - {w}/{a} ({p}%)" \
