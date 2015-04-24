@@ -141,7 +141,7 @@ class TurnParser(AiGameParser):
       bot_0 post 10
       bot_1 post 20
       bot_0 wins 30
-      Match sidepots [10]
+      Match amount_to_call 10
       bot_0 raise 20
       bot_0 check
       bot_0 hand [6c,Jc]

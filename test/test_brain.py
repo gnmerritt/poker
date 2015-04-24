@@ -18,7 +18,7 @@ class BrainTest(unittest.TestCase):
         self.fake_out = []
         self.fake_log = []
         self.data = MockData()
-        self.data.to_call = self.data.sidepot = 20 # to call
+        self.data.to_call = 20
         self.data.pot = 140
         self.data.hand = Hand(Card(C.ACE, C.DIAMONDS), Card(C.ACE, C.HEARTS))
         self.data.table_cards = []

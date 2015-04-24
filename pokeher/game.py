@@ -40,7 +40,6 @@ class Round(object):
         self.hand = None
         self.pot = 0
         self.to_call = 0
-        self.sidepot = 0 # TODO: deprecated, fix arena & remove
         self.bets = {}
         self.big_blind = 0
         self.small_blind = 0
@@ -85,18 +84,6 @@ class Round(object):
             except ValueError:
                 pass
 
-        if 'sidepots' in self.sharedData:
-            sidepot_str = self.sharedData.get("sidepots", "[0]")
-            try:
-                # strip []'s
-                sidepot_str = sidepot_str.replace('[', '').replace(']', '')
-                if sidepot_str == '':
-                    self.sidepot = 0
-                else:
-                    self.sidepot = int(sidepot_str)
-            except:
-                pass
-
     def parse_blinds(self):
         if 'small_blind' in self.sharedData:
             sb_string = self.sharedData.pop('small_blind')
@@ -115,7 +102,7 @@ class Round(object):
     def parse_bets(self):
         if not hasattr(self, 'opponents') or not self.opponents:
             return
-        reset = (self.sidepot == 0)
+        reset = (self.to_call == 0)
         for bot in self.opponents + [self.me]:
             bet_key = ('bet', bot)
             bet = self.sharedData.get(bet_key)

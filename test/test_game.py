@@ -74,7 +74,7 @@ class RoundTest(unittest.TestCase):
         sharedData = {'small_blind' : 'SMALL',
                       'big_blind' : 'BIG',
                       'pot' : 'POT',
-                      'sidepots' : 'SIDEPOTS'}
+                      'amount_to_call' : 'SIDEPOTS'}
         the_round = Round()
         the_round.sharedData = sharedData
         the_round.reset_round()
@@ -83,7 +83,7 @@ class RoundTest(unittest.TestCase):
         self.assertNotEqual(the_round.small_blind, 'SMALL')
         self.assertNotEqual(the_round.big_blind, 'BIG')
         self.assertNotEqual(the_round.pot, 'POT')
-        self.assertNotEqual(the_round.sidepot, 'SIDEPOTS')
+        self.assertNotEqual(the_round.to_call, 'SIDEPOTS')
 
     def test_cards(self):
         """Tests finding the cards"""
@@ -95,7 +95,7 @@ class RoundTest(unittest.TestCase):
         lines = ['bot_0 hand [6c,Jc]',
                  'Match max_win_pot 20',
                  'Match table [Tc,8d,9c]',
-                 'Match sidepots [10]']
+                 'Match amount_to_call 10']
 
         for line in lines:
             self.assertTrue(parser.handle_line(line))
@@ -105,11 +105,11 @@ class RoundTest(unittest.TestCase):
                          Hand(Card(6, C.CLUBS), Card(C.JACK, C.CLUBS)))
         self.assertEqual(data.table_cards, [Card(10, C.CLUBS), Card(8, C.DIAMONDS), Card(9, C.CLUBS)])
         self.assertEqual(data.pot, 20)
-        self.assertEqual(data.sidepot, 10)
+        self.assertEqual(data.to_call, 10)
 
-        parser.handle_line('Match sidepots []')
+        parser.handle_line('Match amount_to_call 0')
         data.update()
-        self.assertEqual(data.sidepot, 0)
+        self.assertEqual(data.to_call, 0)
 
         parser.handle_line('bot_0 wins 90')
         data.update()
@@ -133,7 +133,7 @@ class RoundTest(unittest.TestCase):
             "bot_1 hand [8c,Ts]",
             "bot_0 hand [Qc,9d]",
             "Match max_win_pot 30",
-            "Match sidepots [20]",
+            "Match amount_to_call 10",
         ]
 
         for line in lines:
@@ -158,7 +158,7 @@ class RoundTest(unittest.TestCase):
         self.assertEqual(data.bets["bot_0"], 50)
         self.assertEqual(data.bets["bot_1"], 60)
 
-        self.assertTrue(parser.handle_line("Match sidepots [0]"))
+        self.assertTrue(parser.handle_line("Match amount_to_call 0"))
         data.update()
 
         self.assertEqual(data.bets["bot_0"], 0)
