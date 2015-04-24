@@ -63,9 +63,10 @@ class HoldemHand(PokerHand):
         for i, phase in enumerate(hand_phases):
             hand_finished, bots = phase(bots)
             assert bots
-            print "--Ran hand phase {}".format(i)
+            self.parent.log("--Ran hand phase {}".format(i))
             if hand_finished:
-                print "--Hand finished after phase {}".format(i)
+                self.parent.log("--Hand finished after phase {}".format(i))
+                self.parent.silent_update(".")
                 winner(bots)
                 return bots, self.pot
 
@@ -87,7 +88,8 @@ class HoldemHand(PokerHand):
         self.parent.tell_bots(blinds)
         return BettingRound(bots,
                             bets={sb_bot: posted_sb, bb_bot: posted_bb},
-                            pot=0)
+                            pot=0,
+                            minimum_raise=bb)
 
     def post_bet(self, bot_name, amount):
         """Posts a bet, returns posted amount"""

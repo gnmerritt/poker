@@ -11,8 +11,8 @@ class GauntletArena(object):
         "agents/raise_bot.py",
         "agents/call_raise_bot.py",
     ]
-    ATTEMPTS = 10
-    BOT_LOAD_DELAY_SECS = 0.25
+    ATTEMPTS = 50
+    BOT_LOAD_DELAY_SECS = 0.1
 
     def __init__(self, challenger, percentage=100):
         self.challenger = challenger
@@ -23,13 +23,15 @@ class GauntletArena(object):
         for enemy in self.ENEMIES:
             if enemy == self.challenger:
                 continue
+            print "\nplaying {}".format(enemy)
             for i in range(self.ATTEMPTS):
                 winners = self.run_match(challenger, enemy)
                 self.handle_winners(enemy, winners)
 
     def run_match(self, challenger, enemy):
-        with TheAiGameArena() as arena:
+        with TheAiGameArena(silent=True) as arena:
             arena.delay_secs = self.BOT_LOAD_DELAY_SECS
+            arena.print_bot_output = False
             bot_list = [challenger, enemy]
             winners = arena.run(bot_list)
             return [b.state.source for b in winners]

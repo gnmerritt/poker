@@ -19,14 +19,15 @@ def enqueue_output(out, queue):
 
 
 class BotProcess(object):
-    def __init__(self, source_file):
+    def __init__(self, source_file, print_bot_output=True):
         self.exploded = False
         self.process = self.process_out = None
+        output = sys.stderr if print_bot_output else sp.PIPE
         try:
             self.process = p = sp.Popen([source_file],
                                         stdin=sp.PIPE,
                                         stdout=sp.PIPE,
-            #stderr=sp.PIPE,
+                                        stderr=output,
                                         bufsize=1,
                                         close_fds=ON_POSIX)
             self.process_out = Queue()
@@ -74,10 +75,11 @@ class BotState(object):
 
 class LoadedBot(object):
     """Holds an instance of each bot, keeps track of game info about it"""
-    def __init__(self, source_file, seat):
-        self.process = BotProcess(source_file)
+    def __init__(self, source_file, seat, print_bot_output=True):
+        self.process = BotProcess(source_file, print_bot_output=print_bot_output)
         self.state = BotState(seat, source_file)
         self.is_active = True
+        self.silent = not print_bot_output
 
     def tell(self, line):
         """Writes to the bot's STDIN"""
@@ -86,8 +88,9 @@ class LoadedBot(object):
         try:
             self.process.put(line)
         except IOError as e:
-            print "Error talking to bot {}: {}" \
-              .format(self.state.source, e)
+            if not self.silent:
+                print "Error talking to bot {}: {}" \
+                  .format(self.state.source, e)
 
     def ask(self):
         return self.process.get()

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import time
 
 import pokeher.cards as cards
@@ -7,9 +8,11 @@ from bots import LoadedBot
 
 class PyArena(object):
     """Loads Python bots from source folders, sets up IO channels to them"""
-    def __init__(self, delay_secs=1):
+    def __init__(self, delay_secs=1, silent=False):
         self.bots = [] # [LoadedBot]
         self.delay_secs = delay_secs
+        self.silent = silent
+        self.print_bot_output = True
 
     def __enter__(self):
         return self
@@ -18,23 +21,31 @@ class PyArena(object):
         for bot in self.bots:
             bot.kill()
 
+    def log(self, message, force=False):
+        if not self.silent or force:
+            print(message)
+
+    def silent_update(self, message):
+        print(message, end="")
+
     def run(self, args):
         for file in args:
             self.load_bot(file)
         if self.min_players() <= self.bot_count() <= self.max_players:
-            print "Have enough bots, starting match in {}s".format(self.delay_secs)
+            self.log("Have enough bots, starting match in {}s"
+                     .format(self.delay_secs))
             time.sleep(self.delay_secs)
             return self.play_match()
         else:
-            print "Wrong # of bots ({i}) needed {k}-{j}. Can't play" \
-                .format(i=self.bot_count(), k=self.min_players(),
-                        j=self.max_players())
+            self.log("Wrong # of bots ({i}) needed {k}-{j}. Can't play"
+                     .format(i=self.bot_count(), k=self.min_players(),
+                             j=self.max_players()))
 
     def load_bot(self, source_file):
         """Starts a bot as a subprocess, given its path"""
         seat = self.bot_count()
-        print "loading bot {l} from {f}".format(l=seat, f=source_file)
-        bot = LoadedBot(source_file, seat)
+        self.log("loading bot {l} from {f}".format(l=seat, f=source_file))
+        bot = LoadedBot(source_file, seat, print_bot_output=self.print_bot_output)
         if bot and not bot.process.exploded:
             self.bots.append(bot)
 
@@ -71,9 +82,9 @@ class PyArena(object):
             self.play_hand()
             self.__remove_dead_players()
             current_round += 1
-            print "after winnings, bot money:"
+            self.log("after winnings, bot money:")
             for b in self.living_bots():
-                print "  {} -> {}".format(b.state.name, b.state.stack)
+                self.log("  {} -> {}".format(b.state.name, b.state.stack))
             assert sum(b.state.stack for b in self.living_bots()) == starting_money
 
         self.say_round_updates(current_round)
@@ -90,7 +101,7 @@ class PyArena(object):
                                                           n=b.state.name,
                                                           f=b.state.source))
         lines.append("")
-        print "\n".join(lines)
+        self.log("\n".join(lines))
         return winners
 
     def play_hand(self):
@@ -109,7 +120,7 @@ class PyArena(object):
         for name in winners:
             bot = self.bot_from_name(name)
             bot.change_chips(prize_per_winner)
-            print "{n} wins {p}".format(n=name, p=prize_per_winner)
+            self.log("{n} wins {p}".format(n=name, p=prize_per_winner))
             updates.append("{n} wins {p}".format(n=name, p=prize_per_winner))
 
         self.tell_bots(updates)
@@ -171,8 +182,8 @@ class PyArena(object):
         self.tell_bots(['Action {b} 500'.format(b=bot_name)])
         bot = self.bot_from_name(bot_name)
         time, response = bot.ask()
-        print "bot {b} submitted action {a} chips={c} time={t}" \
-          .format(b=bot_name, a=response, c=bot.state.stack, t=time)
+        self.log("bot {b} submitted action {a} chips={c} time={t}"
+                 .format(b=bot_name, a=response, c=bot.state.stack, t=time))
         action = TheAiGameActionBuilder().from_string(response)
         return action
 
@@ -192,14 +203,14 @@ class PyArena(object):
         for line in lines:
             bot.tell(line)
             if not silently:
-                print "Telling {b}: {l}".format(b=bot.state.name, l=line)
+                self.log("Telling {b}: {l}".format(b=bot.state.name, l=line))
 
     def post_bet(self, bot_name, amount):
         """Removes money from a bot stack, returns how much was removed"""
         bot = self.bot_from_name(bot_name)
         chips = bot.chips()
         if chips <= amount:
-            print "posted an all-in bet for {}".format(bot_name)
+            self.log("posted an all-in bet for {}".format(bot_name))
             bot.change_chips(chips * -1)
             return chips
         bot.change_chips(amount * -1)
@@ -213,5 +224,4 @@ class PyArena(object):
     def is_all_in(self, bot_name):
         """Returns True if a bot is all in (has no chips left)"""
         bot = self.bot_from_name(bot_name)
-        print "All-in check: {} has {}".format(bot_name, bot.chips())
         return bot.chips() == 0
