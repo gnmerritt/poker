@@ -26,7 +26,7 @@ class Brain(object):
 
     def load_precalc_data(self):
         """Loads pre-computed hand data"""
-        infile = utility.get_data_file('preflop_wins_5000.pickle')
+        infile = utility.get_data_file('preflop_wins_50000.pickle')
         try:
             in_stream = open(infile, 'r')
             try:
