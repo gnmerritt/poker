@@ -42,8 +42,8 @@ class PreflopCalculator(object):
             count += 1
             # 52 choose 2 == 1326
             percent_done = MathUtils.percentage(count, 1326)
-            print ' Finished hand {c} ({p}%)' \
-                .format(c=count, p=round(percent_done))
+            print ' Finished hand {c} ({p:.2f}%)' \
+                .format(c=count, p=percent_done)
             print '-'*10
 
     def save_answer(self):
@@ -55,7 +55,7 @@ class PreflopCalculator(object):
         outf.close()
 
 
-def calculate(tries=5000):
+def calculate(tries=50000):
     job = PreflopCalculator()
     job.run(tries)
     job.save_answer()
