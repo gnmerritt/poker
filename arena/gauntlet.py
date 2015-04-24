@@ -60,4 +60,4 @@ if __name__ == '__main__':
     print "Starting gauntlet for '{}'".format(challenger)
     arena = GauntletArena(challenger, 100)
     arena.run()
-    print "Gauntlet results:\n {}".format(arena)
+    print "\nGauntlet results:\n {}".format(arena)

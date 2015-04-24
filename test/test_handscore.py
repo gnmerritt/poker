@@ -136,12 +136,30 @@ class HandBuilderTest(unittest.TestCase):
 
     def test_preflop_edge_cases(self):
         """Tests cases that seemed to be weird in the preflop job"""
-#A-Spades, K-Spades, 9-Spades, 8-Spades, 2-Spades)
+        #A-Spades, K-Spades, 9-Spades, 8-Spades, 2-Spades)
         hand = [Card(C.ACE, C.SPADES), Card(C.KING, C.SPADES), Card(9, C.SPADES),
                 Card(8, C.SPADES), Card(2, C.SPADES)]
         score = HandBuilder(hand).score_hand()
         self.assertEqual(C.FLUSH, score.type)
         self.assertEqual((14, 13, 9, 8, 2), score.kicker)
+
+    def test_ace_high_straight(self):
+        """Tests that ace-high straights are found correctly"""
+        hand = [Card(C.ACE, C.SPADES), Card(C.KING, C.SPADES),
+                Card(C.QUEEN, C.CLUBS), Card(C.JACK, C.SPADES),
+                Card(10, C.SPADES)]
+        score = HandBuilder(hand).score_hand()
+        self.assertEqual(C.STRAIGHT, score.type)
+        self.assertEqual((14, 13, 12, 11, 10), score.kicker)
+
+    def test_ace_low_straight(self):
+        """Tests ace-low straights are found correctly"""
+        hand = [Card(C.ACE, C.SPADES), Card(2, C.SPADES),
+                Card(3, C.CLUBS), Card(4, C.SPADES),
+                Card(5, C.SPADES)]
+        score = HandBuilder(hand).score_hand()
+        self.assertEqual(C.STRAIGHT, score.type)
+        self.assertEqual((5, 4, 3, 2, 14), score.kicker)
 
 class HandFinderTest(unittest.TestCase):
     """Tests edge cases of the find_hand function"""

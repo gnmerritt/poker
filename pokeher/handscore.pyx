@@ -125,6 +125,9 @@ cdef class HandBuilder:
                 score.type = STRAIGHT_FLUSH
             else:
                 score.type = STRAIGHT
+            # special case for Ace-low straights :-(
+            if score.kicker[0] == 14 and score.kicker[1] == 5:
+                score.kicker = (5, 4, 3, 2, 14)
 
         return score
 
@@ -164,17 +167,20 @@ cdef class HandBuilder:
 
     cpdef bint is_straight(self):
         """returns True if this hand is a straight, false otherwise"""
-        cdef int last_value, i
+        cdef int last_value, i, gap, value
         cdef cards.Card card
 
         last_value = -1
         for i in range(HAND_LENGTH):
             card = self.cards[i]
+            value = card.value
             if last_value > 0:
-                gap = last_value - card.value
-                if gap != 1:
+                gap = last_value - value
+                # Special case for Ace-low straights (ace is first)
+                # these will be sorted A(14)-5-4-3-2
+                if gap != 1 and not (last_value == 14 and gap == 9):
                     return False
-            last_value = card.value
+            last_value = value
         return True
 
     def cards_to_ranks(self):
