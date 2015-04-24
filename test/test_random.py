@@ -6,7 +6,7 @@ class RandomTest(unittest.TestCase):
     """Tests that the crappy bootleg random functions I wrote match up
     reasonably well to the python random API"""
     def test_uniform(self):
-        for i in range(50):
+        for i in range(1, 50):
             uniform = random.uniform(0, i)
             self.assertTrue(uniform >= 0, "uniform output too small")
             self.assertTrue(uniform <= i, "uniform output too big")

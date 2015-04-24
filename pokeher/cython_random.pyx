@@ -1,11 +1,13 @@
-from libc.stdlib cimport rand
+from libc.stdlib cimport rand, srand
 cdef extern from "limits.h":
     int RAND_MAX
 
+import time, math
+srand(math.trunc(time.time()))
 
 cpdef float uniform(float lower, float upper):
     """Cython wrapper around Python's random.uniform"""
-    cdef float multiplier = (float)(rand() / RAND_MAX)
+    cdef float multiplier = rand() / float(RAND_MAX)
     cdef float range = upper - lower
     return lower + (range * multiplier)
 
