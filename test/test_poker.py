@@ -46,6 +46,30 @@ class BettingRoundTest(unittest.TestCase):
         # TODO: this is wrong, pot should be 40 - refund big raise the
         # difference that bot_0 couldn't call
 
+    def test_min_raise(self):
+        actions = [
+            ['bot_0', 'raise 10'], # pot 10
+            ["bot_1", "raise 20"], # pot 30
+            # smaller than minimum raise, gets bumped to raise 20
+            ["bot_0", "raise 1"],  # call 20 + raise 20, pot = 80
+        ]
+        hand, (ended, remaining) = self.build_run_hand(actions)
+        self.assertEqual(hand.pot, 80)
+        self.assertFalse(ended)
+
+    def test_min_reraise(self):
+        actions = [
+            ["bot_0", "raise 50"], # pot 50
+            ["bot_1", "raise 60"], # pot 160
+            ["bot_0", "raise 50"], # c60, raise 60, pot = 280
+        ]
+        hand, (ended, remaining) = self.build_run_hand(actions)
+        self.assertEqual(hand.pot, 280)
+        self.assertFalse(ended)
+        self.assertIn('bot_0', remaining)
+        self.assertIn('bot_1', remaining)
+
+
 class ShowdownTest(unittest.TestCase):
     def test_winner(self):
         bot_hands = {

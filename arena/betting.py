@@ -79,9 +79,10 @@ class BettingRound(object):
     """Controls a round of betting.
     Each player has the chance to check, call, raise or fold.
     Once a player folds (or bets too small) the player is out"""
-    def __init__(self, bots, bets=None, pot=0):
+    def __init__(self, bots, bets=None, pot=0, minimum_raise=0):
         self.pot = pot
         self.sidepot = None
+        self.minimum_raise = minimum_raise
         self.bots = bots  # ordered list of bots
         if bets is None:
             bets = {}
@@ -111,6 +112,9 @@ class BettingRound(object):
 
     def __process_bet(self, bet, player, is_blind=False):
         if bet > self.sidepot:
+            sidepot = 0 if self.sidepot is None else self.sidepot
+            raise_amount = bet - sidepot
+            self.minimum_raise = max(raise_amount, self.minimum_raise)
             self.sidepot = bet
             # Don't set the high better for blinds - the BB
             # is allowed to raise when the betting comes around

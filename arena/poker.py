@@ -48,6 +48,8 @@ class PokerHand(object):
         if action.is_fold():
             br.post_fold(current_better)
         elif action.is_raise():
+            if action.amount < br.minimum_raise:
+                action.amount = br.minimum_raise
             action.amount += to_call
             self.__check_bet(br, current_better, action)
         elif action.is_call():
