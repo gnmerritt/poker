@@ -3,6 +3,7 @@ class IOPokerBot(object):
     Subclasses should mix-in parser & action delegates
     """
     def __init__(self, io_input, io_output, log_output):
+        self.no_logging = False
         self.io_input = io_input
         self.action_out = io_output
         self.log_out = log_output
@@ -31,7 +32,8 @@ class IOPokerBot(object):
 
     def log(self, line):
         """Writes a line somewhere we can log it"""
-        self.write_line(line, self.log_out)
+        if not self.no_logging:
+            self.write_line(line, self.log_out)
 
     def write_line(self, line, dest):
         if line and dest:

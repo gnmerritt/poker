@@ -9,6 +9,7 @@ from pokeher.theaigame import TheAiGameParserDelegate, TheAiGameActionDelegate
 class CheckBrain(object):
     def __init__(self, bot):
         self.bot = bot
+        self.bot.no_logging = True
         self.parser = self.bot.set_up_parser({}, self.do_turn)
 
     def parse_line(self, line):
