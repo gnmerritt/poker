@@ -122,7 +122,6 @@ class BettingFunctionalTests(BrainTest):
             brain.do_turn('bot_0', 250)
             self.assertTrue(bot.raise_amount > 0)
         self.assertTrue(t.secs < 0.250)
-        self.fail()
 
 class MockBot(object):
     """For testing the brain by itself"""
