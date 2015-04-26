@@ -158,6 +158,14 @@ class BettingRoundTest(unittest.TestCase):
         # Betting round should be over after 'b' checks
         self.assertEqual(br.next_better(), None)
 
+    def test_blinds_ordering(self):
+        bots = ['bb', 'sb']
+        bets = {'bb': 20, 'sb': 10}
+        br = BettingRound(bots, bets)
+        self.assertTrue(br.post_bet("sb", 10))
+        self.assertTrue(br.post_bet("bb", 0))
+        self.assertEqual(br.next_better(), None)
+
     def test_heads_up_bb_bets(self):
         bots = ['a', 'b']
         bets = {'a': 10, 'b': 20}
@@ -186,3 +194,13 @@ class BettingRoundTest(unittest.TestCase):
         self.assertEqual(br.pot, 30)
         self.assertFalse(br.is_staked('c'))
         self.assertFalse(br.can_bet('c'))
+
+    def test_all_in_check(self):
+        """Tests that an all in bet forces a call"""
+        bots = ['caller', 'all_in']
+        br = BettingRound(bots, bets={})
+
+        self.assertTrue(br.post_bet("caller", 0)) # checks
+        self.assertTrue(br.post_bet("all_in", 100, all_in=True))
+        self.assertFalse(br.post_bet("caller", 0))
+        self.assertNotIn("caller", br.remaining_players())
