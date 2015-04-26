@@ -104,7 +104,7 @@ class Brain(object):
 
     def __run_simulator(self, simulator, time_left_ms):
         results = []
-        step_size = 100
+        step_size = 200
         start_time = time.clock() * 1000
         end_time = start_time + time_left_ms - 100
         for i in range(0, self.iterations, step_size):
@@ -112,7 +112,7 @@ class Brain(object):
             if now >= end_time:
                 self.bot.log(" stopping simulation after {} runs".format(i))
                 break
-            self.bot.log(" sim: {} ticks, now={}".format(step_size, now))
+            self.bot.log(" sim: {} tries, now={}".format(step_size, now))
             equity = simulator.simulate(step_size)
             results.append(equity)
         return sum(results) / len(results)
@@ -127,7 +127,7 @@ class Brain(object):
             if equity > 65 or (equity > 40 and self.r_test(0.03, 'c1')):
                 self.bot.bet(self.big_raise("R1"))
             elif equity > 55 or self.r_test(0.02, 'c2'):
-                self.minimum_bet()
+                self.bot.bet(self.minimum_bet("R2"))
             else:
                 self.bot.check()
         # use pot odds to call/bet/fold
@@ -153,10 +153,11 @@ class Brain(object):
         if val is not None:
             return int(round(val))
 
-    def minimum_bet(self):
+    def minimum_bet(self, source=None):
         """Returns a minimum bet, 2.5-4 BB"""
         bet = self.data.big_blind * random.uniform(2, 4)
-        self.bot.log(" min bet of {b}".format(b=bet))
+        self.bot.log(" min bet of {b} from {s}"
+                     .format(b=bet, s=source))
         return self.__round_bet(bet)
 
     def r_test(self, fraction, block=None):
