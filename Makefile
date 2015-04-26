@@ -10,6 +10,9 @@ cython:
 test: all
 	nosetests
 
+gauntlet: all
+	python arena/gauntlet.py pokeher/theaigame_bot.py
+
 zipfile: test
 	zip -r bot.zip data/ pokeher/
 
