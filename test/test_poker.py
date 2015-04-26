@@ -46,6 +46,11 @@ class BettingRoundTest(unittest.TestCase):
         # TODO: this is wrong, pot should be 40 - refund big raise the
         # difference that bot_0 couldn't call
 
+    @unittest.skip("TODO")
+    def test_all_in_blinds(self):
+        """Tests that a partially posted blind counts as all-in"""
+        self.fail() # TODO :-)
+
     def test_min_raise(self):
         actions = [
             ['bot_0', 'raise 10'], # pot 10

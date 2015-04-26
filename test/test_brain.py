@@ -23,6 +23,7 @@ class BrainTest(unittest.TestCase):
         self.data.pot = 140
         self.data.hand = Hand(Card(C.ACE, C.DIAMONDS), Card(C.ACE, C.HEARTS))
         self.data.table_cards = []
+        self.data.time_per_move = 500
         self.data.me = 'bot_0'
         self.data.bets = {}
 
@@ -110,16 +111,31 @@ class BettingFunctionalTests(BrainTest):
         self.assertTrue(bot.raise_amount > 0)
 
     def test_timing_out(self):
-        """Sanity tests of betting with common cards"""
+        """Tests that the brain simulator doesn't run forever"""
         self.data.table_cards = [Card(C.ACE, C.SPADES),
                                  Card(2, C.DIAMONDS),
                                  Card(7, C.SPADES)]
         bot = MockBot()
         brain = Brain(bot)
         brain.data = self.data
-        brain.iterations = 5000 # will time out
+        brain.iterations = 10000 # will time out
         with Timer() as t:
             brain.do_turn('bot_0', 250)
+            self.assertTrue(bot.raise_amount > 0)
+        self.assertTrue(t.secs < 0.250)
+
+    def test_time_per_move(self):
+        """Tests that the brain uses time_per_move over the max time"""
+        self.data.table_cards = [Card(C.ACE, C.SPADES),
+                                 Card(2, C.DIAMONDS),
+                                 Card(7, C.SPADES)]
+        bot = MockBot()
+        brain = Brain(bot)
+        brain.data = self.data
+        brain.data.time_per_move = 250
+        brain.iterations = 10000 # will time out
+        with Timer() as t:
+            brain.do_turn('bot_0', 10000)
             self.assertTrue(bot.raise_amount > 0)
         self.assertTrue(t.secs < 0.250)
 

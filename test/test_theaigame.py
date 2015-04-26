@@ -80,6 +80,7 @@ class SettingsParserTest(unittest.TestCase):
             self.assertTrue(handled, "didn't handle '{}'".format(line))
 
         self.assertEqual(data['your_bot'], 'bot_0')
+        self.assertEqual(data['time_per_move'], '500')
 
 
 class RoundParserTest(unittest.TestCase):

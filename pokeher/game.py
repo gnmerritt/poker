@@ -11,6 +11,7 @@ class Match(object):
         self.round = 0
         self.opponents = []
         self.me = None
+        self.time_per_move = 500
 
     def update_match(self):
         if 'your_bot' in self.sharedData:
@@ -31,6 +32,13 @@ class Match(object):
                 if bot == self.me:
                     continue
                 self.opponents.append(bot)
+
+        if 'time_per_move' in self.sharedData:
+            time_string = self.sharedData.pop('time_per_move')
+            try:
+                self.time_per_move = int(time_string)
+            except ValueError:
+                pass
 
 
 class Round(object):

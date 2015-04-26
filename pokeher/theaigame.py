@@ -79,15 +79,15 @@ class SettingsParser(AiGameParser):
       Settings gameType NLHE (ignored)
       Settings gameMode tournament (ignored)
       Settings time_bank 5000 (ignored)
-      Settings time_per_move 500 (ignored)
       Settings hands_per_level 10 (ignored)
 
+      Settings time_per_move 500
       bot_0 seat 0
       bot_1 seat 1
       Settings your_bot bot_0
     """
     START_TOKEN = 'Settings'
-    YOUR_BOT = 'your_bot'
+    HANDLED_KEYS = ['your_bot', 'time_per_move']
 
     def _handle_line(self, token, key, value):
         # Just pull out any active bots, don't worry about seats yet
@@ -101,8 +101,7 @@ class SettingsParser(AiGameParser):
         if token != self.START_TOKEN:
             return False
 
-        # For now, only car about name of yourBot
-        if key == self.YOUR_BOT:
+        if key in self.HANDLED_KEYS:
             self._data[key] = value
 
         # No other parsers need these lines

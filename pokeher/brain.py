@@ -59,19 +59,20 @@ class Brain(object):
         to_call = self.to_call()
         return utility.MathUtils.percentage(to_call, self.data.pot + to_call)
 
-    def do_turn(self, bot, time_left_ms):
+    def do_turn(self, bot, total_time_left_ms):
         """Wraps internal __do_turn so we can time how long each turn takes"""
+        time_left = min(total_time_left_ms, self.data.time_per_move)
         if not bot or bot != self.data.me:
             return
         with Timer() as t:
-            self.__do_turn(time_left_ms)
+            self.__do_turn(time_left)
         if not self.data.table_cards:
             turn_type = "preflop"
         else:
             turn_type = "{} sims".format(self.iterations)
+        left = (time_left / 1000) - t.secs
         self.bot.log("Finished turn in {t}s ({s}), had {l}s remaining"
-                     .format(t=t.secs, s=turn_type,
-                             l=(time_left_ms/1000 - t.secs)))
+                     .format(t=t.secs, s=turn_type, l=left))
 
     def __do_turn(self, time_left_ms):
         """Callback for when the brain has to make a decision"""
@@ -155,7 +156,7 @@ class Brain(object):
     def minimum_bet(self):
         """Returns a minimum bet, 2.5-4 BB"""
         bet = self.data.big_blind * random.uniform(2, 4)
-        self.bot.log("min bet of {b}".format(b=bet))
+        self.bot.log(" min bet of {b}".format(b=bet))
         return self.__round_bet(bet)
 
     def r_test(self, fraction, block=None):
