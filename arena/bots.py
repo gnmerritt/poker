@@ -45,9 +45,8 @@ class BotProcess(object):
             self.process.stdin.write('\n')
             self.process.stdin.flush()
 
-    def get(self, timeout=0.5):
-        """Gets the most recent line
-        """
+    def get(self, timeout=1):
+        """Gets the most recent line"""
         line = None
         with Timer() as t:
             try:

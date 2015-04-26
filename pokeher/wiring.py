@@ -1,3 +1,6 @@
+import time
+
+
 class IOPokerBot(object):
     """Generic Poker Bot, can read & write lines.
     Subclasses should mix-in parser & action delegates
@@ -15,15 +18,15 @@ class IOPokerBot(object):
 
     def run(self):
         """ Main run loop """
-        while not self.io_input.closed:
+        while True:
             try:
                 rawline = self.io_input.readline()
                 if len(rawline) == 0:
-                    continue
+                    time.sleep(0.001) # sleep for 1ms
                 line = rawline.strip()
                 self.brain.parse_line(line)
-            except EOFError as e:
-                self.log("EOFerror: '{}'".format(e))
+            except Exception as e:
+                self.log("main loop exception: '{}'".format(e))
 
     def say(self, line):
         """Writes a line where the game controller can see it"""
