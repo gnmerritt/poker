@@ -3,6 +3,7 @@ from pokeher.wiring import BufferPokerBot
 from pokeher.theaigame import TheAiGameParserDelegate, TheAiGameActionDelegate
 from pokeher.brain import Brain
 from pokeher.cards import Card, Hand
+from pokeher.timer import Timer
 import pokeher.constants as C
 
 class BrainTestBot(BufferPokerBot, TheAiGameParserDelegate, TheAiGameActionDelegate):
@@ -107,6 +108,21 @@ class BettingFunctionalTests(BrainTest):
         brain.iterations = 100 # smaller for unit tests
         brain.do_turn('bot_0', 500)
         self.assertTrue(bot.raise_amount > 0)
+
+    def test_timing_out(self):
+        """Sanity tests of betting with common cards"""
+        self.data.table_cards = [Card(C.ACE, C.SPADES),
+                                 Card(2, C.DIAMONDS),
+                                 Card(7, C.SPADES)]
+        bot = MockBot()
+        brain = Brain(bot)
+        brain.data = self.data
+        brain.iterations = 5000 # will time out
+        with Timer() as t:
+            brain.do_turn('bot_0', 250)
+            self.assertTrue(bot.raise_amount > 0)
+        self.assertTrue(t.secs < 0.250)
+        self.fail()
 
 class MockBot(object):
     """For testing the brain by itself"""

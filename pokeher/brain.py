@@ -1,5 +1,6 @@
 from __future__ import division
 import cPickle as pickle
+import time
 
 import cython_random as random
 import utility
@@ -92,13 +93,28 @@ class Brain(object):
             best_hand, score = simulator.best_hand()
             self.bot.log(" best 5: {b} score: {s}"
                          .format(b=[str(c) for c in best_hand], s=score))
-            equity = simulator.simulate(self.iterations)
+            equity = self.__run_simulator(simulator, time_left_ms)
             source = "sim"
 
         self.bot.log(" {h}, win: {e}% ({s}), pot odds: {p}%"
                      .format(h=hand, e=equity, s=source, p=pot_odds))
 
         self.pick_action(equity, pot_odds)
+
+    def __run_simulator(self, simulator, time_left_ms):
+        results = []
+        step_size = 100
+        start_time = time.clock() * 1000
+        end_time = start_time + time_left_ms - 100
+        for i in range(0, self.iterations, step_size):
+            now = time.clock() * 1000
+            if now >= end_time:
+                self.bot.log(" stopping simulation after {} runs".format(i))
+                break
+            self.bot.log(" sim: {} ticks, now={}".format(step_size, now))
+            equity = simulator.simulate(step_size)
+            results.append(equity)
+        return sum(results) / len(results)
 
     def pick_action(self, equity, pot_odds):
         """Look at our expected return and do something.
