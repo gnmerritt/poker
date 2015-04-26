@@ -46,16 +46,17 @@ class Brain(object):
         else:
             self.bot.log("didn't handle line: '{}'".format(line))
 
-    def to_call(self):
+    def to_call(self, silent=False):
         to_call = self.data.to_call
-        self.bot.log("bot={}, pot={}, to call={}" \
-                     .format(self.data.me, self.data.pot, to_call))
+        if not silent:
+            self.bot.log("bot={}, pot={}, to call={}" \
+                         .format(self.data.me, self.data.pot, to_call))
         return to_call
 
     def pot_odds(self):
         """Return the pot odds, or how much we need to gain to call"""
         to_call = self.to_call()
-        return utility.MathUtils.percentage(to_call, self.data.pot)
+        return utility.MathUtils.percentage(to_call, self.data.pot + to_call)
 
     def do_turn(self, bot, time_left_ms):
         """Wraps internal __do_turn so we can time how long each turn takes"""
@@ -63,8 +64,12 @@ class Brain(object):
             return
         with Timer() as t:
             self.__do_turn(time_left_ms)
-        self.bot.log("Finished turn in {t}s ({i} sims), had {l}s remaining"
-                     .format(t=t.secs, i=self.iterations,
+        if not self.data.table_cards:
+            turn_type = "preflop"
+        else:
+            turn_type = "{} sims".format(self.iterations)
+        self.bot.log("Finished turn in {t}s ({s}), had {l}s remaining"
+                     .format(t=t.secs, s=turn_type,
                              l=(time_left_ms/1000 - t.secs)))
 
     def __do_turn(self, time_left_ms):
@@ -85,12 +90,12 @@ class Brain(object):
         else:
             simulator = HandSimulator(hand, self.data.table_cards)
             best_hand, score = simulator.best_hand()
-            self.bot.log("best 5: {b} score: {s}"
+            self.bot.log(" best 5: {b} score: {s}"
                          .format(b=[str(c) for c in best_hand], s=score))
             equity = simulator.simulate(self.iterations)
             source = "sim"
 
-        self.bot.log("{h}, equity: {e}% ({s}), pot odds: {p}%"
+        self.bot.log(" {h}, win: {e}% ({s}), pot odds: {p}%"
                      .format(h=hand, e=equity, s=source, p=pot_odds))
 
         self.pick_action(equity, pot_odds)
@@ -98,32 +103,33 @@ class Brain(object):
     def pick_action(self, equity, pot_odds):
         """Look at our expected return and do something.
         Will be a semi-random mix of betting, folding, calling"""
-        to_call = self.to_call()
+        to_call = self.to_call(silent=True)
 
         # action to us: check or bet
         if to_call == 0:
-            if equity > 0.65 or self.r_test(0.03):
-                self.bot.bet(self.big_raise())
-            elif equity > 0.5 or self.r_test(0.05):
+            if equity > 65 or (equity > 40 and self.r_test(0.03, 'c1')):
+                self.bot.bet(self.big_raise("R1"))
+            elif equity > 55 or self.r_test(0.02, 'c2'):
                 self.minimum_bet()
-            else:  # equity <= 0.3:
+            else:
                 self.bot.check()
-
         # use pot odds to call/bet/fold
         else:
             return_ratio = equity / pot_odds
-            if return_ratio > 1.8 or self.r_test(0.02):
-                self.bot.bet(self.big_raise())
-            elif return_ratio > 1 or self.r_test(0.02):
+            self.bot.log(" return ratio={}".format(return_ratio))
+            if equity > 70 or (equity > 40 and self.r_test(0.03, 'po1')):
+                self.bot.bet(self.big_raise("R2"))
+            elif return_ratio > 1:
                 self.bot.call(to_call)
             else:
                 self.bot.fold()
 
-    def big_raise(self):
+    def big_raise(self, source=None):
         """Returns a big raise, 70-150% of the pot"""
         pot = self.data.pot
         bet_raise = random.uniform(0.7, 1.5) * pot
-        self.bot.log("big raise of {r} (pot={p})".format(r=bet_raise, p=pot))
+        self.bot.log(" big raise of {r} (pot={p}) from {s}"
+                     .format(r=bet_raise, p=pot, s=source))
         return self.__round_bet(bet_raise)
 
     def __round_bet(self, val):
@@ -136,10 +142,11 @@ class Brain(object):
         self.bot.log("min bet of {b}".format(b=bet))
         return self.__round_bet(bet)
 
-    def r_test(self, fraction):
+    def r_test(self, fraction, block=None):
         """Given a number [0,1], randomly return true / false
         s.t. r_test(0.5) is true ~50% of the time"""
         passed = random.uniform(0, 1) < fraction
         if passed:
-            self.bot.log("r_test() passed for %{f}".format(f=fraction))
+            self.bot.log(" r_test({f}%) passed from {b}"
+                         .format(f=100*fraction, b=block))
         return passed
