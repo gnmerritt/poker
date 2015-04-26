@@ -123,7 +123,10 @@ class Brain(object):
 
         # action to us: check or bet
         if to_call == 0:
-            if equity > 65 or (equity > 40 and self.r_test(0.03, 'c1')):
+            # lock hands - 1/3 of the time make a small bet instead of a big one
+            if equity > 90 and self.r_test(0.33, 'lock_trap'):
+                self.bot.bet(self.minimum_bet("trap1"))
+            elif equity > 65 or (equity > 40 and self.r_test(0.03, 'c1')):
                 self.bot.bet(self.big_raise("R1"))
             elif equity > 55 or self.r_test(0.02, 'c2'):
                 self.bot.bet(self.minimum_bet("R2"))
@@ -134,7 +137,7 @@ class Brain(object):
             return_ratio = equity / pot_odds
             self.bot.log(" return ratio={}".format(return_ratio))
             if equity > 70 or (equity > 40 and self.r_test(0.03, 'po1')):
-                self.bot.bet(self.big_raise("R2"))
+                self.bot.bet(self.big_raise("R3"))
             elif return_ratio > 1:
                 self.bot.call(to_call)
             else:
@@ -153,7 +156,7 @@ class Brain(object):
             return int(round(val))
 
     def minimum_bet(self, source=None):
-        """Returns a minimum bet, 2.5-4 BB"""
+        """Returns a minimum bet, 2-4 * BB"""
         bet = self.data.big_blind * random.uniform(2, 4)
         self.bot.log(" min bet of {b} from {s}"
                      .format(b=bet, s=source))
