@@ -104,7 +104,7 @@ class Brain(object):
 
     def __run_simulator(self, simulator, time_left_ms):
         results = []
-        step_size = 200
+        step_size = 100
         start_time = time.clock() * 1000
         end_time = start_time + time_left_ms - 100
         for i in range(0, self.iterations, step_size):
@@ -112,7 +112,6 @@ class Brain(object):
             if now >= end_time:
                 self.bot.log(" stopping simulation after {} runs".format(i))
                 break
-            self.bot.log(" sim: {} tries, now={}".format(step_size, now))
             equity = simulator.simulate(step_size)
             results.append(equity)
         return sum(results) / len(results)
