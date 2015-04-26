@@ -1,5 +1,6 @@
 from __future__ import print_function
 import time
+import math
 
 import pokeher.cards as cards
 from pokeher.theaigame import TheAiGameActionBuilder
@@ -111,17 +112,27 @@ class PyArena(object):
         self.__update_chips(winners, pot)
         return winners
 
+    def split_pot(self, pot, num_winners):
+        prize_per_winner = pot / float(num_winners)
+        prize_int = math.trunc(prize_per_winner)
+        prizes = [prize_int] * num_winners
+        if prize_per_winner != prize_int:
+            # TODO: this only works in heads up
+            # arbitrarily give the first player an extra chip :-)
+            prizes[0] = prize_int + 1
+        return prizes
+
     def __update_chips(self, winners, pot):
         num_winners = len(winners)
-        prize_per_winner = pot / num_winners
-        assert prize_per_winner >= 0
+        winnings = self.split_pot(pot, num_winners)
         updates = []
 
-        for name in winners:
+        for i, name in enumerate(winners):
+            prize = winnings[i]
             bot = self.bot_from_name(name)
-            bot.change_chips(prize_per_winner)
-            self.log("{n} wins {p}".format(n=name, p=prize_per_winner))
-            updates.append("{n} wins {p}".format(n=name, p=prize_per_winner))
+            bot.change_chips(prize)
+            self.log("{n} wins {p}".format(n=name, p=prize))
+            updates.append("{n} wins {p}".format(n=name, p=prize))
 
         self.tell_bots(updates)
 

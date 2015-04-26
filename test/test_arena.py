@@ -22,3 +22,17 @@ class PyArenaTest(unittest.TestCase):
         arena.load_bot("asdlfj23u90dj")
         self.assertTrue(arena)
         self.assertEqual(arena.bot_count(), 0)
+
+    def test_pot_splitting(self):
+        arena = PyArena()
+        winnings = arena.split_pot(pot=16, num_winners=2)
+        self.assertEqual(len(winnings), 2)
+        for prize in winnings:
+            self.assertEqual(prize, 8)
+
+    def test_uneven_pot_splitting(self):
+        arena = PyArena()
+        winnings = arena.split_pot(pot=15, num_winners=2)
+        self.assertEqual(len(winnings), 2)
+        self.assertIn(7, winnings)
+        self.assertIn(8, winnings)
