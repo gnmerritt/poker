@@ -30,8 +30,7 @@ cdef class HandSimulator:
     def simulate(self, int iterations):
         """Repeatedly run the simulation, return the % pot equity"""
         cdef int i
-        cdef float wins
-        wins = 0
+        cdef float wins = 0
 
         for i in xrange(0, iterations):
             wins += self.__try_hand()

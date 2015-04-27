@@ -144,23 +144,38 @@ class Brain(object):
                 self.bot.fold()
 
     def big_raise(self, source=None):
-        """Returns a big raise, 70-150% of the pot"""
+        """Returns a big raise:
+           preflop: 3-5 BB
+           after flop: 80-150% of the pot
+        """
         pot = self.data.pot
-        bet_raise = random.uniform(0.7, 1.5) * pot
+        if not self.data.table_cards:
+            bb = self.data.big_blind
+            bet_raise = random.uniform(3, 5) * bb
+        else:
+            bet_raise = random.uniform(0.8, 1.5) * pot
         self.bot.log(" big raise of {r} (pot={p}) from {s}"
                      .format(r=bet_raise, p=pot, s=source))
         return self.__round_bet(bet_raise)
 
+    def minimum_bet(self, source=None):
+        """Returns a minimum bet:
+           preflop: 1-3 * BB
+           after flop: 1/6 - 2/5 of the pot
+        """
+        if not self.data.table_cards:
+            bb = self.data.big_blind
+            bet = random.uniform(1, 3) * bb
+        else:
+            pot = self.data.pot
+            bet = random.uniform(0.16, 0.4) * pot
+        self.bot.log(" small raise of {b} from {s}"
+                     .format(b=bet, s=source))
+        return self.__round_bet(bet)
+
     def __round_bet(self, val):
         if val is not None:
             return int(round(val))
-
-    def minimum_bet(self, source=None):
-        """Returns a minimum bet, 2-4 * BB"""
-        bet = self.data.big_blind * random.uniform(2, 4)
-        self.bot.log(" min bet of {b} from {s}"
-                     .format(b=bet, s=source))
-        return self.__round_bet(bet)
 
     def r_test(self, fraction, block=None):
         """Given a number [0,1], randomly return true / false

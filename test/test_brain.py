@@ -21,6 +21,7 @@ class BrainTest(unittest.TestCase):
         self.data = MockData()
         self.data.to_call = 20
         self.data.pot = 140
+        self.data.big_blind = 20
         self.data.hand = Hand(Card(C.ACE, C.DIAMONDS), Card(C.ACE, C.HEARTS))
         self.data.table_cards = []
         self.data.time_per_move = 500
@@ -75,15 +76,27 @@ class TestBrainBets(unittest.TestCase):
 
     def test_big_raise(self):
         """Tests the big bet range"""
-        bet = self.brain.big_raise()
         pot = self.brain.data.pot
-        self.verify_bet(bet, pot * 0.7, pot * 1.5)
+        self.brain.data.table_cards = [1]
+        bet = self.brain.big_raise()
+        self.verify_bet(bet, pot * 0.8, pot * 1.5)
+
+        self.brain.data.table_cards = []
+        bet2 = self.brain.big_raise()
+        bb = self.brain.data.big_blind
+        self.verify_bet(bet2, bb * 3, bb * 5)
 
     def test_minimum_bet(self):
         """Tests the minimum bet range"""
         bb = self.brain.data.big_blind
+        self.brain.data.table_cards = []
         bet = self.brain.minimum_bet()
-        self.verify_bet(bet, bb * 2, bb * 4)
+        self.verify_bet(bet, bb, bb * 3)
+
+        self.brain.data.table_cards = [1]
+        bet2 = self.brain.minimum_bet()
+        pot = self.brain.data.pot
+        self.verify_bet(bet2, pot * 0.16, pot * 0.4)
 
 class BettingFunctionalTests(BrainTest):
     """End-to-end tests with cards and everything"""
