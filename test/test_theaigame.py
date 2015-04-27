@@ -126,8 +126,11 @@ class TurnParserTest(unittest.TestCase):
         parser = TurnParser(data, goCallback)
 
         for line in lines:
-            self.assertTrue(parser.handle_line(line), 'didnt handle: "{}"'.format(line))
+            self.assertTrue(parser.handle_line(line), 'didnt handle: "{}"'
+                            .format(line))
 
+        self.assertEqual(data[('stack', 'bot_0')], '1000')
+        self.assertEqual(data[('stack', 'bot_1')], '392')
         self.assertEqual(data['table'], [Card(10, C.CLUBS),
                                          Card(8, C.DIAMONDS),
                                          Card(9, C.CLUBS)])

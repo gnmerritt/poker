@@ -164,5 +164,26 @@ class RoundTest(unittest.TestCase):
         self.assertEqual(data.bets["bot_0"], 0)
         self.assertEqual(data.bets["bot_1"], 0)
 
+    def test_stacks(self):
+        """Tests that we pull bot stack sizes out of the data blob"""
+        sharedData = {}
+        data = GameData(sharedData)
+        data.me = 'bot_0'
+        callback = None
+        parser = TurnParser(sharedData, callback)
+        lines = [
+            "bot_0 stack 3920",
+            "bot_1 stack 1000",
+            "bot_0 post 10",
+            "bot_1 post 20",
+        ]
+
+        for line in lines:
+            self.assertTrue(parser.handle_line(line))
+            data.update()
+
+        self.assertEqual(data.stacks["bot_0"], 3920)
+        self.assertEqual(data.stacks["bot_1"], 1000)
+
 if __name__ == '__main__':
     unittest.main()

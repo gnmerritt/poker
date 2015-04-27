@@ -98,6 +98,7 @@ class TestBrainBets(unittest.TestCase):
         pot = self.brain.data.pot
         self.verify_bet(bet2, pot * 0.16, pot * 0.4)
 
+
 class BettingFunctionalTests(BrainTest):
     """End-to-end tests with cards and everything"""
     def test_preflop_betting(self):

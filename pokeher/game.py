@@ -52,12 +52,14 @@ class Round(object):
         self.big_blind = 0
         self.small_blind = 0
         self.button = None
+        self.stacks = {}
 
     def update_round(self):
         self.parse_blinds()
         self.parse_cards()
         self.parse_pot()
         self.parse_bets()
+        self.parse_stacks()
 
         if 'on_button' in self.sharedData:
             self.button = self.sharedData.pop('on_button')
@@ -119,6 +121,16 @@ class Round(object):
             elif bet:
                 self.bets[bot] = bet
 
+    def parse_stacks(self):
+        if not hasattr(self, 'opponents') or not self.opponents:
+            return
+        for bot in self.opponents + [self.me]:
+            stack_key = ('stack', bot)
+            stack = self.sharedData.get(stack_key, "")
+            try:
+                self.stacks[bot] = int(stack)
+            except ValueError:
+                pass
 
 class GameData(Match, Round):
     """Aggregate data classes mixed in together"""
