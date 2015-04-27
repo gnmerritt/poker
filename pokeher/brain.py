@@ -87,7 +87,7 @@ class Brain(object):
         equity = 0
 
         if not self.data.table_cards:
-            equity = self.preflop_equity[repr(hand)]
+            equity = self.preflop_equity[hand.simple()]
             source = "preflop"
         else:
             simulator = HandSimulator(hand, self.data.table_cards)

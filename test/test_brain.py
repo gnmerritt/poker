@@ -43,20 +43,20 @@ class BrainTest(unittest.TestCase):
         """Tests that the preflop equity data loaded correctly"""
         bot = BrainTestBot(self.fake_in, self.fake_out, self.fake_log)
         self.assertTrue(bot.brain.preflop_equity)
-        self.assertEqual(len(bot.brain.preflop_equity.keys()), 1326)
+        self.assertEqual(len(bot.brain.preflop_equity.keys()), 169)
 
     def test_preflop_sanity(self):
         """Pull some stuff from the preflop equity and spot check it"""
         bot = BrainTestBot(self.fake_in, self.fake_out, self.fake_log)
         bad_hand = Hand(Card(2, C.CLUBS), Card(3, C.DIAMONDS))
-        sample_key = repr(bad_hand)
+        sample_key = bad_hand.simple()
 
         self.assertTrue(sample_key in bot.brain.preflop_equity.keys())
         bad_equity = bot.brain.preflop_equity[sample_key]
         self.assertTrue(bad_equity > 0.2)
 
         good_hand = Hand(Card(C.ACE, C.SPADES), Card(C.ACE, C.DIAMONDS))
-        good_equity = bot.brain.preflop_equity[repr(good_hand)]
+        good_equity = bot.brain.preflop_equity[good_hand.simple()]
         self.assertTrue(good_equity > bad_equity)
 
 class TestBrainBets(unittest.TestCase):

@@ -23,24 +23,28 @@ class PreflopCalculator(object):
         cards = c.full_deck()
         self.wins = {}
         self.tries = tries
-        count = 0
 
-        for two_cards in itertools.combinations(cards, 2):
+        for count, two_cards in enumerate(itertools.combinations(cards, 2)):
             t1 = time.clock()
             hand = c.Hand(two_cards[0], two_cards[1])
+            hand_string = hand.simple()
+            if self.wins.get(hand_string) is not None:
+                print "Skipping {}. Already computed its simple representation ({})" \
+                  .format(hand, hand_string)
+                continue
             simulator = HandSimulator(hand)
             percent_pots_won = simulator.simulate(tries)
 
-            self.wins[repr(hand)] = percent_pots_won
+            self.wins[hand_string] = percent_pots_won
 
-            print ' {hand} won {percent}% in {tries} tries in {t} seconds' \
-                .format(hand=hand,
+            print ' {hand} ({s}) won {percent}% in {tries} tries in {t} seconds' \
+                .format(hand=hand, s=hand_string,
                         tries=tries,
                         percent=percent_pots_won,
                         t=(time.clock() - t1))
 
-            count += 1
             # 52 choose 2 == 1326
+            # We go through everything even though we only calculate 169 hands
             percent_done = MathUtils.percentage(count, 1326)
             print ' Finished hand {c} ({p:.2f}%)' \
                 .format(c=count, p=percent_done)
