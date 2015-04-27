@@ -62,17 +62,20 @@ class HandTest(unittest.TestCase):
         self.assertTrue(h.is_suited())
         self.assertTrue(h.is_connected())
         self.assertFalse(h.is_pair())
+        self.assertEqual(h.simple(), "1413s")
 
         h2 = Hand(Card(5, C.HEARTS), Card(7, C.HEARTS))
         self.assertTrue(h2.is_suited())
         self.assertFalse(h2.is_connected())
         self.assertFalse(h2.is_pair())
+        self.assertEqual(h2.simple(), "75s")
 
     def test_repr_string(self):
         h = Hand(self.jackD, self.aceS)
 
         self.assertEqual(repr(h), '143111')
         self.assertEqual(str(h), 'A-Spades, J-Diamonds')
+        self.assertEqual(h.simple(), "1411u")
 
     def test_hand_negs(self):
         """Tests an unsuited, unconnected hand"""

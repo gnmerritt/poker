@@ -11,10 +11,10 @@ cdef class HandSimulator:
     outcome of the hand a number of times to determine an approximate
     pot equity (percent of pot we can expect to win)
     """
-    cdef object hand
-    cdef readonly object deck, table_cards
+    cdef list hand
+    cdef readonly list deck, table_cards
 
-    def __init__(self, hand, table_cards=[]):
+    def __init__(self, cards.Hand hand, table_cards=[]):
         self.hand = [hand.high, hand.low]
         self.table_cards = table_cards
         self.deck = [c for c in cards.full_deck() \
