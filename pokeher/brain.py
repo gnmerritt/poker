@@ -3,8 +3,8 @@ from __future__ import division
 import time
 
 import cython_random as random
-import utility
 import preflop_equity
+from utility import MathUtils
 from game import GameData
 from hand_simulator import HandSimulator
 from timer import Timer
@@ -49,7 +49,11 @@ class Brain(object):
     def pot_odds(self):
         """Return the pot odds, or how much we need to gain to call"""
         to_call = self.to_call()
-        return utility.MathUtils.percentage(to_call, self.data.pot + to_call)
+        return MathUtils.percentage(to_call, self.data.pot + to_call)
+
+    def our_stack(self):
+        """Returns our current stack size"""
+        return self.data.stacks[self.data.me]
 
     def do_turn(self, bot, total_time_left_ms):
         """Wraps internal __do_turn so we can time how long each turn takes"""
@@ -80,7 +84,7 @@ class Brain(object):
         equity = 0
 
         # preflop, no big raises. safe to use our precalculated win %
-        if not self.data.table_cards and to_call <= self.data.big_blind:
+        if not self.data.table_cards: # and to_call <= self.data.big_blind:
             equity = self.preflop_equity[hand.simple()]
             source = "preflop"
         else:
@@ -130,7 +134,13 @@ class Brain(object):
             self.bot.log(" return ratio={}".format(return_ratio))
             if equity > 70 or (equity > 40 and self.r_test(0.03, 'po1')):
                 self.bot.bet(self.big_raise("R3"))
-            elif return_ratio > 1:
+            elif return_ratio > 1.25:
+                self.bot.log(" return ratio > 1.25, calling {}".format(to_call))
+                self.bot.call(to_call)
+            elif return_ratio > 1 \
+              and MathUtils.percentage(to_call, self.our_stack()) < 10:
+                self.bot.log(" return ratio > 1 and bet is small, calling {}"
+                             .format(to_call))
                 self.bot.call(to_call)
             else:
                 self.bot.fold()

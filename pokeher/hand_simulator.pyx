@@ -2,8 +2,8 @@ cimport cython_random as random
 cimport cards
 cimport handscore
 import cards
-from handscore import HandBuilder
-from handscore cimport HandBuilder
+from handscore import HandBuilder, HandScore
+from handscore cimport HandBuilder, HandScore
 from utility import MathUtils
 
 cdef class HandSimulator:
@@ -25,7 +25,7 @@ cdef class HandSimulator:
         if len(self.table_cards) >= 3:
             return HandBuilder(self.hand + self.table_cards).find_hand()
         else:
-            return self.hand
+            return self.hand, HandScore()
 
     def simulate(self, int iterations):
         """Repeatedly run the simulation, return the % pot equity"""

@@ -1,3 +1,5 @@
+from __future__ import division
+
 import unittest
 from pokeher.wiring import BufferPokerBot
 from pokeher.theaigame import TheAiGameParserDelegate, TheAiGameActionDelegate
@@ -112,6 +114,27 @@ class BettingFunctionalTests(BrainTest):
         brain.do_turn('bot_0', 1000)
         self.assertTrue(bot.raise_amount > 0) # shouldn't fold with a pair of aces
 
+    def test_preflop_big_raise(self):
+        """Sanity test of a big preflop raise (switches to sim equity)"""
+        bot = MockBot()
+        brain = Brain(bot)
+        # preflop 'A-9s' => 63.044 win %
+        self.data.hand = Hand(Card(C.ACE, C.SPADES), Card(9, C.SPADES))
+        # opponent made a huge raise from BB
+        self.data.to_call = 1000
+        self.data.pot = 1040
+        self.data.stacks = {'bot_0': 2000}
+        brain.data = self.data
+        # 49% pot odds
+        self.assertAlmostEqual(brain.pot_odds(), 100 * 1000 / 2040)
+        brain.do_turn('bot_0', 200)
+
+        # should fold even though 63% to win / 49% pot odds is positive return
+        # because the opponent's huge raise indicates they have above average
+        # hand strength
+        self.assertEqual(bot.raise_amount, 0)
+        self.assertEqual(bot.bet_amount, 0)
+
     def test_river_betting(self):
         """Sanity tests of betting with common cards"""
         self.data.table_cards = [Card(C.ACE, C.SPADES),
@@ -157,6 +180,7 @@ class MockBot(object):
     """For testing the brain by itself"""
     def __init__(self):
         self.bet_amount = 0
+        self.raise_amount = 0
 
     def set_up_parser(self, a, b):
         return None
@@ -166,6 +190,10 @@ class MockBot(object):
 
     def bet(self, amount):
         self.raise_amount = amount
+
+    def fold(self):
+        self.bet_amount = 0
+        self.raise_amount = 0
 
     def log(self, msg):
         print msg

@@ -11,7 +11,7 @@ class GameExampleTests(unittest.TestCase):
     AIG_BOT = "pokeher/theaigame_bot.py"
 
     def test_timeout_after_flop(self):
-        """Something goes bump in the night"""
+        """Something goes bump in the night. This also explodes if extra logging gets added"""
         actions = [
             "Settings your_bot bot_0",
             "Settings timebank 10000",
