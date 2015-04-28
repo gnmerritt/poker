@@ -28,8 +28,7 @@ class Brain(object):
 
     def load_precalc_data(self):
         """Loads pre-computed hand data"""
-        preflop = preflop_equity.PreflopEquity('preflop_wins_50000.pickle',
-                                               log_func=self.bot.log)
+        preflop = preflop_equity.PreflopEquity(log_func=self.bot.log)
         self.preflop_equity = preflop.data
 
     def parse_line(self, line):
