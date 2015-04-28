@@ -1,9 +1,10 @@
 from __future__ import division
-import cPickle as pickle
+
 import time
 
 import cython_random as random
 import utility
+import preflop_equity
 from game import GameData
 from hand_simulator import HandSimulator
 from timer import Timer
@@ -27,17 +28,9 @@ class Brain(object):
 
     def load_precalc_data(self):
         """Loads pre-computed hand data"""
-        infile = utility.get_data_file('preflop_wins_50000.pickle')
-        try:
-            in_stream = open(infile, 'r')
-            try:
-                self.preflop_equity = pickle.load(in_stream)
-                self.bot.log("Loaded preflop equity file")
-            finally:
-                in_stream.close()
-        except IOError as e:
-            self.bot.log("IO error loading {f} (e={e})" \
-                         .format(f=infile, e=e))
+        preflop = preflop_equity.PreflopEquity('preflop_wins_50000.pickle',
+                                               log_func=self.bot.log)
+        self.preflop_equity = preflop.data
 
     def parse_line(self, line):
         """Feeds a line to the parsers"""
@@ -83,10 +76,12 @@ class Brain(object):
             return
 
         hand = self.data.hand
+        to_call = self.to_call()
         pot_odds = self.pot_odds()
         equity = 0
 
-        if not self.data.table_cards:
+        # preflop, no big raises. safe to use our precalculated win %
+        if not self.data.table_cards and to_call <= self.data.big_blind:
             equity = self.preflop_equity[hand.simple()]
             source = "preflop"
         else:
@@ -100,7 +95,7 @@ class Brain(object):
         self.bot.log(" {h}, win: {e}% ({s}), pot odds: {p}%"
                      .format(h=hand, e=equity, s=source, p=pot_odds))
 
-        self.pick_action(equity, pot_odds)
+        self.pick_action(equity, to_call, pot_odds)
 
     def __run_simulator(self, simulator, time_left_ms):
         results = []
@@ -116,11 +111,9 @@ class Brain(object):
             results.append(equity)
         return sum(results) / len(results)
 
-    def pick_action(self, equity, pot_odds):
+    def pick_action(self, equity, to_call, pot_odds):
         """Look at our expected return and do something.
         Will be a semi-random mix of betting, folding, calling"""
-        to_call = self.to_call(silent=True)
-
         # action to us: check or bet
         if to_call == 0:
             # lock hands - 1/3 of the time make a small bet instead of a big one
