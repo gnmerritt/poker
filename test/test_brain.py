@@ -118,7 +118,7 @@ class BettingFunctionalTests(BrainTest):
         """Sanity test of a big preflop raise (switches to sim equity)"""
         bot = MockBot()
         brain = Brain(bot)
-        # preflop 'A-9s' => 63.044 win %
+        # preflop A-9 suited => 63.044 win %
         self.data.hand = Hand(Card(C.ACE, C.SPADES), Card(9, C.SPADES))
         # opponent made a huge raise from BB
         self.data.to_call = 1000
