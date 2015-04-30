@@ -35,7 +35,7 @@ cdef class HandSimulator:
         cdef int tries = 0
         cdef float wins = 0
 
-        while iterations - tries > 10:
+        while iterations - tries > 0:
             for i in xrange(0, iterations - tries):
                 result = self.__try_hand(hand_filter)
                 if result != -1:

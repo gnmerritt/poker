@@ -73,7 +73,8 @@ class Brain(BetSizeCalculator):
             equity = self.preflop_equity[hand.simple()]
             source = "preflop"
         else:
-            simulator = HandSimulator(hand, self.data.table_cards)
+            simulator = HandSimulator(hand, self.data.table_cards,
+                                      self.preflop_equity)
             best_hand, score = simulator.best_hand()
             self.bot.log(" best 5: {b} score: {s}"
                          .format(b=[str(c) for c in best_hand], s=score))
