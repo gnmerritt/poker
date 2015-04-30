@@ -2,6 +2,8 @@ import unittest
 from pokeher.hand_simulator import HandSimulator
 import pokeher.constants as C
 from pokeher.cards import Card, Hand
+import pokeher.preflop_equity
+
 
 class HandSimulatorTest(unittest.TestCase):
     """Makes sure that the hand simulator is functioning correctly"""
@@ -32,3 +34,21 @@ class HandSimulatorTest(unittest.TestCase):
 
         win_percentage = simulator.simulate(5)
         self.assertEqual(win_percentage, 100)
+
+    def test_hand_filter(self):
+        equity = pokeher.preflop_equity.PreflopEquity()
+        hand = Hand(Card(10, C.SPADES), Card(3, C.SPADES))
+        simulator = HandSimulator(hand, [], preflop_equity=equity.data)
+
+        ace = Card(C.ACE, C.HEARTS)
+        ace2 = Card(C.ACE, C.SPADES)
+        king = Card(C.KING, C.SPADES)
+        three = Card(3, C.HEARTS)
+        two = Card(2, C.SPADES)
+
+        # aces win 84% of the time preflop
+        self.assertTrue(simulator.passes_filter(ace, ace2, 30))
+        self.assertFalse(simulator.passes_filter(ace, ace2, 95))
+        self.assertTrue(simulator.passes_filter(ace, king, 65))
+        self.assertTrue(simulator.passes_filter(king, three, 30))
+        self.assertFalse(simulator.passes_filter(three, two, 40))

@@ -76,6 +76,13 @@ def one_suit(int suit):
     cdef int c
     return list(Card(c, suit) for c in range(2,15))
 
+cpdef simple(Card high, Card low):
+    """Returns a simplified representation of a hand which ignores
+    individual suits and only checks suited/unsuited"""
+    cdef char* suited = "s" if high.suit == low.suit else "u"
+    return "{hv}{lv}{s}".format(hv=high.value, lv=low.value, s=suited)
+
+
 cdef class Hand:
     """Player's hand of cards"""
     def __init__(self, Card card1, Card card2):
@@ -107,11 +114,7 @@ cdef class Hand:
         return util.richcmp_helper(compare, op)
 
     cpdef simple(self):
-        """Returns a simplified representation of a hand which ignores
-        individual suits and only checks suited/unsuited"""
-        cdef char* suited = "s" if self.is_suited() else "u"
-        return "{hv}{lv}{s}".format(hv=self.high.value, lv=self.low.value,
-                                    s=suited)
+        return simple(self.high, self.low)
 
     cpdef bint is_pair(self):
         """Returns true if hand is a pair, false otherwise"""
