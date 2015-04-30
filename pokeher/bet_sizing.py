@@ -1,5 +1,47 @@
 import cython_random as random
-from utility import MathUtils
+from utility import MathUtils as mu
+
+
+class BetTier(object):
+    """A bet tier object that identifiers the size of a bet"""
+    def __init__(self, parent, name, test_func):
+        self.parent = parent
+        self.name = name
+        self.test_func = test_func
+
+    def test(self, bet):
+        self.parent.bet = bet
+        return self.test_func(self.parent)
+
+
+class BetTiers(object):
+    """Bet tiers in ascending order of what we assume from seeing the bet"""
+    def __init__(self, pot, big_blind, is_preflop=False, opponent_stack=None):
+        self.pot = pot
+        self.bb = big_blind
+        self.stack = opponent_stack
+        self.bet = None
+
+        def bet_percent(values):
+            return mu.percentage(values.bet, values.pot)
+
+        # TODO: different for preflop
+        self.tiers = [
+            BetTier(self, "CHECK", lambda v: v.bet == 0),
+            BetTier(self, "MIN_RAISE", lambda v: v.bet == v.bb or bet_percent(v) <= 12),
+            BetTier(self, "RAISE", lambda v: bet_percent(v) <= 80),
+            BetTier(self, "BIG_RAISE", lambda v: bet_percent(v) <= 130),
+            BetTier(self, "OVERBET", lambda v: True)
+        ]
+
+    def tier(self, bet):
+        all_in = BetTier(self, "ALL_IN", lambda v: True)
+        if self.stack == bet:
+            return all_in
+
+        for tier in self.tiers:
+            if tier.test(bet):
+                return tier
 
 
 class BetSizeCalculator(object):
@@ -14,7 +56,7 @@ class BetSizeCalculator(object):
     def pot_odds(self):
         """Return the pot odds, or how much we need to gain to call"""
         to_call = self.to_call()
-        return MathUtils.percentage(to_call, self.data.pot + to_call)
+        return mu.percentage(to_call, self.data.pot + to_call)
 
     def our_stack(self):
         """Returns our current stack size"""
