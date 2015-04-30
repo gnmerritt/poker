@@ -1,17 +1,17 @@
+from __future__ import division
+
 import cython_random as random
 from utility import MathUtils as mu
 
 
 class BetTier(object):
     """A bet tier object that identifiers the size of a bet"""
-    def __init__(self, parent, name, test_func):
-        self.parent = parent
+    def __init__(self, name, test_func):
         self.name = name
         self.test_func = test_func
 
-    def test(self, bet):
-        self.parent.bet = bet
-        return self.test_func(self.parent)
+    def test(self, data):
+        return self.test_func(data)
 
 
 class BetTiers(object):
@@ -22,25 +22,42 @@ class BetTiers(object):
         self.stack = opponent_stack
         self.bet = None
 
+        self.tiers = self.prefop_tiers() if is_preflop else self.post_flop_tiers()
+
+    def prefop_tiers(self):
+        def num_blinds(values):
+            return values.bet / values.bb
+
+        return [
+            BetTier("CHECK", lambda v: v.bet == 0),
+            BetTier("MIN_RAISE", lambda v: v.bet <= v.bb),
+            BetTier("RAISE", lambda v: num_blinds(v) < 3),
+            BetTier("BIG_RAISE", lambda v: num_blinds(v) < 6),
+            BetTier("OVERBET", lambda v: True)
+        ]
+
+
+    def post_flop_tiers(self):
         def bet_percent(values):
             return mu.percentage(values.bet, values.pot)
 
-        # TODO: different for preflop
-        self.tiers = [
-            BetTier(self, "CHECK", lambda v: v.bet == 0),
-            BetTier(self, "MIN_RAISE", lambda v: v.bet == v.bb or bet_percent(v) <= 12),
-            BetTier(self, "RAISE", lambda v: bet_percent(v) <= 80),
-            BetTier(self, "BIG_RAISE", lambda v: bet_percent(v) <= 130),
-            BetTier(self, "OVERBET", lambda v: True)
+        return [
+            BetTier("CHECK", lambda v: v.bet == 0),
+            BetTier("MIN_RAISE", lambda v: v.bet == v.bb or bet_percent(v) <= 12),
+            BetTier("RAISE", lambda v: bet_percent(v) <= 80),
+            BetTier("BIG_RAISE", lambda v: bet_percent(v) <= 130),
+            BetTier("OVERBET", lambda v: True)
         ]
 
     def tier(self, bet):
-        all_in = BetTier(self, "ALL_IN", lambda v: True)
+        """Returns the tier that matches this bet"""
+        all_in = BetTier("ALL_IN", lambda v: True)
         if self.stack == bet:
             return all_in
 
+        self.bet = bet
         for tier in self.tiers:
-            if tier.test(bet):
+            if tier.test(self):
                 return tier
 
 

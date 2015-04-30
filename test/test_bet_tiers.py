@@ -27,6 +27,18 @@ class BetTierTest(unittest.TestCase):
         self.assertEqual(tier_name_for(500), "BIG_RAISE")
         self.assertEqual(tier_name_for(750), "OVERBET")
 
+    def test_preflop_bet_sizes(self):
+        tiers = BetTiers(pot=500, big_blind=20, is_preflop=True)
+
+        def tier_name_for(bet):
+            return tiers.tier(bet).name
+
+        self.assertEqual(tier_name_for(0), "CHECK")
+        self.assertEqual(tier_name_for(20), "MIN_RAISE")
+        self.assertEqual(tier_name_for(55), "RAISE")
+        self.assertEqual(tier_name_for(90), "BIG_RAISE")
+        self.assertEqual(tier_name_for(300), "OVERBET")
+
     def test_all_ins(self):
         tiers = BetTiers(pot=500, big_blind=20, opponent_stack=300)
         self.assertEqual(tiers.tier(300).name, "ALL_IN")
