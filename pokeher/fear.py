@@ -5,10 +5,10 @@ class OpponentHandFear(object):
     """Class that tracks opponent's actions to estimate their hand strength"""
     RAISE_FEARS = {
         "CHECK": -1,
-        "MIN_RAISE": 30,
-        "RAISE": 35,
-        "BIG_RAISE": 45,
-        "OVERBET": 55,
+        "MIN_RAISE": 40,
+        "RAISE": 45,
+        "BIG_RAISE": 50,
+        "OVERBET": 60,
     }
 
     def __init__(self, data_obj, to_call):
