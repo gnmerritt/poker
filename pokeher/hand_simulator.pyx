@@ -33,7 +33,7 @@ cdef class HandSimulator:
         """Repeatedly run the simulation, return the % pot equity"""
         cdef int i
         cdef int tries = 0
-        cdef float wins = 0
+        cdef double wins = 0
 
         while iterations - tries > 0:
             for i in xrange(0, iterations - tries):
@@ -44,7 +44,7 @@ cdef class HandSimulator:
 
         return MathUtils.percentage(wins, tries)
 
-    cdef float __try_hand(HandSimulator self, int hand_filter):
+    cdef double __try_hand(HandSimulator self, int hand_filter):
         """Deal out two opponent cards and 5 table cards"""
         cdef int cards_needed
         cdef handscore.HandScore our_score, their_score

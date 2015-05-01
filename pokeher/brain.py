@@ -4,6 +4,7 @@ import time
 
 import cython_random as random
 import preflop_equity
+import fear
 from utility import MathUtils
 from game import GameData
 from hand_simulator import HandSimulator
@@ -67,9 +68,11 @@ class Brain(BetSizeCalculator):
         to_call = self.to_call()
         pot_odds = self.pot_odds()
         equity = 0
+        hand_fear = fear.OpponentHandFear(self.data, to_call)
+        fear_hand_filter = hand_fear.hand_filter()
 
         # preflop, no big raises. safe to use our precalculated win %
-        if not self.data.table_cards: # and to_call <= self.data.big_blind:
+        if not self.data.table_cards and fear_hand_filter == -1:
             equity = self.preflop_equity[hand.simple()]
             source = "preflop"
         else:
@@ -78,25 +81,26 @@ class Brain(BetSizeCalculator):
             best_hand, score = simulator.best_hand()
             self.bot.log(" best 5: {b} score: {s}"
                          .format(b=[str(c) for c in best_hand], s=score))
-            equity = self.__run_simulator(simulator, time_left_ms)
+            equity = self.__run_simulator(simulator, time_left_ms, fear_hand_filter)
             source = "sim"
 
-        self.bot.log(" {h}, win: {e}% ({s}), pot odds: {p}%"
-                     .format(h=hand, e=equity, s=source, p=pot_odds))
+        self.bot.log(" {h}, win: {e}% ({s}), pot odds: {p}%, fear={f}"
+                     .format(h=hand, e=equity, s=source, p=pot_odds,
+                             f=fear_hand_filter))
 
         self.pick_action(equity, to_call, pot_odds)
 
-    def __run_simulator(self, simulator, time_left_ms):
+    def __run_simulator(self, simulator, time_left_ms, hand_filter):
         results = []
         step_size = 100
         start_time = time.clock() * 1000
-        end_time = start_time + time_left_ms - 100
+        end_time = start_time + time_left_ms - 50
         for i in range(0, self.iterations, step_size):
             now = time.clock() * 1000
             if now >= end_time:
                 self.bot.log(" stopping simulation after {} runs".format(i))
                 break
-            equity = simulator.simulate(step_size)
+            equity = simulator.simulate(step_size, hand_filter)
             results.append(equity)
         return sum(results) / len(results)
 
