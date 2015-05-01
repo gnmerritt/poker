@@ -63,7 +63,7 @@ class BetTiers(object):
 
 class BetSizeCalculator(object):
     """Mixin class that provides bet sizing calculations to the brain"""
-    def to_call(self, silent=False):
+    def to_call(self, silent=True):
         to_call = self.data.to_call
         if not silent:
             self.bot.log("bot={}, pot={}, to call={}" \

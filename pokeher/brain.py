@@ -65,9 +65,10 @@ class Brain(BetSizeCalculator):
             return
 
         hand = self.data.hand
-        to_call = self.to_call()
+        to_call = self.to_call(silent=False)
         pot_odds = self.pot_odds()
         equity = 0
+        # TODO: wire in fear after opponent calls of big bets
         hand_fear = fear.OpponentHandFear(self.data, to_call)
         self.data.hand_fear = max(hand_fear.hand_filter(), self.data.hand_fear)
 
