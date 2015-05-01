@@ -69,10 +69,10 @@ class Brain(BetSizeCalculator):
         pot_odds = self.pot_odds()
         equity = 0
         hand_fear = fear.OpponentHandFear(self.data, to_call)
-        fear_hand_filter = hand_fear.hand_filter()
+        self.data.hand_fear = max(hand_fear.hand_filter(), self.data.hand_fear)
 
         # preflop, no big raises. safe to use our precalculated win %
-        if not self.data.table_cards and fear_hand_filter == -1:
+        if not self.data.table_cards and self.data.hand_fear == -1:
             equity = self.preflop_equity[hand.simple()]
             source = "preflop"
         else:
@@ -81,12 +81,13 @@ class Brain(BetSizeCalculator):
             best_hand, score = simulator.best_hand()
             self.bot.log(" best 5: {b} score: {s}"
                          .format(b=[str(c) for c in best_hand], s=score))
-            equity = self.__run_simulator(simulator, time_left_ms, fear_hand_filter)
+            equity = self.__run_simulator(simulator, time_left_ms,
+                                          self.data.hand_fear)
             source = "sim"
 
         self.bot.log(" {h}, win: {e}% ({s}), pot odds: {p}%, fear={f}"
                      .format(h=hand, e=equity, s=source, p=pot_odds,
-                             f=fear_hand_filter))
+                             f=self.data.hand_fear))
 
         self.pick_action(equity, to_call, pot_odds)
 

@@ -29,6 +29,7 @@ class BrainTest(unittest.TestCase):
         self.data.time_per_move = 500
         self.data.me = 'bot_0'
         self.data.bets = {}
+        self.data.hand_fear = -1
 
     def test_got_output(self):
         """Tests that the bot does something when it hits the turn marker"""

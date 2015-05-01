@@ -53,6 +53,7 @@ class Round(object):
         self.small_blind = 0
         self.button = None
         self.stacks = {}
+        self.hand_fear = -1
 
     def update_round(self):
         self.parse_blinds()
