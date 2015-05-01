@@ -29,8 +29,8 @@ class BetTiers(object):
             return values.bet / values.bb
 
         return [
-            BetTier("CHECK", lambda v: v.bet == 0),
-            BetTier("MIN_RAISE", lambda v: v.bet <= v.bb),
+            BetTier("CHECK", lambda v: v.bet < v.bb),
+            BetTier("MIN_RAISE", lambda v: v.bet == v.bb),
             BetTier("RAISE", lambda v: num_blinds(v) < 3),
             BetTier("BIG_RAISE", lambda v: num_blinds(v) < 6),
             BetTier("OVERBET", lambda v: True)

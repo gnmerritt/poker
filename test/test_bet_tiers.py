@@ -34,6 +34,7 @@ class BetTierTest(unittest.TestCase):
             return tiers.tier(bet).name
 
         self.assertEqual(tier_name_for(0), "CHECK")
+        self.assertEqual(tier_name_for(10), "CHECK") # calling from the SB
         self.assertEqual(tier_name_for(20), "MIN_RAISE")
         self.assertEqual(tier_name_for(55), "RAISE")
         self.assertEqual(tier_name_for(90), "BIG_RAISE")
