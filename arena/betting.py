@@ -106,10 +106,10 @@ class BettingRound(object):
 
         first_better_index = 0
         if self.bets:
-            # TODO: this only works in heads up
             small_blind_player = min(bets, key=bets.get)
             first_better_index = self.bots.index(small_blind_player)
 
+        # this call will have no effect except in heads-up
         self.__set_better_index(first_better_index)
 
     def __set_better_index(self, index):

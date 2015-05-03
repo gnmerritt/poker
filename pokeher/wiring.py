@@ -23,10 +23,12 @@ class IOPokerBot(object):
                 rawline = self.io_input.readline()
                 if len(rawline) == 0:
                     time.sleep(0.001) # sleep for 1ms
+                    continue
                 line = rawline.strip()
                 self.brain.parse_line(line)
-            except Exception as e:
-                self.log("main loop exception: '{}'".format(e))
+            except StandardError as e:
+                self.log("main loop exception: '{}' msg='{}'"
+                         .format(e, e.message))
 
     def say(self, line):
         """Writes a line where the game controller can see it"""
