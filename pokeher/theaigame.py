@@ -91,10 +91,10 @@ class SettingsParser(AiGameParser):
 
     def _handle_line(self, token, key, value):
         # Just pull out any active bots, don't worry about seats yet
-        if key in ['seat', 'post', 'stack']:
+        if key in ['seat', 'post']:
             if not 'bots' in self._data:
                 self._data['bots'] = [token]
-            else:
+            elif not token in self._data['bots']:
                 self._data['bots'].append(token)
             return True
 

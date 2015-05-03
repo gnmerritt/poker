@@ -30,6 +30,7 @@ class BrainTest(unittest.TestCase):
         self.data.me = 'bot_0'
         self.data.bets = {}
         self.data.hand_fear = -1
+        self.data.stacks = {}
 
     def test_got_output(self):
         """Tests that the bot does something when it hits the turn marker"""

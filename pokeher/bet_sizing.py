@@ -77,7 +77,7 @@ class BetSizeCalculator(object):
 
     def our_stack(self):
         """Returns our current stack size"""
-        return self.data.stacks[self.data.me]
+        return self.data.stacks.get(self.data.me, 0)
 
     def big_raise(self, source=None):
         """Returns a big raise:

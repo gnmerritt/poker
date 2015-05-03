@@ -86,9 +86,9 @@ class Brain(BetSizeCalculator):
                                           self.data.hand_fear)
             source = "sim"
 
-        self.bot.log(" {h}, win: {e}% ({s}), pot odds: {p}%, fear={f}"
+        self.bot.log(" {h}, win: {e:.2f}% ({s}), pot odds: {p:.2f}%, stack={m}, fear={f}"
                      .format(h=hand, e=equity, s=source, p=pot_odds,
-                             f=self.data.hand_fear))
+                             f=self.data.hand_fear, m=self.our_stack()))
 
         self.pick_action(equity, to_call, pot_odds)
 
@@ -123,7 +123,7 @@ class Brain(BetSizeCalculator):
         # use pot odds to call/bet/fold
         else:
             return_ratio = equity / pot_odds
-            self.bot.log(" return ratio={}".format(return_ratio))
+            self.bot.log(" return ratio={:.3f}".format(return_ratio))
             if equity > 70 or (equity > 40 and self.r_test(0.03, 'po1')):
                 self.bot.bet(self.big_raise("R3"))
             elif return_ratio > 1.25:

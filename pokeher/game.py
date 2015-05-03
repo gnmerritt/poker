@@ -56,6 +56,11 @@ class Round(object):
         self.hand_fear = -1
 
     def update_round(self):
+        if 'roundOver' in self.sharedData:
+            round_is_over = self.sharedData.pop('roundOver')
+            if round_is_over:
+                self.reset_round()
+
         self.parse_blinds()
         self.parse_cards()
         self.parse_pot()
@@ -64,11 +69,6 @@ class Round(object):
 
         if 'on_button' in self.sharedData:
             self.button = self.sharedData.pop('on_button')
-
-        if 'roundOver' in self.sharedData:
-            round_is_over = self.sharedData.pop('roundOver')
-            if round_is_over:
-                self.reset_round()
 
     def parse_cards(self):
         if hasattr(self, 'me') and self.me:
@@ -111,10 +111,8 @@ class Round(object):
                 pass
 
     def parse_bets(self):
-        if not hasattr(self, 'opponents') or not self.opponents:
-            return
         reset = (self.to_call == 0)
-        for bot in self.opponents + [self.me]:
+        for bot in self.__get_bots():
             bet_key = ('bet', bot)
             bet = self.sharedData.get(bet_key)
             if reset:
@@ -123,15 +121,22 @@ class Round(object):
                 self.bets[bot] = bet
 
     def parse_stacks(self):
-        if not hasattr(self, 'opponents') or not self.opponents:
-            return
-        for bot in self.opponents + [self.me]:
+        for bot in self.__get_bots():
             stack_key = ('stack', bot)
             stack = self.sharedData.get(stack_key, "")
             try:
                 self.stacks[bot] = int(stack)
             except ValueError:
-                pass
+                self.stacks[bot] = 0
+
+    def __get_bots(self):
+        if not hasattr(self, 'opponents') or not self.opponents:
+            try:
+                return [self.me]
+            except AttributeError:
+                return []
+        return self.opponents + [self.me]
+
 
 class GameData(Match, Round):
     """Aggregate data classes mixed in together"""
