@@ -29,6 +29,7 @@ class IOPokerBot(object):
             except Exception as e:
                 self.log("main loop exception of type '{}' msg='{}', args='{}'"
                          .format(type(e).__name__, e.message, e.args))
+                self.brain.bot.check()
 
     def say(self, line):
         """Writes a line where the game controller can see it"""
