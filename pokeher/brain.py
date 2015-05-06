@@ -68,12 +68,17 @@ class Brain(BetSizeCalculator):
         to_call = self.to_call(silent=False)
         pot_odds = self.pot_odds()
         equity = 0
-        # TODO: wire in fear after opponent calls of big bets
-        hand_fear = fear.OpponentHandFear(self.data, to_call)
-        self.data.hand_fear = max(hand_fear.hand_filter(), self.data.hand_fear)
+
+        if not self.data.table_cards:
+            # TODO: should include re-raises eventually
+            preflop_fear = fear.OpponentPreflopFear(self.data, to_call)
+            self.data.preflop_fear = max(self.data.preflop_fear,
+                                         preflop_fear.hand_filter())
+
+        preflop_fear = self.data.preflop_fear
 
         # preflop, no big raises. safe to use our precalculated win %
-        if not self.data.table_cards and self.data.hand_fear == -1:
+        if not self.data.table_cards and preflop_fear == -1:
             equity = self.preflop_equity[hand.simple()]
             source = "preflop"
         else:
@@ -83,12 +88,13 @@ class Brain(BetSizeCalculator):
             self.bot.log(" best 5: {b} score: {s}"
                          .format(b=[str(c) for c in best_hand], s=score))
             equity = self.__run_simulator(simulator, time_left_ms,
-                                          self.data.hand_fear)
+                                          preflop_fear)
             source = "sim"
 
-        self.bot.log(" {h}, win: {e:.2f}% ({s}), pot odds: {p:.2f}%, stack={m}, fear={f}"
+        state = " {h}, win: {e:.2f}% ({s}), pot odds: {p:.2f}%, stack={m}, fear={f}"
+        self.bot.log(state
                      .format(h=hand, e=equity, s=source, p=pot_odds,
-                             f=self.data.hand_fear, m=self.our_stack()))
+                             f=preflop_fear, m=self.our_stack()))
 
         self.pick_action(equity, to_call, pot_odds)
 
@@ -113,11 +119,11 @@ class Brain(BetSizeCalculator):
         if to_call == 0:
             # lock hands - 1/3 of the time make a small bet instead of a big one
             if equity > 90 and self.r_test(0.33, 'lock_trap'):
-                self.bot.bet(self.minimum_bet("trap1"))
+                self.make_bet(self.minimum_bet("trap1"))
             elif equity > 65 or (equity > 40 and self.r_test(0.03, 'c1')):
-                self.bot.bet(self.big_raise("R1"))
+                self.make_bet(self.big_raise("R1"))
             elif equity > 55 or self.r_test(0.02, 'c2'):
-                self.bot.bet(self.minimum_bet("R2"))
+                self.make_bet(self.minimum_bet("R2"))
             else:
                 self.bot.check()
         # use pot odds to call/bet/fold
@@ -125,7 +131,7 @@ class Brain(BetSizeCalculator):
             return_ratio = equity / pot_odds
             self.bot.log(" return ratio={:.3f}".format(return_ratio))
             if equity > 70 or (equity > 40 and self.r_test(0.03, 'po1')):
-                self.bot.bet(self.big_raise("R3"))
+                self.make_bet(self.big_raise("R3"))
             elif return_ratio > 1.25:
                 self.bot.log(" return ratio > 1.25, calling {}".format(to_call))
                 self.bot.call(to_call)
@@ -136,6 +142,15 @@ class Brain(BetSizeCalculator):
                 self.bot.call(to_call)
             else:
                 self.bot.fold()
+
+    def make_bet(self, amount):
+        """Make a bet, also update fear assumming the opponent will call."""
+        if not self.data.table_cards:
+            # TODO: this isn't quite right, but close enough
+            preflop_fear = fear.OpponentPreflopFear(self.data, amount)
+            self.data.preflop_fear = max(self.data.preflop_fear,
+                                         preflop_fear.hand_filter())
+        self.bot.bet(amount)
 
     def r_test(self, fraction, block=None):
         """Given a number [0,1], randomly return true / false

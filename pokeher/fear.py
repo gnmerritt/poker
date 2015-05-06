@@ -1,8 +1,9 @@
 from bet_sizing import BetTiers
 
 
-class OpponentHandFear(object):
-    """Class that tracks opponent's actions to estimate their hand strength"""
+class OpponentPreflopFear(object):
+    """Class that tracks opponent's preflop actions to estimate their
+    starting hand strength"""
     RAISE_FEARS = {
         "CHECK": -1,
         "MIN_RAISE": 40,
