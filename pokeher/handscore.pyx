@@ -63,11 +63,12 @@ cdef class HandBuilder:
             self.cards = list(cards)
         else:
             self.cards = cards
+        self.length = len(self.cards) if self.cards else 0
 
     def find_hand(self):
         """Returns the best hand & score of length HAND_LENGTH"""
-        if not self.cards or len(self.cards) < HAND_LENGTH:
-            return None, None
+        if self.length < HAND_LENGTH:
+            return None, HandScore()
 
         best_hand_score = HandScore()
         best_hand = None
@@ -89,13 +90,13 @@ cdef class HandBuilder:
         cdef c_array.array c_seen = c_array.clone(int_array_template, 15, zero=True)
 
         score = HandScore()
-        if not self.cards or len(self.cards) != HAND_LENGTH:
+        if self.length == 0:
             return score
 
         # Find any pairs, triples or quads in the hand and score them
         score.type = HIGH_CARD
 
-        for i in range(HAND_LENGTH):
+        for i in range(self.length):
             card = self.cards[i]
             c_seen[card.value] += 1
 
@@ -141,7 +142,7 @@ cdef class HandBuilder:
 
         last_value = -1
         run = 0
-        for i in range(HAND_LENGTH):
+        for i in range(self.length):
             card = self.cards[i]
             if card.value == last_value:
                 run += 1
@@ -173,7 +174,7 @@ cdef class HandBuilder:
         cdef cards.Card card
 
         last_value = -1
-        for i in range(HAND_LENGTH):
+        for i in range(self.length):
             card = self.cards[i]
             value = card.value
             if last_value > 0:
@@ -204,7 +205,7 @@ cdef class HandBuilder:
             return -1
 
         suit = self.cards[0].suit
-        for i in range(len(self.cards)):
+        for i in range(1, self.length):
             card = self.cards[i]
             if suit != card.suit:
                 return -1

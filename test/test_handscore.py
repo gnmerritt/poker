@@ -205,5 +205,37 @@ class HandFinderTest(unittest.TestCase):
         for card in partial_answer:
             self.assertTrue(card in best_hand, "card missing from the answer")
 
+
+class TableCardHandTests(unittest.TestCase):
+    def test_pair(self):
+        pair_twos = [
+            Card(2, C.DIAMONDS), Card(2, C.SPADES),
+            Card(5, C.HEARTS)
+        ]
+        hb = HandBuilder(pair_twos)
+        score = hb.score_hand()
+        self.assertEqual(score.type, C.PAIR)
+        self.assertEqual(score.kicker, (2, 2, 5))
+
+    def test_trips(self):
+        trips = [
+            Card(2, C.DIAMONDS), Card(2, C.SPADES),
+            Card(2, C.HEARTS), Card(5, C.SPADES)
+        ]
+        hb = HandBuilder(trips)
+        score = hb.score_hand()
+        self.assertEqual(score.type, C.TRIPS)
+        self.assertEqual(score.kicker, (2, 2, 2, 5))
+
+    def test_partial_flush(self):
+        flush = [
+            Card(4, C.DIAMONDS), Card(7, C.DIAMONDS),
+            Card(C.KING, C.DIAMONDS),
+        ]
+        hb = HandBuilder(flush)
+        score = hb.score_hand()
+        self.assertEqual(score.type, C.FLUSH)
+        self.assertEqual(score.kicker, (C.KING, 7, 4))
+
 if __name__ == '__main__':
     unittest.main()

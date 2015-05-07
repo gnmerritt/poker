@@ -4,6 +4,7 @@ cdef class HandScore:
 
 cdef class HandBuilder:
     cdef list cards
+    cdef int length
 
     cpdef int select_flush_suit(self)
     cpdef bint is_straight(self)

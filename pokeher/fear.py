@@ -44,9 +44,15 @@ class OpponentHandRangeFear(object):
     """Class that looks at opponent's bets to estimate their minimum hand"""
     def __init__(self, data_obj, bet):
         self.bet = bet
+        self.data = data_obj
 
     def minimum_handscore(self):
         # TODO: this is extremely simple right now...
-        # it should probably actually reflect the cards showing on the table
-        minimum = C.PAIR if self.bet > 0 else C.HIGH_CARD
-        return handscore.HandScore(minimum)
+        table_value = self.find_table_score(self.data.table_cards)
+        if self.bet > 0 and table_value.type <= C.TRIPS:
+            table_value.type += 1
+        return handscore.HandScore(table_value.type)
+
+    def find_table_score(self, cards):
+        builder = handscore.HandBuilder(cards)
+        return builder.score_hand()
