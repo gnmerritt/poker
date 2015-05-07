@@ -6,6 +6,7 @@ from pokeher.theaigame import TheAiGameParserDelegate, TheAiGameActionDelegate
 from pokeher.brain import Brain
 from pokeher.cards import Card, Hand
 from pokeher.timer import Timer
+import pokeher.handscore
 import pokeher.constants as C
 
 class BrainTestBot(BufferPokerBot, TheAiGameParserDelegate, TheAiGameActionDelegate):
@@ -30,6 +31,7 @@ class BrainTest(unittest.TestCase):
         self.data.me = 'bot_0'
         self.data.bets = {}
         self.data.preflop_fear = -1
+        self.data.hand_fear = pokeher.handscore.HandScore()
         self.data.stacks = {}
 
     def test_got_output(self):

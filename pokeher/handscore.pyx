@@ -5,6 +5,7 @@ cimport cards
 import cards
 import itertools
 
+
 cdef enum:
     NO_SCORE = -1 # when we haven't calculated the score yet
     HIGH_CARD = 0
@@ -17,10 +18,11 @@ cdef enum:
     QUADS = 7
     STRAIGHT_FLUSH = 8
 
+
 cdef class HandScore:
     """The score of a hand. Contains an hand type constant and a value-sorted tuple"""
 
-    def __cinit__(self, type=NO_SCORE):
+    def __init__(self, type=NO_SCORE):
         """type should be one of the hand types defined here
         kicker is a tuple of card values sorted based on the hand type
         e.g. kicker=(10,10,9,5,2) for a pair of tens, 9-high

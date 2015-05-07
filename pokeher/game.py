@@ -1,4 +1,5 @@
 from cards import Hand
+import handscore
 
 """
 Data classes relating to the game of poker
@@ -54,6 +55,7 @@ class Round(object):
         self.button = None
         self.stacks = {}
         self.preflop_fear = -1
+        self.hand_fear = handscore.HandScore()
 
     def update_round(self):
         if 'roundOver' in self.sharedData:

@@ -4,15 +4,15 @@ import time
 
 import cython_random as random
 import preflop_equity
-import fear
 from utility import MathUtils
 from game import GameData
 from hand_simulator import HandSimulator
 from bet_sizing import BetSizeCalculator
+from fear import Fear
 from timer import Timer
 
 
-class Brain(BetSizeCalculator):
+class Brain(BetSizeCalculator, Fear):
     """The brain: parses lines, combines data classes to make decisions"""
     def __init__(self, bot):
         with Timer() as t:
@@ -68,14 +68,9 @@ class Brain(BetSizeCalculator):
         to_call = self.to_call(silent=False)
         pot_odds = self.pot_odds()
         equity = 0
-
-        if not self.data.table_cards:
-            # TODO: should include re-raises eventually
-            preflop_fear = fear.OpponentPreflopFear(self.data, to_call)
-            self.data.preflop_fear = max(self.data.preflop_fear,
-                                         preflop_fear.hand_filter())
-
+        self.update_fear(to_call)
         preflop_fear = self.data.preflop_fear
+        hand_fear = self.data.hand_fear
 
         # preflop, no big raises. safe to use our precalculated win %
         if not self.data.table_cards and preflop_fear == -1:
@@ -91,10 +86,11 @@ class Brain(BetSizeCalculator):
                                           preflop_fear)
             source = "sim"
 
-        state = " {h}, win: {e:.2f}% ({s}), pot odds: {p:.2f}%, stack={m}, fear={f}"
-        self.bot.log(state
+        self.bot.log(" {h}, win: {e:.2f}% ({s}), pot odds: {p:.2f}%, stack={m}"
                      .format(h=hand, e=equity, s=source, p=pot_odds,
-                             f=preflop_fear, m=self.our_stack()))
+                             m=self.our_stack()))
+        self.bot.log(" pre-fear={pf}, hand-fear=({hf})"
+                     .format(pf=preflop_fear, hf=hand_fear))
 
         self.pick_action(equity, to_call, pot_odds)
 
@@ -145,11 +141,7 @@ class Brain(BetSizeCalculator):
 
     def make_bet(self, amount):
         """Make a bet, also update fear assumming the opponent will call."""
-        if not self.data.table_cards:
-            # TODO: this isn't quite right, but close enough
-            preflop_fear = fear.OpponentPreflopFear(self.data, amount)
-            self.data.preflop_fear = max(self.data.preflop_fear,
-                                         preflop_fear.hand_filter())
+        self.update_fear(amount)
         self.bot.bet(amount)
 
     def r_test(self, fraction, block=None):

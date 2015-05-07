@@ -1,4 +1,20 @@
 from bet_sizing import BetTiers
+import handscore
+import constants as C
+
+
+class Fear(object):
+    """Mix-in object for managing fear in the Brain"""
+    def update_fear(self, bet):
+        if not self.data.table_cards:
+            # TODO: should include re-raises eventually
+            preflop_fear = OpponentPreflopFear(self.data, bet)
+            self.data.preflop_fear = max(self.data.preflop_fear,
+                                         preflop_fear.hand_filter())
+        else:
+            hand_fear = OpponentHandRangeFear(self.data, bet)
+            self.data.hand_fear = max(self.data.hand_fear,
+                                      hand_fear.minimum_handscore())
 
 
 class OpponentPreflopFear(object):
@@ -22,3 +38,15 @@ class OpponentPreflopFear(object):
 
     def hand_filter(self):
         return self.RAISE_FEARS.get(self.tier.name, -1)
+
+
+class OpponentHandRangeFear(object):
+    """Class that looks at opponent's bets to estimate their minimum hand"""
+    def __init__(self, data_obj, bet):
+        self.bet = bet
+
+    def minimum_handscore(self):
+        # TODO: this is extremely simple right now...
+        # it should probably actually reflect the cards showing on the table
+        minimum = C.PAIR if self.bet > 0 else C.HIGH_CARD
+        return handscore.HandScore(minimum)
