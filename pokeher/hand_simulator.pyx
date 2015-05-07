@@ -6,6 +6,11 @@ from handscore import HandBuilder, HandScore
 from handscore cimport HandBuilder, HandScore
 from utility import MathUtils
 
+
+cdef enum:
+    FAILED_TRY = -1
+
+
 cdef class HandSimulator:
     """Given two hole cards & any number of table cards simulate the
     outcome of the hand a number of times to determine an approximate
@@ -29,7 +34,7 @@ cdef class HandSimulator:
         else:
             return self.hand, HandScore()
 
-    def simulate(self, int iterations, int hand_filter=-1):
+    def simulate(self, int iterations, int hand_filter=-1, HandScore min_hand=HandScore()):
         """Repeatedly run the simulation, return the % pot equity"""
         cdef int i
         cdef int tries = 0
@@ -37,14 +42,14 @@ cdef class HandSimulator:
 
         while iterations - tries > 0:
             for i in xrange(0, iterations - tries):
-                result = self.__try_hand(hand_filter)
-                if result != -1:
+                result = self.__try_hand(hand_filter, min_hand)
+                if result != FAILED_TRY:
                     wins += result
                     tries += 1
 
         return MathUtils.percentage(wins, tries)
 
-    cdef double __try_hand(HandSimulator self, int hand_filter):
+    cdef double __try_hand(HandSimulator self, int hand_filter, HandScore min_hand):
         """Deal out two opponent cards and 5 table cards"""
         cdef int cards_needed
         cdef handscore.HandScore our_score, their_score
@@ -54,14 +59,16 @@ cdef class HandSimulator:
 
         if hand_filter > 0 and self.equity and \
           not self.passes_filter(opponent[0], opponent[1], hand_filter):
-            return -1
+            return FAILED_TRY
 
         cards_needed = 5 - len(self.table_cards)
         common_cards = cards[2:(2+cards_needed)] + self.table_cards
 
         # Find the best hand for each set of hole cards
-        _, our_score = HandBuilder(self.hand + common_cards).find_hand()
         _, their_score = HandBuilder(opponent + common_cards).find_hand()
+        if their_score < min_hand:
+            return FAILED_TRY
+        _, our_score = HandBuilder(self.hand + common_cards).find_hand()
 
         # return our equity: fraction of the pot we won
         if our_score > their_score:

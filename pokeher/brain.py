@@ -83,7 +83,7 @@ class Brain(BetSizeCalculator, Fear):
             self.bot.log(" best 5: {b} score: {s}"
                          .format(b=[str(c) for c in best_hand], s=score))
             equity = self.__run_simulator(simulator, time_left_ms,
-                                          preflop_fear)
+                                          preflop_fear, hand_fear)
             source = "sim"
 
         self.bot.log(" {h}, win: {e:.2f}% ({s}), pot odds: {p:.2f}%, stack={m}"
@@ -94,7 +94,7 @@ class Brain(BetSizeCalculator, Fear):
 
         self.pick_action(equity, to_call, pot_odds)
 
-    def __run_simulator(self, simulator, time_left_ms, hand_filter):
+    def __run_simulator(self, simulator, time_left_ms, hand_filter, hand_fear):
         results = []
         step_size = 100
         start_time = time.clock() * 1000
@@ -104,7 +104,7 @@ class Brain(BetSizeCalculator, Fear):
             if now >= end_time:
                 self.bot.log(" stopping simulation after {} runs".format(i))
                 break
-            equity = simulator.simulate(step_size, hand_filter)
+            equity = simulator.simulate(step_size, hand_filter, hand_fear)
             results.append(equity)
         return sum(results) / len(results)
 

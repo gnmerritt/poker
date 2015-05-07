@@ -1,5 +1,6 @@
 import unittest
 from pokeher.hand_simulator import HandSimulator
+from pokeher.handscore import HandScore
 import pokeher.constants as C
 from pokeher.cards import Card, Hand
 import pokeher.preflop_equity
@@ -52,3 +53,22 @@ class HandSimulatorTest(unittest.TestCase):
         self.assertTrue(simulator.passes_filter(ace, king, 65))
         self.assertTrue(simulator.passes_filter(king, three, 30))
         self.assertFalse(simulator.passes_filter(three, two, 40))
+
+    def test_min_hand(self):
+        """Verifies that the minimum score filter works"""
+        ace = Card(C.ACE, C.HEARTS)
+        king = Card(C.KING, C.SPADES)
+        three = Card(3, C.HEARTS)
+        two = Card(2, C.SPADES)
+        seven = Card(7, C.HEARTS)
+
+        cards = [ace, king, three, two]
+        hand = Hand(king, seven)
+        simulator = HandSimulator(hand, cards)
+
+        # KK should win pretty often
+        self.assertGreater(simulator.simulate(100), 50)
+
+        min_hand = HandScore(C.TRIPS)
+        # but not against other trips
+        self.assertLess(simulator.simulate(100, min_hand=min_hand), 5)
