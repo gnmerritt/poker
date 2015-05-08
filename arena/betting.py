@@ -188,6 +188,18 @@ class BettingRound(object):
         self.__forward()
         return False
 
+    def get_refunds(self):
+        """Returns extra money to players in the case of all-ins where their
+        original bet was not fully called
+        TODO: this only works heads up"""
+        smallest_call_player = min(self.bets, key=self.bets.get)
+        smallest_call = self.bets.get(smallest_call_player)
+        refunds = [(p, bet - smallest_call) for p, bet in self.bets.items()
+                   if bet - smallest_call > 0]
+        for _, amount in refunds:
+            self.pot -= amount
+        return refunds
+
     def __fold(self, player):
         del self.bets[player]
         self.finished = (len(self.bets) == 1)

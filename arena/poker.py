@@ -32,6 +32,10 @@ class PokerHand(object):
             self.__handle_bet(br, current_better)
             current_better = br.next_better()
 
+        refunds = br.get_refunds()
+        for bot, amount in refunds:
+            self.parent.refund(bot, amount)
+
         self.pot = br.pot
         remaining = br.remaining_players()
         # A hand ends if only one player remains after betting

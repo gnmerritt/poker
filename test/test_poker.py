@@ -36,15 +36,13 @@ class BettingRoundTest(unittest.TestCase):
 
     def test_all_in_call(self):
         actions = [
-            ['bot_0', 'raise 10'],
-            ['bot_1', 'raise 100'], # pot now 120
-            ['bot_0', 'call 100'], # bot_0 all in, only posts 10 (pot down to 40)
+            ['bot_1', 'raise 10'],
+            ['bot_0', 'raise 100'], # pot now 120
+            ['bot_1', 'call 100'], # bot_0 all in, only posts 10 (pot down to 40)
         ]
-        hand, (ended, remaining) = self.build_run_hand(actions, [['bot_0',10]])
+        hand, (ended, remaining) = self.build_run_hand(actions, [['bot_1',10]])
         self.assertFalse(ended, "all in shouldn't end the hand")
-        self.assertEqual(hand.pot, 130, "all in added wrong")
-        # TODO: this is wrong, pot should be 40 - refund big raise the
-        # difference that bot_0 couldn't call
+        self.assertEqual(hand.pot, 40, "all in added wrong")
 
     @unittest.skip("TODO")
     def test_all_in_blinds(self):
@@ -57,9 +55,10 @@ class BettingRoundTest(unittest.TestCase):
             ["bot_1", "raise 20"], # pot 30
             # smaller than minimum raise, gets bumped to raise 20
             ["bot_0", "raise 1"],  # call 20 + raise 20, pot = 80
+            ["bot_1", "call 20"], # pot = 100
         ]
         hand, (ended, remaining) = self.build_run_hand(actions)
-        self.assertEqual(hand.pot, 80)
+        self.assertEqual(hand.pot, 100)
         self.assertFalse(ended)
 
     def test_min_reraise(self):
@@ -67,9 +66,10 @@ class BettingRoundTest(unittest.TestCase):
             ["bot_0", "raise 50"], # pot 50
             ["bot_1", "raise 60"], # pot 160
             ["bot_0", "raise 50"], # c60, raise 60, pot = 280
+            ["bot_1", "call 60"]   # call, pot=340
         ]
         hand, (ended, remaining) = self.build_run_hand(actions)
-        self.assertEqual(hand.pot, 280)
+        self.assertEqual(hand.pot, 340)
         self.assertFalse(ended)
         self.assertIn('bot_0', remaining)
         self.assertIn('bot_1', remaining)
