@@ -19,6 +19,9 @@ cdef enum:
     STRAIGHT_FLUSH = 8
 
 
+TYPES = ["NONE", "HIGH CARD", "PAIR", "TWO PAIR", "TRIPS", "STRAIGHT", "FLUSH",
+         "FULL HOUSE", "QUADS", "STRAIGHT FLUSH"]
+
 cdef class HandScore:
     """The score of a hand. Contains an hand type constant and a value-sorted tuple"""
 
@@ -48,6 +51,9 @@ cdef class HandScore:
 
     def __repr__(self):
         return '{self.type}, {self.kicker}'.format(self=self)
+
+    def __str__(self):
+        return "{t}, {k}".format(t=TYPES[self.type + 1], k=self.kicker)
 
 cdef enum:
     HAND_LENGTH = 5

@@ -80,15 +80,17 @@ class Brain(BetSizeCalculator, Fear):
             simulator = HandSimulator(hand, self.data.table_cards,
                                       self.preflop_equity)
             best_hand, score = simulator.best_hand()
-            self.bot.log(" best 5: {b} score: {s}"
-                         .format(b=[str(c) for c in best_hand], s=score))
             equity = self.__run_simulator(simulator, time_left_ms,
                                           preflop_fear, hand_fear)
             source = "sim"
 
-        self.bot.log(" {h}, win: {e:.2f}% ({s}), pot odds: {p:.2f}%, stack={m}"
-                     .format(h=hand, e=equity, s=source, p=pot_odds,
-                             m=self.our_stack()))
+        self.bot.log(" hand: {h}, table: {t}"
+                     .format(h=hand, t=[str(t) for t in self.data.table_cards]))
+        if self.data.table_cards:
+            self.bot.log(" best 5: {b} score: {s}"
+                         .format(b=[str(c) for c in best_hand], s=str(score)))
+        self.bot.log(" win: {e:.2f}% ({s}), pot odds: {p:.2f}%, stack={m}"
+                     .format(e=equity, s=source, p=pot_odds, m=self.our_stack()))
         self.bot.log(" pre-fear={pf}, hand-fear=({hf})"
                      .format(pf=preflop_fear, hf=hand_fear))
 
@@ -122,12 +124,17 @@ class Brain(BetSizeCalculator, Fear):
                 self.make_bet(self.minimum_bet("R2"))
             else:
                 self.bot.check()
+        # TODO: combine these and make them aware of button
         # use pot odds to call/bet/fold
         else:
             return_ratio = equity / pot_odds
             self.bot.log(" return ratio={:.3f}".format(return_ratio))
             if equity > 70 or (equity > 40 and self.r_test(0.03, 'po1')):
                 self.make_bet(self.big_raise("R3"))
+            elif to_call < self.data.big_blind and \
+               (equity > 55 or self.r_test(0.03, 'po2')):
+                # small preflop raise from SB, get more money into the pot
+                self.make_bet(self.minimum_bet("R4"))
             elif return_ratio > 1.25:
                 self.bot.log(" return ratio > 1.25, calling {}".format(to_call))
                 self.bot.call(to_call)
