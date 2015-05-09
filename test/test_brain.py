@@ -22,17 +22,6 @@ class BrainTest(unittest.TestCase):
         self.fake_out = []
         self.fake_log = []
         self.data = MockData()
-        self.data.to_call = 20
-        self.data.pot = 140
-        self.data.big_blind = 20
-        self.data.hand = Hand(Card(C.ACE, C.DIAMONDS), Card(C.ACE, C.HEARTS))
-        self.data.table_cards = []
-        self.data.time_per_move = 500
-        self.data.me = 'bot_0'
-        self.data.bets = {}
-        self.data.preflop_fear = -1
-        self.data.hand_fear = pokeher.handscore.HandScore()
-        self.data.stacks = {}
 
     def test_got_output(self):
         """Tests that the bot does something when it hits the turn marker"""
@@ -103,6 +92,17 @@ class TestBrainBets(unittest.TestCase):
         bet2 = self.brain.minimum_bet()
         pot = self.brain.data.pot
         self.verify_bet(bet2, pot * 0.16, pot * 0.4)
+
+    def test_all_in(self):
+        """Make sure an almost all-in bet is increased"""
+        self.brain.data.stacks[self.brain.data.me] = 1000
+        bet = self.brain.finalize_bet(900)
+        self.assertEqual(bet, 1000)
+
+    def test_bet_rounding(self):
+        """Make sure we round bets to nearest chip"""
+        self.assertEqual(self.brain.finalize_bet(83.25), 83)
+        self.assertEqual(self.brain.finalize_bet(85.55), 86)
 
 
 class BettingFunctionalTests(BrainTest):
@@ -203,7 +203,19 @@ class MockBot(object):
         print msg
 
 class MockData(object):
-    pass
+    def __init__(self):
+        self.stacks = {}
+        self.to_call = 20
+        self.pot = 140
+        self.big_blind = 20
+        self.hand = Hand(Card(C.ACE, C.DIAMONDS), Card(C.ACE, C.HEARTS))
+        self.table_cards = []
+        self.time_per_move = 500
+        self.me = 'bot_0'
+        self.bets = {}
+        self.preflop_fear = -1
+        self.hand_fear = pokeher.handscore.HandScore()
+
 
 if __name__ == '__main__':
     unittest.main()

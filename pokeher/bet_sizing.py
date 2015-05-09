@@ -92,7 +92,7 @@ class BetSizeCalculator(object):
             bet_raise = random.uniform(0.8, 1.5) * pot
         self.bot.log(" big raise of {r} (pot={p}) from {s}"
                      .format(r=bet_raise, p=pot, s=source))
-        return self.__round_bet(bet_raise)
+        return self.finalize_bet(bet_raise)
 
     def minimum_bet(self, source=None):
         """Returns a minimum bet:
@@ -107,8 +107,12 @@ class BetSizeCalculator(object):
             bet = random.uniform(0.16, 0.4) * pot
         self.bot.log(" small raise of {b} from {s}"
                      .format(b=bet, s=source))
-        return self.__round_bet(bet)
+        return self.finalize_bet(bet)
 
-    def __round_bet(self, val):
-        if val is not None:
-            return int(round(val))
+    def finalize_bet(self, val):
+        stack = self.our_stack()
+        remaining = stack - val
+        if remaining > 0 and mu.percentage(remaining, stack) < 25:
+            self.bot.log(" increased bet by {} to all-in".format(remaining))
+            val = stack
+        return int(round(val))
