@@ -15,7 +15,7 @@ class GauntletArena(object):
             "agents/call_raise_bot.py",
         ],
         # Old versions of this bot
-        50: [
+        100: [
             "../old_bots/v18/pokeher/theaigame_bot.py",
             "../old_bots/v30/pokeher/theaigame_bot.py",
         ],
