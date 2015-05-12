@@ -72,7 +72,7 @@ class BetSizeCalculator(object):
 
     def pot_odds(self):
         """Return the pot odds, or how much we need to gain to call"""
-        to_call = self.to_call()
+        to_call = min(self.to_call(), self.our_stack())
         return mu.percentage(to_call, self.data.pot + to_call)
 
     def our_stack(self):

@@ -204,7 +204,7 @@ class MockBot(object):
 
 class MockData(object):
     def __init__(self):
-        self.stacks = {}
+        self.stacks = {'bot_0': 1000}
         self.to_call = 20
         self.pot = 140
         self.big_blind = 20

@@ -65,6 +65,7 @@ class Brain(BetSizeCalculator, Fear):
             return
 
         hand = self.data.hand
+        stack = self.our_stack()
         to_call = self.to_call(silent=False)
         pot_odds = self.pot_odds()
         equity = 0
@@ -90,7 +91,7 @@ class Brain(BetSizeCalculator, Fear):
             self.bot.log(" best 5: {b} score: {s}"
                          .format(b=[str(c) for c in best_hand], s=str(score)))
         self.bot.log(" win: {e:.2f}% ({s}), pot odds: {p:.2f}%, stack={m}"
-                     .format(e=equity, s=source, p=pot_odds, m=self.our_stack()))
+                     .format(e=equity, s=source, p=pot_odds, m=stack))
         self.bot.log(" pre-fear={pf}, hand-fear=({hf})"
                      .format(pf=preflop_fear, hf=hand_fear))
 
