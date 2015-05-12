@@ -36,6 +36,9 @@ class ScriptedArena(MockArena):
             return self.all_ins[better]
         return amount
 
+    def skipped(self, better):
+        self.get_action(better)
+
     def get_action(self, better):
         if not self.actions:
             return None

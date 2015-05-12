@@ -198,6 +198,10 @@ class PyArena(object):
         action = TheAiGameActionBuilder().from_string(response)
         return action
 
+    def skipped(self, bot_name):
+        """Placeholder in case we want to tell a bot we skipped them"""
+        pass
+
     def tell_bot(self, bot_name, lines):
         """Tells one bot something"""
         bot = self.bot_from_name(bot_name)

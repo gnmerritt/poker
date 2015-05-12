@@ -42,7 +42,12 @@ class PokerHand(object):
         return len(remaining) == 1, remaining
 
     def __handle_bet(self, br, current_better):
-        action = self.parent.get_action(current_better)
+        if self.parent.is_all_in(current_better):
+            # all-in players automatically call
+            action = GameAction(GameAction.CALL)
+            self.parent.skipped(current_better)
+        else:
+            action = self.parent.get_action(current_better)
 
         if action is None:
             action = GameAction(GameAction.FOLD)
