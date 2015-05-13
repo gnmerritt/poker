@@ -67,6 +67,7 @@ class HoldemHand(PokerHand):
             if hand_finished:
                 self.parent.log("--Hand finished after phase {}".format(i))
                 self.parent.silent_update(".")
+                self.parent.stats.tick(self.pot, i)
                 winner(bots)
                 return bots, self.pot
 

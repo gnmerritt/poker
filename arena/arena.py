@@ -5,7 +5,7 @@ import math
 import pokeher.cards as cards
 from pokeher.theaigame import TheAiGameActionBuilder
 from bots import LoadedBot
-
+from hand_stats import HandStats
 
 class PyArena(object):
     """Loads Python bots from source folders, sets up IO channels to them"""
@@ -14,6 +14,7 @@ class PyArena(object):
         self.delay_secs = delay_secs
         self.silent = silent
         self.print_bot_output = True
+        self.stats = HandStats()
 
     def __enter__(self):
         return self
@@ -102,6 +103,7 @@ class PyArena(object):
                                                           n=b.state.name,
                                                           f=b.state.source))
         lines.append("")
+        lines.append(repr(self.stats))
         self.log("\n".join(lines))
         return winners
 
