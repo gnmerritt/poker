@@ -27,6 +27,7 @@ class GauntletArena(object):
         self.percentage = 100
         self.wins = {}
         self.tries = {}
+        self.stats = {}
 
     def run(self):
         for attempts, enemies in self.TRIALS.items():
@@ -44,10 +45,14 @@ class GauntletArena(object):
 
     def run_match(self, challenger, enemy):
         with TheAiGameArena(silent=True) as arena:
+            stats = self.stats.get(enemy, None)
+            if stats is not None:
+                arena.stats = stats
             arena.delay_secs = self.BOT_LOAD_DELAY_SECS
             arena.print_bot_output = False
             bot_list = [challenger, enemy]
             winners = arena.run(bot_list)
+            self.stats[enemy] = arena.stats
             return [b.state.source for b in winners]
 
     def handle_winners(self, enemy, winner_filenames):
@@ -66,6 +71,8 @@ class GauntletArena(object):
             line = "    {g}  {e:^30} - {w}/{a} ({p}%)" \
               .format(g=grade, e=enemy, w=wins, a=tries, p=win_percentage)
             lines.append(line)
+            stats = self.stats.get(enemy, None)
+            lines.append("      {}".format(repr(stats)))
         return "\n".join(lines)
 
 

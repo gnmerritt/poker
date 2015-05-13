@@ -4,13 +4,13 @@ from pokeher.utility import MathUtils
 
 class HandStats(object):
     HOLDEM_PHASES = [
-        "Blinds",
+        "Preflop",
+        "", # cards being dealt (ditto below)
         "Flop",
-        "Flop betting",
+        "",
         "Turn",
-        "Turn betting",
+        "",
         "River",
-        "River betting",
         "Showdown",
     ]
 
@@ -26,13 +26,12 @@ class HandStats(object):
     def __repr__(self):
         hands = len(self.pots)
         avg_pot = sum(self.pots) / hands
-        stats = ["Match Hand Stats:\n hands={h}, average pot={p:.2f}" \
+        stats = ["hands={h}, avg_pot={p:.2f}" \
                  .format(h=hands, p=avg_pot)]
         for i, p in enumerate(self.HOLDEM_PHASES):
             phase_count = self.phases.get(i, 0)
             if phase_count == 0:
                 continue
             phase_percent = MathUtils.percentage(phase_count, hands)
-            stats.append(" {:^16} => {:3^} ({:.2f}%)".format(p, phase_count,
-                                                             phase_percent))
-        return "\n".join(stats)
+            stats.append("{}=({:.2f}%)".format(p, phase_percent))
+        return ", ".join(stats)
