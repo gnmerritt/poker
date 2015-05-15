@@ -18,6 +18,7 @@ class GauntletArena(object):
         100: [
             "../old_bots/v18/pokeher/theaigame_bot.py",
             "../old_bots/v30/pokeher/theaigame_bot.py",
+            "../old_bots/v37/pokeher/theaigame_bot.py",
         ],
     }
     BOT_LOAD_DELAY_SECS = 0.1
