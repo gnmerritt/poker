@@ -28,7 +28,8 @@ class PyArena(object):
             print(message)
 
     def silent_update(self, message):
-        print(message, end="")
+        if self.silent:
+            print(message, end="")
 
     def run(self, args):
         for file in args:
