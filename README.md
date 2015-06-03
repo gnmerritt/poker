@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/gnmerritt/poker.svg?branch=master)](https://travis-ci.org/gnmerritt/poker)
+
 Poker bot for http://theaigames.com/
 
 Layout:
