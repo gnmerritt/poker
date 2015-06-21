@@ -75,10 +75,13 @@ class BotState(object):
 class LoadedBot(object):
     """Holds an instance of each bot, keeps track of game info about it"""
     def __init__(self, source_file, seat, print_bot_output=True):
-        self.process = BotProcess(source_file, print_bot_output=print_bot_output)
         self.state = BotState(seat, source_file)
         self.is_active = True
         self.silent = not print_bot_output
+        self.start_bot(source_file, print_bot_output)
+
+    def start_bot(self, source_file, print_bot_output):
+        self.process = BotProcess(source_file, print_bot_output=print_bot_output)
 
     def tell(self, line):
         """Writes to the bot's STDIN"""
@@ -109,3 +112,21 @@ class LoadedBot(object):
         """Kills the bot"""
         self.is_active = False
         self.process.shutdown()
+
+
+class NetLoadedBot(LoadedBot):
+    def start_bot(self, source_file, print_bot_output):
+        pass
+
+    def bind_connection(self, protocol):
+        self.protocol = protocol
+
+    def tell(self, line):
+        self.protocol.sendLine(line)
+
+    def ask(self):
+        pass # TODO
+
+    def kill(self):
+        self.is_active = False
+        self.protocol.closeBecause("Match is over")

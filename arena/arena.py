@@ -7,29 +7,22 @@ from pokeher.theaigame import TheAiGameActionBuilder
 from bots import LoadedBot
 from hand_stats import HandStats
 
-class PyArena(object):
+
+class LocalIOArena(object):
     """Loads Python bots from source folders, sets up IO channels to them"""
     def __init__(self, delay_secs=1, silent=False):
-        self.bots = [] # [LoadedBot]
         self.delay_secs = delay_secs
         self.silent = silent
         self.print_bot_output = True
-        self.stats = HandStats()
+        self.common_setup()
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, type, value, traceback):
-        for bot in self.bots:
-            bot.kill()
-
-    def log(self, message, force=False):
-        if not self.silent or force:
-            print(message)
-
-    def silent_update(self, message):
-        if self.silent:
-            print(message, end="")
+    def load_bot(self, source_file):
+        """Starts a bot as a subprocess, given its path"""
+        seat = self.bot_count()
+        self.log("loading bot {l} from {f}".format(l=seat, f=source_file))
+        bot = LoadedBot(source_file, seat, print_bot_output=self.print_bot_output)
+        if bot and not bot.process.exploded:
+            self.bots.append(bot)
 
     def run(self, args):
         for file in args:
@@ -44,13 +37,27 @@ class PyArena(object):
                      .format(i=self.bot_count(), k=self.min_players(),
                              j=self.max_players()))
 
-    def load_bot(self, source_file):
-        """Starts a bot as a subprocess, given its path"""
-        seat = self.bot_count()
-        self.log("loading bot {l} from {f}".format(l=seat, f=source_file))
-        bot = LoadedBot(source_file, seat, print_bot_output=self.print_bot_output)
-        if bot and not bot.process.exploded:
-            self.bots.append(bot)
+    def log(self, message, force=False):
+        if not self.silent or force:
+            print(message)
+
+    def silent_update(self, message):
+        if self.silent:
+            print(message, end="")
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        for bot in self.bots:
+            bot.kill()
+
+
+class PyArena():
+    """Manages game state, communication """
+    def common_setup(self):
+        self.bots = [] # [LoadedBot]
+        self.stats = HandStats()
 
     def bot_count(self):
         """Returns the current number of loaded bots"""

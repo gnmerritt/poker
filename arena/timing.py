@@ -10,3 +10,8 @@ class ArenaTiming(object):
 class HalfSecondTurns(ArenaTiming):
     time_bank = 5000
     time_per_hand = 500
+
+
+class FiveSecondTurns(ArenaTiming):
+    time_bank = 10000
+    time_per_hand = 5000
