@@ -9,6 +9,9 @@ cython:
 	cp pokeher/utility.py agents
 
 test: all
+	nosetests --processes=2 --process-timeout=2
+
+coverage: all
 	mkdir -p coverage
 	nosetests --with-coverage --cover-package=pokeher,arena,agents --cover-html --cover-html-dir=coverage
 
