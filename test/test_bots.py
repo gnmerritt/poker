@@ -23,8 +23,23 @@ class LoadedBotTest(unittest.TestCase):
         bot = LoadedBot("", 0)
 
         self.assertEqual('bot_0', bot.state.name)
+        self.assertEqual('bot_0', bot.name())
+
         self.assertEqual(0, bot.state.seat)
         self.assertTrue(bot.is_active)
 
         bot.kill()
         self.assertFalse(bot.is_active)
+
+    def test_chips(self):
+        bot = LoadedBot("", 0)
+        self.assertEqual(1000, bot.chips())
+
+        bot.change_chips(-50)
+        self.assertEqual(950, bot.chips())
+
+        bot.change_chips(100)
+        self.assertEqual(1050, bot.chips())
+
+        bot.kill()
+        self.assertEqual(0, bot.chips())
