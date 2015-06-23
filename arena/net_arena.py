@@ -26,7 +26,7 @@ class NetworkArena(object):
             return
         self.bot_keys[bot_key] = True
 
-        seat = len(self.bots) + 1
+        seat = len(self.bots)
         bot = NetLoadedBot(bot_key, seat)
         bot.bind_connection(connection)
         self.bots.append(bot)
@@ -41,6 +41,7 @@ class NetworkArena(object):
         self.waiting_on = bot_name
         self.action_callback = callback
         self.started_waiting = time.clock()
+
         twisted_log.msg("RUNNING ASYNC GET_ACTION")
         # TODO: timeouts, clock time per bot
 
