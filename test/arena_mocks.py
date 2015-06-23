@@ -12,7 +12,7 @@ class MockArena(object):
     def say_action(self, better, action):
         print "{} performed '{}'".format(better, action)
 
-    def get_action(self, better):
+    def get_action(self, better, callback):
         pass
 
     def refund(self, better, amount):
@@ -37,11 +37,13 @@ class ScriptedArena(MockArena):
         return amount
 
     def skipped(self, better):
-        self.get_action(better)
+        def dummy(ignored):
+            pass
+        self.get_action(better, dummy)
 
-    def get_action(self, better):
+    def get_action(self, better, callback):
         if not self.actions:
             return None
         action = self.actions.pop()
         assert better == action[0]
-        return TheAiGameActionBuilder().from_string(action[1])
+        callback(TheAiGameActionBuilder().from_string(action[1]))

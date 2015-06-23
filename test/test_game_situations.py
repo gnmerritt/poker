@@ -1,8 +1,8 @@
 import unittest
-from arena.arena import PyArena
+from arena.arena import PyArena, LocalIOArena
 
 
-class SpyingArena(PyArena):
+class SpyingArena(PyArena, LocalIOArena):
     pass
 
 
@@ -17,8 +17,9 @@ class GameExampleTests(unittest.TestCase):
             self.assertEqual(arena.bot_count(), 1)
             for a in actions:
                 arena.tell_bots([a])
-            action = arena.get_action("bot_0")
-            self.assertTrue(action)
+            def callback(action):
+                self.assertTrue(action)
+            arena.get_action("bot_0", callback)
 
     def test_timeout_after_flop(self):
         """Something goes bump in the night. This also explodes if extra logging gets added"""

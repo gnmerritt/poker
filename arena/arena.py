@@ -197,16 +197,25 @@ class PyArena():
         table_list = 'Match table {}'.format(cards.to_aigames_list(dealt_cards))
         self.tell_bots([table_list])
 
-    def get_action(self, bot_name):
+    def notify_bots_turn(self, bot_name):
+        self.tell_bot(bot_name, ['Action {b} 1000'.format(b=bot_name)])
+
+    def get_action(self, bot_name, callback):
         """Tells a bot to go, waits for a response"""
         # TODO hook up to timing per bot
-        self.tell_bots(['Action {b} 1000'.format(b=bot_name)])
+        self.notify_bots_turn(bot_name)
         bot = self.bot_from_name(bot_name)
-        time, response = bot.ask()
+        answer = bot.ask()
+        if not answer:
+            return None
+        time, response = answer
         self.log("bot {b} submitted action {a} chips={c} time={t}"
                  .format(b=bot_name, a=response, c=bot.state.stack, t=time))
-        action = TheAiGameActionBuilder().from_string(response)
-        return action
+        action = self.get_parsed_action(response)
+        callback(action)
+
+    def get_parsed_action(self, line):
+        return TheAiGameActionBuilder().from_string(line)
 
     def skipped(self, bot_name):
         """Placeholder in case we want to tell a bot we skipped them"""

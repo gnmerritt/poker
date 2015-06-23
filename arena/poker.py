@@ -46,9 +46,13 @@ class PokerHand(object):
             # all-in players automatically call
             action = GameAction(GameAction.CALL)
             self.parent.skipped(current_better)
+            self.__do_action(br, current_better, action)
         else:
-            action = self.parent.get_action(current_better)
+            def action_callback(action):
+                self.__do_action(br, current_better, action)
+            self.parent.get_action(current_better, action_callback)
 
+    def __do_action(self, br, current_better, action):
         if action is None:
             action = GameAction(GameAction.FOLD)
 
