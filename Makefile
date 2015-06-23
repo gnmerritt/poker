@@ -1,4 +1,5 @@
 all: cython
+	mkdir -p data
 	$(MAKE) -C pokeher
 
 cython:
@@ -8,7 +9,8 @@ cython:
 	cp pokeher/utility.py agents
 
 test: all
-	nosetests
+	mkdir -p coverage
+	nosetests --with-coverage --cover-package=pokeher,arena,agents --cover-html --cover-html-dir=coverage
 
 gauntlet: all
 	python arena/gauntlet.py pokeher/theaigame_bot.py
