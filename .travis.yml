@@ -1,9 +1,12 @@
 language: python
 python:
   - "2.7"
+before_install:
+  - "pip install codecov"
 install:
   - "pip install -r requirements.txt"
   - "mkdir -p data"
   - "wget -P data/ http://gnmerritt.net/data/preflop_wins_50000.pickle"
-# command to run tests
 script: make test
+after_success:
+  - "codecov"
