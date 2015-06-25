@@ -11,11 +11,11 @@ from bots import NetLoadedBot
 from timing import FiveSecondTurns
 
 
-class NetworkArena(object):
+class NetworkArena(PyArena):
     def __init__(self):
+        PyArena.__init__(self)
         self.playing = False
         self.bot_keys = {}
-        self.common_setup()
 
         self.waiting_on = None
         self.action_callback = None
@@ -71,6 +71,6 @@ class NetworkArena(object):
         pass
 
 
-class TwistedNLHEArena(NetworkArena, PyArena, Holdem, NoBetLimit, FiveSecondTurns):
+class TwistedNLHEArena(NetworkArena, Holdem, NoBetLimit, FiveSecondTurns):
     """No limit Texas hold'em game via the internet"""
     pass

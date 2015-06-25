@@ -3,13 +3,13 @@ import sys
 import utility
 utility.fix_paths()
 
+from local_arena import LocalIOArena
 from holdem import Holdem
 from betting import NoBetLimit
-from arena import PyArena, LocalIOArena
 from timing import HalfSecondTurns
 
 
-class TheAiGameArena(LocalIOArena, PyArena, Holdem, NoBetLimit, HalfSecondTurns):
+class TheAiGameArena(LocalIOArena, Holdem, NoBetLimit, HalfSecondTurns):
     """Arena for testing bots for http://theaigames.com
     Rules are heads-up, no limit hold'em"""
     pass

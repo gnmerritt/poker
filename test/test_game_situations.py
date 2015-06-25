@@ -1,9 +1,5 @@
 import unittest
-from arena.arena import PyArena, LocalIOArena
-
-
-class SpyingArena(PyArena, LocalIOArena):
-    pass
+from arena.local_arena import LocalIOArena
 
 
 class GameExampleTests(unittest.TestCase):
@@ -11,7 +7,7 @@ class GameExampleTests(unittest.TestCase):
     AIG_BOT = "pokeher/theaigame_bot.py"
 
     def __run_test(self, actions):
-        with SpyingArena(silent=True) as arena:
+        with LocalIOArena(silent=True) as arena:
             arena.print_bot_output = False
             arena.load_bot(self.AIG_BOT)
             self.assertEqual(arena.bot_count(), 1)

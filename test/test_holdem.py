@@ -1,6 +1,7 @@
 import unittest
 from arena.holdem import *
-from arena.arena import LoadedBot
+from arena.bots import LoadedBot
+
 
 class MockHoldemArena(Holdem):
     """Mocks out mixin methods that would usually be defined"""
@@ -25,6 +26,7 @@ class MockHoldemArena(Holdem):
 
     def post_bet(self, bot_name, amount):
         return amount
+
 
 class HoldemTest(unittest.TestCase):
     def test_dealer(self):
