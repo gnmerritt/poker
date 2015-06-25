@@ -4,6 +4,7 @@ import pokeher.constants as C
 from arena.poker import *
 from arena_mocks import ScriptedArena
 
+
 class BettingRoundTest(unittest.TestCase):
     """"Tests that PokerHand can adjucate a full betting round"""
     def build_run_hand(self, actions, all_ins=[]):
@@ -73,6 +74,31 @@ class BettingRoundTest(unittest.TestCase):
         self.assertFalse(ended)
         self.assertIn('bot_0', remaining)
         self.assertIn('bot_1', remaining)
+
+
+class PokerHandTest(unittest.TestCase):
+    def test_multiple_betting_rounds(self):
+        actions = [
+            ["bot_0", "raise 20"],
+            ["bot_1", "call 20"],
+            # preflop betting ends
+            ["bot_0", "raise 40"],
+            ["bot_1", "fold 0"],
+            # hand ends
+        ]
+        bots = [a[0] for a in actions]
+
+        arena = ScriptedArena(actions)
+        hand = PokerHand(arena, bots)
+        ended, remaining = hand.betting_round(bots)
+        self.assertFalse(ended)
+        self.assertEqual(len(remaining), 2)
+        self.assertEqual(hand.pot, 40)
+
+        ended, remaining = hand.betting_round(bots)
+        self.assertTrue(ended)
+        self.assertEqual(hand.pot, 80)
+        self.assertEqual(remaining, ["bot_0"])
 
 
 class ShowdownTest(unittest.TestCase):

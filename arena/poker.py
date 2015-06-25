@@ -23,19 +23,30 @@ class PokerHand(object):
             bots = []
         if not br:
             br = BettingRound(bots, bets={}, pot=self.pot)
+        self.br = br
 
+        return self.tick()
+
+    def tick(self):
+        br = self.br
         current_better = br.next_better()
-        while current_better is not None:
+        if current_better is not None:
             self.pot = br.pot
             self.parent.tell_bots(br.say_pot())
             self.parent.tell_bot(current_better, br.say_to_call(current_better))
             self.__handle_bet(br, current_better)
-            current_better = br.next_better()
+            return self.tick()
+        else:
+            return self.betting_round_over()
 
-        refunds = br.get_refunds()
+    def handle_refunds(self):
+        refunds = self.br.get_refunds()
         for bot, amount in refunds:
             self.parent.refund(bot, amount)
 
+    def betting_round_over(self):
+        self.handle_refunds()
+        br = self.br
         self.pot = br.pot
         remaining = br.remaining_players()
         # A hand ends if only one player remains after betting
