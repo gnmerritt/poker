@@ -3,6 +3,7 @@ import pokeher.cards as cards
 from betting import BettingRound, BlindManager
 from poker import PokerHand
 
+
 class Holdem(object):
     def new_hand(self):
         """Returns an instance of holdem"""
@@ -30,48 +31,55 @@ class Holdem(object):
     def match_game(self):
         """Info for the start of the game."""
         # TODO: split this out so hold'em is separate
-        return ['Settings arenaVersion 1.0',
+        return ['Settings arenaVersion 1.1',
                 'Settings gameType NLHE',
                 'Settings gameMode tournament', ]
 
 
 class HoldemHand(PokerHand):
     """Texas Hold'em. Two hole cards, 5 table cards dealt 3-1-1"""
+    def __init__(self, parent, players):
+        PokerHand.__init__(self, parent, players)
+        self.hand_phases = [
+            self.blinds_and_preflop,
+            self.deal_table_cards, # flop
+            self.betting_round,
+            self.deal_table_cards, # turn
+            self.betting_round,
+            self.deal_table_cards, # river
+            self.betting_round,
+            self.showdown
+        ]
+
     def play_hand(self):
         """Controls state for one hand of hold'em poker"""
-        bots = self.parent.living_bot_names()
-        self.hands = self.deal_hands(bots)
-        blinds_round = self.post_blinds(bots)
+        self.hands = self.deal_hands(self.players)
+        self.blinds_round = self.post_blinds()
         self.parent.say_hands(self.hands)
+        return self.tick()
 
-        def blinds_and_preflop(bots):
-            return self.betting_round(br=blinds_round)
+    def tick(self):
+        """A tick of a holdem hand will resolve one phase of the hand,
+        finishing if there is only one player left at the end of the phase"""
+        phase = self.hand_phases[self.phase]
+        hand_finished, self.players = phase(self.players)
+        assert self.players
+        self.parent.log("--Ran hand phase {}".format(self.phase))
 
-        def winner(bots):
-            """Method that runs at the end of a hand. Updates chips, blinds, etc"""
-            self.parent.blind_manager.finish_hand()
+        if hand_finished:
+            self.parent.log("--Hand finished after phase {}".format(self.phase))
+            self.parent.silent_update(".")
+            self.parent.stats.tick(self.pot, self.phase)
+            self.winner()
+            return self.players, self.pot
+        else:
+            self.phase += 1
+            return self.tick()
 
-        hand_phases = [blinds_and_preflop,
-                       self.deal_table_cards, # flop
-                       self.betting_round,
-                       self.deal_table_cards, # turn
-                       self.betting_round,
-                       self.deal_table_cards, # river
-                       self.betting_round,
-                       self.showdown]
+    def blinds_and_preflop(self, _):
+        return self.betting_round(br=self.blinds_round)
 
-        for i, phase in enumerate(hand_phases):
-            hand_finished, bots = phase(bots)
-            assert bots
-            self.parent.log("--Ran hand phase {}".format(i))
-            if hand_finished:
-                self.parent.log("--Hand finished after phase {}".format(i))
-                self.parent.silent_update(".")
-                self.parent.stats.tick(self.pot, i)
-                winner(bots)
-                return bots, self.pot
-
-    def post_blinds(self, bots):
+    def post_blinds(self):
         """Returns the first betting round & posts the blinds"""
         bm = self.parent.blind_manager
         sb, sb_bot = bm.next_sb()
@@ -87,7 +95,7 @@ class HoldemHand(PokerHand):
             '{bb_bot} post {bb}'.format(bb_bot=bb_bot, bb=posted_bb),
         ]
         self.parent.tell_bots(blinds)
-        return BettingRound(bots,
+        return BettingRound(self.players,
                             bets={sb_bot: posted_sb, bb_bot: posted_bb},
                             pot=0,
                             minimum_raise=bb)
@@ -98,15 +106,15 @@ class HoldemHand(PokerHand):
         self.pot += posted
         return posted
 
-    def deal_hands(self, bots):
+    def deal_hands(self, players):
         """Deals out hands for players. Returns a map of bots to hands"""
         hand_size = self.parent.hand_size()
         hands = {}
         full_deck = cards.full_deck()
-        hand_cards = random.sample(full_deck, hand_size * len(bots))
+        hand_cards = random.sample(full_deck, hand_size * len(players))
         self.deck = [c for c in full_deck if not c in hand_cards]
 
-        for bot in bots:
+        for bot in players:
             hand = []
             for _ in range(0, hand_size):
                 hand.append(hand_cards.pop())

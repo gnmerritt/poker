@@ -14,6 +14,7 @@ class PokerHand(object):
         self.players = players
         self.table_cards = []
         self.pot = 0
+        self.phase = 0
 
     def betting_round(self, bots=None, br=None):
         """Initiates and runs a betting round.
@@ -108,6 +109,10 @@ class PokerHand(object):
         bots_hands = {b: self.hands[b] for b in bots}
         showdown = Showdown(bots_hands, self.table_cards)
         return True, showdown.winners
+
+    def winner(self):
+        """Method that runs at the end of a hand. Updates chips, blinds, etc"""
+        self.parent.blind_manager.finish_hand()
 
 
 class Showdown(object):
