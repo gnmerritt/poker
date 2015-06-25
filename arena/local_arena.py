@@ -1,6 +1,8 @@
 from __future__ import print_function
 import time
 
+from twisted.internet import reactor
+
 from bots import LoadedBot
 from arena import PyArena
 
@@ -33,6 +35,23 @@ class LocalIOArena(PyArena):
             self.log("Wrong # of bots ({i}) needed {k}-{j}. Can't play"
                      .format(i=self.bot_count(), k=self.min_players(),
                              j=self.max_players()))
+
+    def get_action(self, bot_name, got_action):
+        """Tells a bot to go, waits for a response"""
+        # TODO hook up to timing per bot
+        self.notify_bots_turn(bot_name)
+        bot = self.bot_from_name(bot_name)
+        answer = bot.ask()
+        if not answer:
+            return None
+        time, response = answer
+        self.log("bot {b} submitted action {a} chips={c} time={t}"
+                 .format(b=bot_name, a=response, c=bot.state.stack, t=time))
+        action = self.get_parsed_action(response)
+        reactor.callLater(0.001, got_action.callback, action)
+
+    def skipped(self, bot_name, deferred):
+        reactor.callLater(0.001, deferred.callback, "")
 
     def log(self, message, force=False):
         if not self.silent or force:

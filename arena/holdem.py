@@ -1,4 +1,7 @@
 import random
+
+from twisted.internet import defer
+
 import pokeher.cards as cards
 from betting import BettingRound, BlindManager
 from poker import PokerHand
@@ -42,41 +45,58 @@ class HoldemHand(PokerHand):
         PokerHand.__init__(self, parent, players)
         self.hand_phases = [
             self.blinds_and_preflop,
-            self.deal_table_cards, # flop
+            self.__wrap(self.deal_table_cards), # flop
             self.betting_round,
-            self.deal_table_cards, # turn
+            self.__wrap(self.deal_table_cards), # turn
             self.betting_round,
-            self.deal_table_cards, # river
+            self.__wrap(self.deal_table_cards), # river
             self.betting_round,
-            self.showdown
+            self.__wrap(self.showdown),
         ]
 
+    def __wrap(self, phase_function):
+        """Wrapper for phases that can run completely synchronously"""
+        d = defer.Deferred()
+        def runner():
+            result = phase_function()
+            d.callback(result)
+        def wrapped_phase():
+            return d, runner
+        return wrapped_phase
+
     def play_hand(self):
-        """Controls state for one hand of hold'em poker"""
+        """Controls state for one hand of hold'em poker
+        Returns a deferred that will be fired when the hand ends
+        """
         self.hands = self.deal_hands(self.players)
         self.blinds_round = self.post_blinds()
         self.parent.say_hands(self.hands)
-        return self.tick()
+        return self.on_hand_over, self.__hand_phase_tick
 
-    def tick(self):
+    def __hand_phase_tick(self):
         """A tick of a holdem hand will resolve one phase of the hand,
         finishing if there is only one player left at the end of the phase"""
+        def after_phase(args):
+            hand_finished, players = args
+            self.players = players
+            assert self.players
+            self.parent.log("--Ran hand phase {}".format(self.phase))
+
+            if hand_finished:
+                self.parent.log("--Hand finished after phase {}".format(self.phase))
+                self.parent.silent_update(".")
+                self.parent.stats.record(self.pot, self.phase)
+                self.winner()
+            else:
+                self.phase += 1
+                self.__hand_phase_tick()
+
         phase = self.hand_phases[self.phase]
-        hand_finished, self.players = phase(self.players)
-        assert self.players
-        self.parent.log("--Ran hand phase {}".format(self.phase))
+        on_phase_over, run_phase = phase()
+        on_phase_over.addCallback(after_phase)
+        run_phase()
 
-        if hand_finished:
-            self.parent.log("--Hand finished after phase {}".format(self.phase))
-            self.parent.silent_update(".")
-            self.parent.stats.tick(self.pot, self.phase)
-            self.winner()
-            return self.players, self.pot
-        else:
-            self.phase += 1
-            return self.tick()
-
-    def blinds_and_preflop(self, _):
+    def blinds_and_preflop(self):
         return self.betting_round(br=self.blinds_round)
 
     def post_blinds(self):
@@ -122,7 +142,7 @@ class HoldemHand(PokerHand):
 
         return hands
 
-    def deal_table_cards(self, bots):
+    def deal_table_cards(self):
         """Adds table cards and tells bots"""
         if not self.table_cards:
             # the flop
@@ -134,4 +154,4 @@ class HoldemHand(PokerHand):
         # update the deck
         self.deck = [c for c in self.deck if c not in self.table_cards]
         self.parent.say_table_cards(self.table_cards)
-        return False, bots
+        return False, self.players

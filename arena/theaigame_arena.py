@@ -1,5 +1,7 @@
 import sys
 
+from twisted.internet import reactor
+
 import utility
 utility.fix_paths()
 
@@ -16,5 +18,13 @@ class TheAiGameArena(LocalIOArena, Holdem, NoBetLimit, HalfSecondTurns):
 
 if __name__ == '__main__':
     with TheAiGameArena() as arena:
-        bot_list = sys.argv[1:]
-        arena.run(bot_list)
+        def end_game(ignored):
+            reactor.stop()
+
+        def start_game():
+            bot_list = sys.argv[1:]
+            on_match_complete, play = arena.run(bot_list)
+            on_match_complete.addCallback(end_game)
+            play()
+        reactor.callWhenRunning(start_game)
+        reactor.run()

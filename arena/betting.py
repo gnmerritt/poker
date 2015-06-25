@@ -1,3 +1,4 @@
+from twisted.internet import defer
 
 
 class Blinds(object):
@@ -80,6 +81,7 @@ class BettingRound(object):
     Each player has the chance to check, call, raise or fold.
     Once a player folds (or bets too small) the player is out"""
     def __init__(self, bots, bets=None, pot=0, minimum_raise=0):
+        self.on_phase_over = defer.Deferred()
         self.pot = pot
         self.sidepot = None
         self.minimum_raise = minimum_raise

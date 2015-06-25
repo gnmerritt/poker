@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+from twisted.internet import defer
+
 import math
 
 import pokeher.cards as cards
@@ -43,9 +45,10 @@ class PyArena(object):
         self.say_match_updates()
         self.starting_money = sum(b.state.stack for b in self.living_bots())
         self.current_round = 0
-        return self.tick()
+        self.on_match_complete = defer.Deferred()
+        return self.on_match_complete, self.__hand_tick
 
-    def tick(self):
+    def __hand_tick(self):
         """A tick of the arena will play one hand of poker, continuing
         until there is only one player remaining"""
         self.current_round += 1
@@ -53,12 +56,10 @@ class PyArena(object):
         if len(self.living_bots()) >= self.min_players():
             self.say_round_updates()
             self.play_hand()
-            self.__remove_dead_players()
-            self.check_stack_sizes()
-            self.tick()
         else:
             self.say_round_updates()
-            return self.declare_winners()
+            winners = self.declare_winners()
+            self.on_match_complete.callback(winners)
 
     def check_stack_sizes(self):
         self.log("after winnings, bot money:")
@@ -83,10 +84,16 @@ class PyArena(object):
 
     def play_hand(self):
         """Plays a hand of poker, updating chip counts at the end."""
+        def after_hand(args):
+            winners, pot = args
+            self.__update_chips(winners, pot)
+            self.__remove_dead_players()
+            self.check_stack_sizes()
+            self.__hand_tick()
         hand = self.new_hand()
-        winners, pot = hand.play_hand()
-        self.__update_chips(winners, pot)
-        return winners
+        on_hand_complete, start_func = hand.play_hand()
+        on_hand_complete.addCallback(after_hand)
+        start_func()
 
     def split_pot(self, pot, num_winners):
         prize_per_winner = pot / float(num_winners)
@@ -166,24 +173,14 @@ class PyArena(object):
     def notify_bots_turn(self, bot_name):
         self.tell_bot(bot_name, ['Action {b} 1000'.format(b=bot_name)])
 
-    def get_action(self, bot_name, callback):
-        """Tells a bot to go, waits for a response"""
-        # TODO hook up to timing per bot
-        self.notify_bots_turn(bot_name)
-        bot = self.bot_from_name(bot_name)
-        answer = bot.ask()
-        if not answer:
-            return None
-        time, response = answer
-        self.log("bot {b} submitted action {a} chips={c} time={t}"
-                 .format(b=bot_name, a=response, c=bot.state.stack, t=time))
-        action = self.get_parsed_action(response)
-        callback(action)
-
     def get_parsed_action(self, line):
         return TheAiGameActionBuilder().from_string(line)
 
-    def skipped(self, bot_name):
+    def get_action(self, bot_name, callback):
+        """Handled by subclasses"""
+        pass
+
+    def skipped(self, bot_name, deferred):
         """Placeholder in case we want to tell a bot we skipped them"""
         pass
 

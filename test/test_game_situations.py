@@ -1,4 +1,7 @@
 import unittest
+
+from twisted.internet import defer
+
 from arena.local_arena import LocalIOArena
 
 
@@ -15,7 +18,9 @@ class GameExampleTests(unittest.TestCase):
                 arena.tell_bots([a])
             def callback(action):
                 self.assertTrue(action)
-            arena.get_action("bot_0", callback)
+            d = defer.Deferred()
+            d.addCallback(callback)
+            arena.get_action("bot_0", d)
 
     def test_timeout_after_flop(self):
         """Something goes bump in the night. This also explodes if extra logging gets added"""

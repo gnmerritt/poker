@@ -1,3 +1,5 @@
+from twisted.internet import defer
+
 from betting import BettingRound
 from pokeher.actions import GameAction
 from pokeher.handscore import HandBuilder
@@ -15,30 +17,30 @@ class PokerHand(object):
         self.table_cards = []
         self.pot = 0
         self.phase = 0
+        # fired when a hand finishes
+        self.on_hand_over = defer.Deferred()
 
-    def betting_round(self, bots=None, br=None):
+    def betting_round(self, br=None):
         """Initiates and runs a betting round.
-        Returns a tuple of hand_finished, [remaining_players]
+        Returns a deferred that will be fired when the round ends with
+        arguments of: hand_finished, [remaining_players]
         """
-        if bots is None:
-            bots = []
         if not br:
-            br = BettingRound(bots, bets={}, pot=self.pot)
+            br = BettingRound(self.players, bets={}, pot=self.pot)
         self.br = br
+        return self.br.on_phase_over, self.__betting_round_tick
 
-        return self.tick()
-
-    def tick(self):
+    def __betting_round_tick(self):
         br = self.br
-        current_better = br.next_better()
+        self.current_better = br.next_better()
+        current_better = self.current_better
         if current_better is not None:
             self.pot = br.pot
             self.parent.tell_bots(br.say_pot())
             self.parent.tell_bot(current_better, br.say_to_call(current_better))
-            self.__handle_bet(br, current_better)
-            return self.tick()
+            self.__handle_bet()
         else:
-            return self.betting_round_over()
+            self.betting_round_over()
 
     def handle_refunds(self):
         refunds = self.br.get_refunds()
@@ -51,20 +53,29 @@ class PokerHand(object):
         self.pot = br.pot
         remaining = br.remaining_players()
         # A hand ends if only one player remains after betting
-        return len(remaining) == 1, remaining
+        br.on_phase_over.callback((len(remaining) == 1, remaining))
 
-    def __handle_bet(self, br, current_better):
+    def __handle_bet(self):
+        current_better = self.current_better
+        after_action = defer.Deferred()
+
         if self.parent.is_all_in(current_better):
             # all-in players automatically call
-            action = GameAction(GameAction.CALL)
-            self.parent.skipped(current_better)
-            self.__do_action(br, current_better, action)
+            def call(ignored):
+                self.__got_action_callback(GameAction(GameAction.CALL))
+            after_action.addCallback(call)
+            self.parent.skipped(current_better, after_action)
         else:
-            def action_callback(action):
-                self.__do_action(br, current_better, action)
-            self.parent.get_action(current_better, action_callback)
+            after_action.addCallback(self.__got_action_callback)
+            self.parent.get_action(current_better, after_action)
 
-    def __do_action(self, br, current_better, action):
+    def __got_action_callback(self, action):
+        self.__do_action(action)
+        self.__betting_round_tick()
+
+    def __do_action(self, action):
+        current_better = self.current_better
+        br = self.br
         if action is None:
             action = GameAction(GameAction.FOLD)
 
@@ -102,17 +113,18 @@ class PokerHand(object):
                 action.amount = 0
                 br.post_fold(better)
 
-    def showdown(self, bots):
+    def showdown(self):
         """
         Returns the player(s) who won the showdown
         """
-        bots_hands = {b: self.hands[b] for b in bots}
+        bots_hands = {b: self.hands[b] for b in self.players}
         showdown = Showdown(bots_hands, self.table_cards)
         return True, showdown.winners
 
     def winner(self):
         """Method that runs at the end of a hand. Updates chips, blinds, etc"""
         self.parent.blind_manager.finish_hand()
+        self.on_hand_over.callback((self.players, self.pot))
 
 
 class Showdown(object):

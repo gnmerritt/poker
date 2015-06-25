@@ -1,3 +1,5 @@
+from twisted.internet import reactor
+
 from pokeher.theaigame import TheAiGameActionBuilder
 
 
@@ -36,14 +38,13 @@ class ScriptedArena(MockArena):
             return self.all_ins[better]
         return amount
 
-    def skipped(self, better):
-        def dummy(ignored):
-            pass
-        self.get_action(better, dummy)
+    def skipped(self, better, deferred):
+        self.get_action(better, deferred)
 
-    def get_action(self, better, callback):
+    def get_action(self, better, got_action):
         if not self.actions:
             return None
         action = self.actions.pop()
+        parsed_action = TheAiGameActionBuilder().from_string(action[1])
         assert better == action[0], "saw {} but expected {}".format(action[0], better)
-        callback(TheAiGameActionBuilder().from_string(action[1]))
+        reactor.callLater(0.001, got_action.callback, parsed_action)

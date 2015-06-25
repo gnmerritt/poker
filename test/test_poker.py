@@ -7,13 +7,17 @@ from arena_mocks import ScriptedArena
 
 class BettingRoundTest(unittest.TestCase):
     """"Tests that PokerHand can adjucate a full betting round"""
-    def build_run_hand(self, actions, all_ins=[]):
+    def build_run_hand(self, actions, all_ins=[], callback=None):
         bots = [a[0] for a in actions]
         arena = ScriptedArena(actions)
         for bot, bet in all_ins:
             arena.all_ins[bot] = bet
         hand = PokerHand(arena, bots)
-        return hand, hand.betting_round(bots)
+        round_over, run_round = hand.betting_round()
+        if callback:
+            round_over.addCallback(callback)
+        run_round()
+        return hand
 
     def test_raise_call(self):
         """Tests that a betting round ends after rase & call"""
@@ -21,9 +25,11 @@ class BettingRoundTest(unittest.TestCase):
             ['bot_0', 'raise 20'],
             ['bot_1', 'call 20'],
         ]
-        _, (ended, remaining) = self.build_run_hand(actions)
-        self.assertFalse(ended, "hand shouldnt have ended")
-        self.assertEqual(len(remaining), 2)
+        def verify(args):
+            ended, remaining = args
+            self.assertFalse(ended, "hand shouldnt have ended")
+            self.assertEqual(len(remaining), 2)
+        self.build_run_hand(actions, callback=verify)
 
     def test_raise_fold(self):
         actions = [
@@ -31,9 +37,11 @@ class BettingRoundTest(unittest.TestCase):
             ['bot_1', 'raise 10'],
             ['bot_0', 'fold'],
         ]
-        _, (ended, remaining) = self.build_run_hand(actions)
-        self.assertTrue(ended)
-        self.assertEqual(len(remaining), 1)
+        def verify(args):
+            ended, remaining = args
+            self.assertTrue(ended)
+            self.assertEqual(len(remaining), 1)
+        self.build_run_hand(actions, callback=verify)
 
     def test_all_in_call(self):
         actions = [
@@ -41,8 +49,10 @@ class BettingRoundTest(unittest.TestCase):
             ['bot_0', 'raise 100'], # pot now 120
             ['bot_1', 'call 100'], # bot_0 all in, only posts 10 (pot down to 40)
         ]
-        hand, (ended, remaining) = self.build_run_hand(actions, [['bot_1',10]])
-        self.assertFalse(ended, "all in shouldn't end the hand")
+        def verify(args):
+            ended, _ = args
+            self.assertFalse(ended, "all in shouldn't end the hand")
+        hand = self.build_run_hand(actions, [['bot_1',10]], callback=verify)
         self.assertEqual(hand.pot, 40, "all in added wrong")
 
     @unittest.skip("TODO")
@@ -58,9 +68,11 @@ class BettingRoundTest(unittest.TestCase):
             ["bot_0", "raise 1"],  # call 20 + raise 20, pot = 80
             ["bot_1", "call 20"], # pot = 100
         ]
-        hand, (ended, remaining) = self.build_run_hand(actions)
+        def verify(args):
+            ended, _ = args
+            self.assertFalse(ended)
+        hand = self.build_run_hand(actions, callback=verify)
         self.assertEqual(hand.pot, 100)
-        self.assertFalse(ended)
 
     def test_min_reraise(self):
         actions = [
@@ -69,11 +81,13 @@ class BettingRoundTest(unittest.TestCase):
             ["bot_0", "raise 50"], # c60, raise 60, pot = 280
             ["bot_1", "call 60"]   # call, pot=340
         ]
-        hand, (ended, remaining) = self.build_run_hand(actions)
+        def verify(args):
+            ended, remaining, hand = args
+            self.assertFalse(ended)
+            self.assertIn('bot_0', remaining)
+            self.assertIn('bot_1', remaining)
+        hand = self.build_run_hand(actions, callback=verify)
         self.assertEqual(hand.pot, 340)
-        self.assertFalse(ended)
-        self.assertIn('bot_0', remaining)
-        self.assertIn('bot_1', remaining)
 
 
 class PokerHandTest(unittest.TestCase):
@@ -90,15 +104,24 @@ class PokerHandTest(unittest.TestCase):
 
         arena = ScriptedArena(actions)
         hand = PokerHand(arena, bots)
-        ended, remaining = hand.betting_round(bots)
-        self.assertFalse(ended)
-        self.assertEqual(len(remaining), 2)
-        self.assertEqual(hand.pot, 40)
+        on_end, run_hand = hand.betting_round()
 
-        ended, remaining = hand.betting_round(bots)
-        self.assertTrue(ended)
-        self.assertEqual(hand.pot, 80)
-        self.assertEqual(remaining, ["bot_0"])
+        def verify_end(args):
+            ended, remaining = args
+            self.assertFalse(ended)
+            self.assertEqual(len(remaining), 2)
+            self.assertEqual(hand.pot, 40)
+        on_end.addCallback(verify_end)
+        run_hand()
+
+        on_end, run_hand = hand.betting_round()
+        def verify_two(args):
+            ended, remaining = args
+            self.assertTrue(ended)
+            self.assertEqual(hand.pot, 80)
+            self.assertEqual(remaining, ["bot_0"])
+        on_end.addCallback(verify_two)
+        run_hand()
 
 
 class ShowdownTest(unittest.TestCase):
