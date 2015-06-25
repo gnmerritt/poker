@@ -41,21 +41,30 @@ class PyArena(object):
         Uses methods from the games mixin, explodes otherwise"""
         self.init_game()
         self.say_match_updates()
-        starting_money = sum(b.state.stack for b in self.living_bots())
-        current_round = 0
+        self.starting_money = sum(b.state.stack for b in self.living_bots())
+        self.current_round = 0
+        return self.tick()
 
-        while len(self.living_bots()) >= self.min_players():
-            self.say_round_updates(current_round)
+    def tick(self):
+        """A tick of the arena will play one hand of poker, continuing
+        until there is only one player remaining"""
+        self.current_round += 1
+
+        if len(self.living_bots()) >= self.min_players():
+            self.say_round_updates()
             self.play_hand()
             self.__remove_dead_players()
-            current_round += 1
-            self.log("after winnings, bot money:")
-            for b in self.living_bots():
-                self.log("  {} -> {}".format(b.state.name, b.state.stack))
-            assert sum(b.state.stack for b in self.living_bots()) == starting_money
+            self.check_stack_sizes()
+            self.tick()
+        else:
+            self.say_round_updates()
+            return self.declare_winners()
 
-        self.say_round_updates(current_round)
-        return self.declare_winners()
+    def check_stack_sizes(self):
+        self.log("after winnings, bot money:")
+        for b in self.living_bots():
+            self.log("  {} -> {}".format(b.state.name, b.state.stack))
+        assert sum(b.state.stack for b in self.living_bots()) == self.starting_money
 
     def declare_winners(self):
         winners = self.living_bots()
@@ -134,13 +143,13 @@ class PyArena(object):
             hand_line = '{b} hand {h}'.format(b=bot, h=hand_string)
             self.tell_bot(bot, [hand_line])
 
-    def say_round_updates(self, current_round):
+    def say_round_updates(self):
         round_updates = []
         for bot in self.bots:
             round_updates.append(
                 "{n} stack {s}".format(n=bot.name(), s=bot.chips())
             )
-            round_updates.append("Match round {}".format(current_round))
+            round_updates.append("Match round {}".format(self.current_round))
         self.tell_bots(round_updates)
 
     def say_action(self, bot, action):
