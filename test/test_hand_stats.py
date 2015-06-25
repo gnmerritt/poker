@@ -6,9 +6,9 @@ from arena.hand_stats import HandStats
 class HandStatTest(unittest.TestCase):
     def test_stats(self):
         stats = HandStats()
-        stats.tick(50, 0)
-        stats.tick(100, 4)
-        stats.tick(75, 2)
+        stats.record(50, 0)
+        stats.record(100, 4)
+        stats.record(75, 2)
 
         representation = str(stats)
         self.assertTrue(representation)
