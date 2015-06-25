@@ -60,6 +60,7 @@ class TestBrainBets(unittest.TestCase):
     def setUp(self):
         bot = MockBot()
         self.brain = Brain(bot)
+        self.brain.r_test = lambda x: False
         d = MockData()
         d.big_blind = 20
         d.pot = 130
