@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/gnmerritt/poker.svg?branch=master)](https://travis-ci.org/gnmerritt/poker)
+[![Build Status](https://travis-ci.org/gnmerritt/poker.svg?branch=master)](https://travis-ci.org/gnmerritt/poker) [![codecov.io](http://codecov.io/github/gnmerritt/poker/coverage.svg?branch=master)](http://codecov.io/github/gnmerritt/poker?branch=master)
+
 
 Poker bot for http://theaigames.com/
 ====================================
