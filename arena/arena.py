@@ -1,62 +1,21 @@
 from __future__ import print_function
-import time
+
+from twisted.internet import defer
+
 import math
 
 import pokeher.cards as cards
 from pokeher.theaigame import TheAiGameActionBuilder
-from bots import LoadedBot
+
 from hand_stats import HandStats
 
 
-class LocalIOArena(object):
-    """Loads Python bots from source folders, sets up IO channels to them"""
-    def __init__(self, delay_secs=1, silent=False):
-        self.delay_secs = delay_secs
-        self.silent = silent
-        self.print_bot_output = True
-        self.common_setup()
-
-    def load_bot(self, source_file):
-        """Starts a bot as a subprocess, given its path"""
-        seat = self.bot_count()
-        self.log("loading bot {l} from {f}".format(l=seat, f=source_file))
-        bot = LoadedBot(source_file, seat, print_bot_output=self.print_bot_output)
-        if bot and not bot.process.exploded:
-            self.bots.append(bot)
-
-    def run(self, args):
-        for file in args:
-            self.load_bot(file)
-        if self.min_players() <= self.bot_count() <= self.max_players:
-            self.log("Have enough bots, starting match in {}s"
-                     .format(self.delay_secs))
-            time.sleep(self.delay_secs)
-            return self.play_match()
-        else:
-            self.log("Wrong # of bots ({i}) needed {k}-{j}. Can't play"
-                     .format(i=self.bot_count(), k=self.min_players(),
-                             j=self.max_players()))
-
-    def log(self, message, force=False):
-        if not self.silent or force:
-            print(message)
-
-    def silent_update(self, message):
-        if self.silent:
-            print(message, end="")
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, type, value, traceback):
-        for bot in self.bots:
-            bot.kill()
-
-
-class PyArena():
-    """Manages game state, communication """
-    def common_setup(self):
-        self.bots = [] # [LoadedBot]
+class PyArena(object):
+    """Manages game state, communication, bot money
+    Leaves I/O to subclasses
+    """
+    def __init__(self):
+        self.bots = [] # [LoadedBot or similar]
         self.stats = HandStats()
 
     def bot_count(self):
@@ -84,21 +43,29 @@ class PyArena():
         Uses methods from the games mixin, explodes otherwise"""
         self.init_game()
         self.say_match_updates()
-        starting_money = sum(b.state.stack for b in self.living_bots())
-        current_round = 0
+        self.starting_money = sum(b.state.stack for b in self.living_bots())
+        self.current_round = 0
+        self.on_match_complete = defer.Deferred()
+        return self.on_match_complete, self.__hand_tick
 
-        while len(self.living_bots()) >= self.min_players():
-            self.say_round_updates(current_round)
+    def __hand_tick(self):
+        """A tick of the arena will play one hand of poker, continuing
+        until there is only one player remaining"""
+        self.current_round += 1
+
+        if len(self.living_bots()) >= self.min_players():
+            self.say_round_updates()
             self.play_hand()
-            self.__remove_dead_players()
-            current_round += 1
-            self.log("after winnings, bot money:")
-            for b in self.living_bots():
-                self.log("  {} -> {}".format(b.state.name, b.state.stack))
-            assert sum(b.state.stack for b in self.living_bots()) == starting_money
+        else:
+            self.say_round_updates()
+            winners = self.declare_winners()
+            self.on_match_complete.callback(winners)
 
-        self.say_round_updates(current_round)
-        return self.declare_winners()
+    def check_stack_sizes(self):
+        self.log("after winnings, bot money:")
+        for b in self.living_bots():
+            self.log("  {} -> {}".format(b.state.name, b.state.stack))
+        assert sum(b.state.stack for b in self.living_bots()) == self.starting_money
 
     def declare_winners(self):
         winners = self.living_bots()
@@ -117,10 +84,16 @@ class PyArena():
 
     def play_hand(self):
         """Plays a hand of poker, updating chip counts at the end."""
+        def after_hand(args):
+            winners, pot = args
+            self.__update_chips(winners, pot)
+            self.__remove_dead_players()
+            self.check_stack_sizes()
+            self.__hand_tick()
         hand = self.new_hand()
-        winners, pot = hand.play_hand()
-        self.__update_chips(winners, pot)
-        return winners
+        on_hand_complete, start_func = hand.play_hand()
+        on_hand_complete.addCallback(after_hand)
+        start_func()
 
     def split_pot(self, pot, num_winners):
         prize_per_winner = pot / float(num_winners)
@@ -177,13 +150,13 @@ class PyArena():
             hand_line = '{b} hand {h}'.format(b=bot, h=hand_string)
             self.tell_bot(bot, [hand_line])
 
-    def say_round_updates(self, current_round):
+    def say_round_updates(self):
         round_updates = []
         for bot in self.bots:
             round_updates.append(
                 "{n} stack {s}".format(n=bot.name(), s=bot.chips())
             )
-            round_updates.append("Match round {}".format(current_round))
+            round_updates.append("Match round {}".format(self.current_round))
         self.tell_bots(round_updates)
 
     def say_action(self, bot, action):
@@ -197,18 +170,17 @@ class PyArena():
         table_list = 'Match table {}'.format(cards.to_aigames_list(dealt_cards))
         self.tell_bots([table_list])
 
-    def get_action(self, bot_name):
-        """Tells a bot to go, waits for a response"""
-        # TODO hook up to timing per bot
-        self.tell_bots(['Action {b} 1000'.format(b=bot_name)])
-        bot = self.bot_from_name(bot_name)
-        time, response = bot.ask()
-        self.log("bot {b} submitted action {a} chips={c} time={t}"
-                 .format(b=bot_name, a=response, c=bot.state.stack, t=time))
-        action = TheAiGameActionBuilder().from_string(response)
-        return action
+    def notify_bots_turn(self, bot_name):
+        self.tell_bot(bot_name, ['Action {b} 1000'.format(b=bot_name)])
 
-    def skipped(self, bot_name):
+    def get_parsed_action(self, line):
+        return TheAiGameActionBuilder().from_string(line)
+
+    def get_action(self, bot_name, callback):
+        """Handled by subclasses"""
+        pass
+
+    def skipped(self, bot_name, deferred):
         """Placeholder in case we want to tell a bot we skipped them"""
         pass
 

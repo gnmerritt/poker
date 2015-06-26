@@ -13,6 +13,13 @@ class GameAction(object):
         self.action = action
         self.amount = amount
 
+    def __eq__(self, other):
+        return self.action == other.action and \
+          self.amount == other.amount
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __match(self, query):
         return query == self.action
 

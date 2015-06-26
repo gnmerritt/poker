@@ -1,9 +1,8 @@
 import unittest
-from arena.arena import PyArena
 
+from twisted.internet import defer
 
-class SpyingArena(PyArena):
-    pass
+from arena.local_arena import LocalIOArena
 
 
 class GameExampleTests(unittest.TestCase):
@@ -11,14 +10,17 @@ class GameExampleTests(unittest.TestCase):
     AIG_BOT = "pokeher/theaigame_bot.py"
 
     def __run_test(self, actions):
-        with SpyingArena(silent=True) as arena:
+        with LocalIOArena(silent=True) as arena:
             arena.print_bot_output = False
             arena.load_bot(self.AIG_BOT)
             self.assertEqual(arena.bot_count(), 1)
             for a in actions:
                 arena.tell_bots([a])
-            action = arena.get_action("bot_0")
-            self.assertTrue(action)
+            def callback(action):
+                self.assertTrue(action)
+            d = defer.Deferred()
+            d.addCallback(callback)
+            arena.get_action("bot_0", d)
 
     def test_timeout_after_flop(self):
         """Something goes bump in the night. This also explodes if extra logging gets added"""

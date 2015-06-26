@@ -18,7 +18,7 @@ class HandStats(object):
         self.pots = []
         self.phases = {}
 
-    def tick(self, pot, phase):
+    def record(self, pot, phase):
         count = self.phases.get(phase, 0)
         self.phases[phase] = count + 1
         self.pots.append(pot)

@@ -33,6 +33,11 @@ class CardBuilderTest(unittest.TestCase):
             self.assertEqual(us, b.from_list(aig_str))
             self.assertEqual(aig_str, cards.to_aigames_list(us))
 
+    def test_from_list_empty(self):
+        b = CardBuilder()
+        self.assertFalse(b.from_list(None))
+        self.assertFalse(b.from_list(""))
+
     def test_all_cards_aig(self):
         """For every card, verify that we can go to/from the aig string"""
         deck = cards.full_deck()

@@ -1,6 +1,7 @@
 import unittest
 from arena.holdem import *
-from arena.arena import LoadedBot
+from arena.bots import LoadedBot
+
 
 class MockHoldemArena(Holdem):
     """Mocks out mixin methods that would usually be defined"""
@@ -25,6 +26,7 @@ class MockHoldemArena(Holdem):
 
     def post_bet(self, bot_name, amount):
         return amount
+
 
 class HoldemTest(unittest.TestCase):
     def test_dealer(self):
@@ -83,17 +85,17 @@ class HoldemTest(unittest.TestCase):
         hand.deal_hands(['a','b'])
         self.assertEqual([], hand.table_cards)
 
-        hand.deal_table_cards([]) # flop
+        hand.deal_table_cards() # flop
         flop = hand.table_cards
         self.assertEqual(3, len(flop))
 
-        hand.deal_table_cards([]) # turn
+        hand.deal_table_cards() # turn
         turn = hand.table_cards
         self.assertEqual(4, len(turn))
         for c in flop:
             self.assertTrue(c in turn)
 
-        hand.deal_table_cards([]) # river
+        hand.deal_table_cards() # river
         river = hand.table_cards
         self.assertEqual(5, len(river))
         for c in turn:

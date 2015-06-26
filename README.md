@@ -21,7 +21,6 @@ Install
 ```shell
 pip install -r requirements.txt
 make
-mkdir -p data
 python standalone/preflop_hand_wins.py
 make test
 ```

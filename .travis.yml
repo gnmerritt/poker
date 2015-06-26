@@ -5,7 +5,7 @@ before_install:
   - "pip install codecov"
 install:
   - "pip install -r requirements.txt"
-  - "mkdir -p data"
+  - "make"
   - "wget -P data/ http://gnmerritt.net/data/preflop_wins_50000.pickle"
 script: make test
 after_success:
