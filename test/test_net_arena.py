@@ -51,8 +51,10 @@ class NetArenaGameTest(trial_unit.TestCase):
         self.b1_protocol = DummyProtocol()
         self.arena.add_bot("ABC_KEY", self.b1_protocol, name="B1")
 
-    @unittest.skip("TODO")
     def test_game_starts(self):
         """Game should begin after a second bot joins"""
         b2_protocol = DummyProtocol()
         self.arena.add_bot("DEF_KEY", b2_protocol)
+        lines = b2_protocol.lines
+        self.assertIn("bot_0 seat 0", lines)
+        self.assertIn("Settings your_bot bot_1", lines)
