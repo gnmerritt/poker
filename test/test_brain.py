@@ -55,6 +55,7 @@ class BrainTest(unittest.TestCase):
         good_equity = bot.brain.preflop_equity[good_hand.simple()]
         self.assertTrue(good_equity > bad_equity)
 
+
 class TestBrainBets(unittest.TestCase):
     """Checks the predefined bets"""
     def setUp(self):
@@ -108,12 +109,19 @@ class TestBrainBets(unittest.TestCase):
 
 class BettingFunctionalTests(BrainTest):
     """End-to-end tests with cards and everything"""
-    def test_preflop_betting(self):
-        """Sanity test of the preflop betting"""
+
+    def brain(self):
         bot = MockBot()
         brain = Brain(bot)
+        def r_test(one=None, two=None, three=None):
+            return False
+        brain.r_test = r_test
         brain.data = self.data
+        return bot, brain
 
+    def test_preflop_betting(self):
+        """Sanity test of the preflop betting"""
+        bot, brain = self.brain()
         # 20 to call, 140 in the pot
         self.assertAlmostEqual(brain.pot_odds(), 100 * 2.0/(14 + 2))
         brain.do_turn('bot_0', 1000)
@@ -121,8 +129,7 @@ class BettingFunctionalTests(BrainTest):
 
     def test_preflop_big_raise(self):
         """Sanity test of a big preflop raise (switches to sim equity)"""
-        bot = MockBot()
-        brain = Brain(bot)
+        bot, brain = self.brain()
         # preflop A-9 suited => 63.044 win %
         self.data.hand = Hand(Card(C.ACE, C.SPADES), Card(9, C.SPADES))
         # opponent made a huge raise from BB
@@ -145,8 +152,7 @@ class BettingFunctionalTests(BrainTest):
         self.data.table_cards = [Card(C.ACE, C.SPADES),
                                  Card(2, C.DIAMONDS),
                                  Card(7, C.SPADES)]
-        bot = MockBot()
-        brain = Brain(bot)
+        bot, brain = self.brain()
         brain.data = self.data
         brain.iterations = 100 # smaller for unit tests
         brain.do_turn('bot_0', 500)
@@ -157,8 +163,7 @@ class BettingFunctionalTests(BrainTest):
         self.data.table_cards = [Card(C.ACE, C.SPADES),
                                  Card(2, C.DIAMONDS),
                                  Card(7, C.SPADES)]
-        bot = MockBot()
-        brain = Brain(bot)
+        bot, brain = self.brain()
         brain.data = self.data
         brain.iterations = 10000 # will time out
         with Timer() as t:
@@ -171,8 +176,7 @@ class BettingFunctionalTests(BrainTest):
         self.data.table_cards = [Card(C.ACE, C.SPADES),
                                  Card(2, C.DIAMONDS),
                                  Card(7, C.SPADES)]
-        bot = MockBot()
-        brain = Brain(bot)
+        bot, brain = self.brain()
         brain.data = self.data
         brain.data.time_per_move = 250
         brain.iterations = 10000 # will time out
