@@ -45,6 +45,6 @@ class ScriptedArena(MockArena):
         if not self.actions:
             return None
         action = self.actions.pop()
-        parsed_action = TheAiGameActionBuilder().from_string(action[1])
         assert better == action[0], "saw {} but expected {}".format(action[0], better)
+        parsed_action = TheAiGameActionBuilder().from_string(action[1])
         reactor.callLater(0.001, got_action.callback, parsed_action)

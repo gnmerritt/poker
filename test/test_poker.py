@@ -1,7 +1,8 @@
 import unittest
+
 import pokeher.cards as cards
 import pokeher.constants as C
-from arena.poker import *
+from arena.poker import PokerHand, Showdown
 from arena_mocks import ScriptedArena
 
 
@@ -52,8 +53,8 @@ class BettingRoundTest(unittest.TestCase):
         def verify(args):
             ended, _ = args
             self.assertFalse(ended, "all in shouldn't end the hand")
+            self.assertEqual(hand.pot, 40, "all in added wrong")
         hand = self.build_run_hand(actions, [['bot_1',10]], callback=verify)
-        self.assertEqual(hand.pot, 40, "all in added wrong")
 
     @unittest.skip("TODO")
     def test_all_in_blinds(self):
@@ -71,8 +72,8 @@ class BettingRoundTest(unittest.TestCase):
         def verify(args):
             ended, _ = args
             self.assertFalse(ended)
+            self.assertEqual(hand.pot, 100)
         hand = self.build_run_hand(actions, callback=verify)
-        self.assertEqual(hand.pot, 100)
 
     def test_min_reraise(self):
         actions = [
@@ -82,46 +83,12 @@ class BettingRoundTest(unittest.TestCase):
             ["bot_1", "call 60"]   # call, pot=340
         ]
         def verify(args):
-            ended, remaining, hand = args
+            ended, remaining = args
             self.assertFalse(ended)
             self.assertIn('bot_0', remaining)
             self.assertIn('bot_1', remaining)
+            self.assertEqual(hand.pot, 340)
         hand = self.build_run_hand(actions, callback=verify)
-        self.assertEqual(hand.pot, 340)
-
-
-class PokerHandTest(unittest.TestCase):
-    def test_multiple_betting_rounds(self):
-        actions = [
-            ["bot_0", "raise 20"],
-            ["bot_1", "call 20"],
-            # preflop betting ends
-            ["bot_0", "raise 40"],
-            ["bot_1", "fold 0"],
-            # hand ends
-        ]
-        bots = [a[0] for a in actions]
-
-        arena = ScriptedArena(actions)
-        hand = PokerHand(arena, bots)
-        on_end, run_hand = hand.betting_round()
-
-        def verify_end(args):
-            ended, remaining = args
-            self.assertFalse(ended)
-            self.assertEqual(len(remaining), 2)
-            self.assertEqual(hand.pot, 40)
-        on_end.addCallback(verify_end)
-        run_hand()
-
-        on_end, run_hand = hand.betting_round()
-        def verify_two(args):
-            ended, remaining = args
-            self.assertTrue(ended)
-            self.assertEqual(hand.pot, 80)
-            self.assertEqual(remaining, ["bot_0"])
-        on_end.addCallback(verify_two)
-        run_hand()
 
 
 class ShowdownTest(unittest.TestCase):
