@@ -32,8 +32,17 @@ class NetworkArena(PyArena):
         self.bots.append(bot)
 
         if len(self.bots) >= self.min_players() and not self.playing:
-            twisted_log.msg("** starting match! **")
-            self.play_match()
+            self.playing = True
+            self.start_match()
+
+    def start_match(self):
+        def on_match_complete(args):
+            twisted_log.msg("** match completed **")
+
+        twisted_log.msg("** starting match! **")
+        on_complete, play_fn = self.play_match()
+        on_complete.addBoth(on_match_complete)
+        play_fn()
 
     def get_action(self, bot_name, callback):
         """Async version of get_action that waits on net input"""

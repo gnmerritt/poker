@@ -58,3 +58,4 @@ class NetArenaGameTest(trial_unit.TestCase):
         lines = b2_protocol.lines
         self.assertIn("bot_0 seat 0", lines)
         self.assertIn("Settings your_bot bot_1", lines)
+        self.assertIn("bot_0 post 10", lines)
