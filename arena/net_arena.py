@@ -18,16 +18,16 @@ class NetworkArena(PyArena):
         self.bot_keys = {}
 
         self.waiting_on = None
-        self.action_callback = None
+        self.action_deferred = None
         self.started_waiting = None
 
     def add_bot(self, bot_key, connection, name=None):
         if bot_key in self.bot_keys:
             return
-        self.bot_keys[bot_key] = True
 
         seat = len(self.bots)
         bot = NetLoadedBot(bot_key, seat)
+        self.bot_keys[bot_key] = bot.name()
         bot.bind_connection(connection)
         self.bots.append(bot)
 
@@ -37,41 +37,42 @@ class NetworkArena(PyArena):
 
     def start_match(self):
         def on_match_complete(args):
-            twisted_log.msg("** match completed **")
+            self.log("** match completed **")
 
-        twisted_log.msg("** starting match! **")
+        self.log("** starting match! **")
         on_complete, play_fn = self.play_match()
         on_complete.addBoth(on_match_complete)
         play_fn()
 
-    def get_action(self, bot_name, callback):
+    def get_action(self, bot_name, deferred):
         """Async version of get_action that waits on net input"""
         self.notify_bots_turn(bot_name)
         self.waiting_on = bot_name
-        self.action_callback = callback
+        self.action_deferred = deferred
         self.started_waiting = time.clock()
 
-        twisted_log.msg("RUNNING ASYNC GET_ACTION")
         # TODO: timeouts, clock time per bot
 
-    def bot_said(self, bot, line):
+    def bot_said(self, bot_name, line):
+        bot = self.bot_keys.get(bot_name, None)
         if line.startswith("!"):
-            twisted_log.msg("ignoring server command line: {}".format(line))
+            self.log("ignoring server command line: {}".format(line))
             return
-        if bot != self.waiting_on:
-            twisted_log.msg("ignoring input from {}".format(bot))
+        if not bot or bot != self.waiting_on:
+            self.log("ignoring input from {}".format(bot))
             return
         if not line:
-            twisted_log.msg("ignoring empty line from {}".format(bot))
+            self.log("ignoring empty line from {}".format(bot))
             return
 
-        twisted_log.msg("GOT VALID LINE FROM BOT: \n  {}".format(line))
-
         self.waiting_on = None
-        if self.action_callback:
+        if self.action_deferred:
             delay = time.clock() - self.started_waiting
-            twisted_log.msg("got response in {}s".format(delay))
-            self.action_callback(self.get_parsed_action(line))
+            self.log("got response in {}s".format(delay))
+            self.action_deferred.callback(self.get_parsed_action(line))
+
+    def skipped(self, bot_name, deferred):
+        deferred.callback("")
 
     def log(self, message, force=False):
         twisted_log.msg(message)
