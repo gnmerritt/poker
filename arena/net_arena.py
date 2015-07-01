@@ -1,5 +1,6 @@
 import time
 from twisted.python import log as twisted_log
+from twisted.internet import defer
 
 import utility
 utility.fix_paths()
@@ -16,6 +17,8 @@ class NetworkArena(PyArena):
         PyArena.__init__(self)
         self.playing = False
         self.bot_keys = {}
+
+        self.after_match = defer.Deferred()
 
         self.waiting_on = None
         self.action_deferred = None
@@ -36,13 +39,19 @@ class NetworkArena(PyArena):
             self.start_match()
 
     def start_match(self):
-        def on_match_complete(args):
-            self.log("** match completed **")
-
+        def complete(args):
+            self.on_match_complete(args)
         self.log("** starting match! **")
         on_complete, play_fn = self.play_match()
-        on_complete.addBoth(on_match_complete)
+        on_complete.addBoth(complete)
+        on_complete.chainDeferred(self.after_match)
         play_fn()
+
+    def on_match_complete(self, args):
+        # TODO: do something with the match winners?
+        self.log("** match completed **")
+        for bot in self.bots:
+            bot.kill()
 
     def get_action(self, bot_name, deferred):
         """Async version of get_action that waits on net input"""
