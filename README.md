@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/gnmerritt/poker.svg?branch=master)](https://travis-ci.org/gnmerritt/poker) [![codecov.io](http://codecov.io/github/gnmerritt/poker/coverage.svg?branch=master)](http://codecov.io/github/gnmerritt/poker?branch=master)
+[![Build Status](https://travis-ci.org/gnmerritt/poker.svg?branch=master)](https://travis-ci.org/gnmerritt/poker) [![codecov.io](http://codecov.io/github/gnmerritt/poker/coverage.svg?branch=master)](http://codecov.io/github/gnmerritt/poker?branch=master) [![Codacy Badge](https://www.codacy.com/project/badge/f535692505244745865402e9839fa79e)](https://www.codacy.com/app/gnm/poker)
 
 
 Poker bot for http://theaigames.com/

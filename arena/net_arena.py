@@ -39,19 +39,18 @@ class NetworkArena(PyArena):
             self.start_match()
 
     def start_match(self):
-        def complete(args):
-            self.on_match_complete(args)
         self.log("** starting match! **")
         on_complete, play_fn = self.play_match()
-        on_complete.addBoth(complete)
+        on_complete.addBoth(self.match_complete_handler)
         on_complete.chainDeferred(self.after_match)
         play_fn()
 
-    def on_match_complete(self, args):
+    def match_complete_handler(self, args):
         # TODO: do something with the match winners?
-        self.log("** match completed **")
         for bot in self.bots:
             bot.kill()
+
+        return args # for the rest of the deferred handlers
 
     def get_action(self, bot_name, deferred):
         """Async version of get_action that waits on net input"""
