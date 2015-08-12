@@ -58,8 +58,8 @@ class PyArena(object):
             self.play_hand()
         else:
             self.say_round_updates()
-            winners = self.declare_winners()
-            self.on_match_complete.callback(winners)
+            self.declare_winners()
+            self.on_match_complete.callback(MatchResults(self))
 
     def check_stack_sizes(self):
         self.log("after winnings, bot money:")
@@ -222,3 +222,20 @@ class PyArena(object):
         """Returns True if a bot is all in (has no chips left)"""
         bot = self.bot_from_name(bot_name)
         return bot.chips() == 0
+
+
+class MatchResults(object):
+    def __init__(self, arena):
+        self.hands = arena.current_round
+        self.starting_stack = 1000 # TODO constant
+        self.bots = [
+            {"key": b.state.source, "stack": b.state.stack}
+            for b in arena.bots
+        ]
+
+    def to_dict(self):
+        return {
+            "hands": self.hands,
+            "starting_stack": self.starting_stack,
+            "bots": self.bots,
+        }

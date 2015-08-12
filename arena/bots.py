@@ -71,6 +71,10 @@ class BotState(object):
         self.stack = self.INITIAL_CHIPS # amount of chips
         self.stake = 0  # chips bet currently
 
+    def __repr__(self):
+        return "Bot<'{}'@'{}' stk={}>" \
+          .format(self.name, self.source, self.stack)
+
 
 class LoadedBot(object):
     """Holds an instance of each bot, keeps track of game info about it"""
@@ -113,6 +117,9 @@ class LoadedBot(object):
         self.is_active = False
         self.process.shutdown()
 
+    def __repr__(self):
+        return repr(self.state)
+
 
 class NetLoadedBot(LoadedBot):
     def start_bot(self, source_file, print_bot_output):
@@ -125,8 +132,8 @@ class NetLoadedBot(LoadedBot):
         self.protocol.sendLine(line)
 
     def ask(self):
-        pass # TODO
+        pass # no-op, we let bots write back to us
 
     def kill(self):
         self.is_active = False
-        self.protocol.closeBecause("Match is over")
+        self.protocol.closeBecause("Match is over (killed)")

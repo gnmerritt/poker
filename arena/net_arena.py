@@ -46,7 +46,6 @@ class NetworkArena(PyArena):
         play_fn()
 
     def match_complete_handler(self, args):
-        # TODO: do something with the match winners?
         for bot in self.bots:
             bot.kill()
 
