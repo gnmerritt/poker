@@ -13,8 +13,8 @@ from timing import FiveSecondTurns
 
 
 class NetworkArena(PyArena):
-    def __init__(self):
-        PyArena.__init__(self)
+    def __init__(self, silent=True):
+        PyArena.__init__(self, silent)
         self.playing = False
         self.bot_keys = {}
 
@@ -23,6 +23,9 @@ class NetworkArena(PyArena):
         self.waiting_on = None
         self.action_deferred = None
         self.started_waiting = None
+
+    def log_func(self, message, end=""):
+        twisted_log.msg(message)
 
     def add_bot(self, bot_key, connection, name=None):
         if bot_key in self.bot_keys:
@@ -80,12 +83,6 @@ class NetworkArena(PyArena):
 
     def skipped(self, bot_name, deferred):
         deferred.callback("")
-
-    def log(self, message, force=False):
-        twisted_log.msg(message)
-
-    def silent_update(self, message):
-        pass
 
 
 class TwistedNLHEArena(NetworkArena, Holdem, NoBetLimit, FiveSecondTurns):

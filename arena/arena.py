@@ -14,9 +14,21 @@ class PyArena(object):
     """Manages game state, communication, bot money
     Leaves I/O to subclasses
     """
-    def __init__(self):
+    def __init__(self, silent=False):
+        self.silent = silent
         self.bots = [] # [LoadedBot or similar]
         self.stats = HandStats()
+
+    def log(self, message, force=False):
+        if not self.silent or force:
+            self.log_func(message)
+
+    def silent_update(self, message):
+        if self.silent:
+            self.log_func(message, end="")
+
+    def log_func(self, message, end):
+        pass
 
     def bot_count(self):
         """Returns the current number of loaded bots"""
