@@ -10,10 +10,12 @@ from arena import PyArena
 class LocalIOArena(PyArena):
     """Loads Python bots from source folders, sets up IO channels to them"""
     def __init__(self, delay_secs=1, silent=False):
-        PyArena.__init__(self)
+        PyArena.__init__(self, silent)
         self.delay_secs = delay_secs
-        self.silent = silent
         self.print_bot_output = True
+
+    def log_func(self, message, end=""):
+        print(message, end)
 
     def load_bot(self, source_file):
         """Starts a bot as a subprocess, given its path"""
@@ -52,14 +54,6 @@ class LocalIOArena(PyArena):
 
     def skipped(self, bot_name, deferred):
         reactor.callLater(0.001, deferred.callback, "")
-
-    def log(self, message, force=False):
-        if not self.silent or force:
-            print(message)
-
-    def silent_update(self, message):
-        if self.silent:
-            print(message, end="")
 
     def __enter__(self):
         return self
