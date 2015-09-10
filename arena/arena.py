@@ -15,7 +15,7 @@ class PyArena(object):
     Leaves I/O to subclasses
     """
     def __init__(self):
-        self.bots = [] # [LoadedBot or similar]
+        self.bots = []  # [LoadedBot or similar]
         self.stats = HandStats()
 
     def bot_count(self):
@@ -65,7 +65,8 @@ class PyArena(object):
         self.log("after winnings, bot money:")
         for b in self.living_bots():
             self.log("  {} -> {}".format(b.state.name, b.state.stack))
-        assert sum(b.state.stack for b in self.living_bots()) == self.starting_money
+        assert sum(b.state.stack for b in self.living_bots()) \
+            == self.starting_money
 
     def declare_winners(self):
         winners = self.living_bots()
@@ -167,7 +168,8 @@ class PyArena(object):
 
     def say_table_cards(self, dealt_cards):
         """Tells the bots about table cards"""
-        table_list = 'Match table {}'.format(cards.to_aigames_list(dealt_cards))
+        table_list = \
+            'Match table {}'.format(cards.to_aigames_list(dealt_cards))
         self.tell_bots([table_list])
 
     def notify_bots_turn(self, bot_name):
@@ -227,7 +229,7 @@ class PyArena(object):
 class MatchResults(object):
     def __init__(self, arena):
         self.hands = arena.current_round
-        self.starting_stack = 1000 # TODO constant
+        self.starting_stack = 1000  # TODO constant
         self.bots = [
             {"key": b.state.source, "stack": b.state.stack}
             for b in arena.bots
