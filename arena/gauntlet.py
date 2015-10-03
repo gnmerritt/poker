@@ -5,6 +5,10 @@ from theaigame_arena import TheAiGameArena
 
 
 class GauntletArena(object):
+    """
+    Repeatedly runs a challenger bot against the opponents listed
+    in the TRIALS object. Reports statistics about performance afterwards.
+    """
     TRIALS = {
         10: [
             "agents/check_fold_bot.py",
@@ -70,7 +74,7 @@ class GauntletArena(object):
             win_percentage = utility.MathUtils.percentage(wins, tries)
             grade = "PASS" if win_percentage >= self.percentage else "FAIL"
             line = "    {g}  {e:^30} - {w}/{a} ({p}%)" \
-              .format(g=grade, e=enemy, w=wins, a=tries, p=win_percentage)
+                .format(g=grade, e=enemy, w=wins, a=tries, p=win_percentage)
             lines.append(line)
             stats = self.stats.get(enemy, None)
             lines.append("      {}".format(repr(stats)))
