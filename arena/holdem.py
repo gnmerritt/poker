@@ -45,11 +45,11 @@ class HoldemHand(PokerHand):
         PokerHand.__init__(self, parent, players)
         self.hand_phases = [
             self.blinds_and_preflop,
-            self.__wrap(self.deal_table_cards), # flop
+            self.__wrap(self.deal_table_cards),  # flop
             self.betting_round,
-            self.__wrap(self.deal_table_cards), # turn
+            self.__wrap(self.deal_table_cards),  # turn
             self.betting_round,
-            self.__wrap(self.deal_table_cards), # river
+            self.__wrap(self.deal_table_cards),  # river
             self.betting_round,
             self.__wrap(self.showdown),
         ]
@@ -57,9 +57,11 @@ class HoldemHand(PokerHand):
     def __wrap(self, phase_function):
         """Wrapper for phases that can run completely synchronously"""
         d = defer.Deferred()
+
         def runner():
             result = phase_function()
             d.callback(result)
+
         def wrapped_phase():
             return d, runner
         return wrapped_phase
@@ -83,7 +85,8 @@ class HoldemHand(PokerHand):
             self.parent.log("--Ran hand phase {}".format(self.phase))
 
             if hand_finished:
-                self.parent.log("--Hand finished after phase {}".format(self.phase))
+                self.parent.log("--Hand finished after phase {}"
+                                .format(self.phase))
                 self.parent.silent_update(".")
                 self.parent.stats.record(self.pot, self.phase)
                 self.winner()
@@ -108,7 +111,7 @@ class HoldemHand(PokerHand):
         posted_sb = self.post_bet(sb_bot, sb)
         # TODO: formatting shouldn't live here
         blinds = [
-            'Match on_button {sb}'.format(sb=sb_bot), # TODO only for heads up
+            'Match on_button {sb}'.format(sb=sb_bot),  # TODO only for heads up
             'Match small_blind {sb}'.format(sb=sb),
             'Match big_blind {bb}'.format(bb=bb),
             '{sb_bot} post {sb}'.format(sb_bot=sb_bot, sb=posted_sb),
@@ -132,7 +135,7 @@ class HoldemHand(PokerHand):
         hands = {}
         full_deck = cards.full_deck()
         hand_cards = random.sample(full_deck, hand_size * len(players))
-        self.deck = [c for c in full_deck if not c in hand_cards]
+        self.deck = [c for c in full_deck if c not in hand_cards]
 
         for bot in players:
             hand = []
