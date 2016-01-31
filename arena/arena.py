@@ -44,6 +44,11 @@ class PyArena(object):
         alive = self.living_bots()
         return [b.state.name for b in alive]
 
+    def bot_stacks(self):
+        """Returns a dict of bot_name => chips"""
+        return {b.state.name: b.chips()
+                for b in self.living_bots()}
+
     def bot_from_name(self, name):
         """Returns the bot with the given name"""
         for bot in self.bots:

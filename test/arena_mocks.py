@@ -23,6 +23,9 @@ class MockArena(object):
     def post_bet(self, better, amount):
         return amount
 
+    def bot_stacks(self):
+        return {}
+
 
 class ScriptedArena(MockArena):
     def __init__(self, actions):

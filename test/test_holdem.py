@@ -17,15 +17,18 @@ class MockHoldemArena(Holdem):
         return self.living_bots()
 
     def bot_from_name(self, name):
-       bot = LoadedBot("bot", 2)
-       bot.state.stack = 1000
-       return bot
+        bot = LoadedBot("bot", 2)
+        bot.state.stack = 1000
+        return bot
 
     def say_table_cards(self, cards):
         pass
 
     def post_bet(self, bot_name, amount):
         return amount
+
+    def bot_stacks(self):
+        return {'a': 100, 'b': 200}
 
 
 class HoldemTest(unittest.TestCase):

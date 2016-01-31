@@ -16,6 +16,9 @@ class PyArenaTest(unittest.TestCase):
         with LocalIOArena() as arena:
             arena.load_bot("pokeher/theaigame_bot.py")
             self.assertEqual(arena.bot_count(), 1)
+            stacks = arena.bot_stacks()
+            self.assertEqual(stacks['bot_0'], 1000)
+            self.assertEqual(stacks.keys(), ['bot_0'])
 
     def test_load_bad_filename(self):
         """Don't want load_bot exploding on us"""
