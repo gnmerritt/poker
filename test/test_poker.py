@@ -26,6 +26,7 @@ class BettingRoundTest(unittest.TestCase):
             ['bot_0', 'raise 20'],
             ['bot_1', 'call 20'],
         ]
+
         def verify(args):
             ended, remaining = args
             self.assertFalse(ended, "hand shouldnt have ended")
@@ -38,6 +39,7 @@ class BettingRoundTest(unittest.TestCase):
             ['bot_1', 'raise 10'],
             ['bot_0', 'fold'],
         ]
+
         def verify(args):
             ended, remaining = args
             self.assertTrue(ended)
@@ -47,28 +49,31 @@ class BettingRoundTest(unittest.TestCase):
     def test_all_in_call(self):
         actions = [
             ['bot_1', 'raise 10'],
-            ['bot_0', 'raise 100'], # pot now 120
-            ['bot_1', 'call 100'], # bot_0 all in, only posts 10 (pot down to 40)
+            ['bot_0', 'raise 100'],  # pot now 120
+            # bot_0 all in, only posts 10 (pot down to 40)
+            ['bot_1', 'call 100'],
         ]
+
         def verify(args):
             ended, _ = args
             self.assertFalse(ended, "all in shouldn't end the hand")
             self.assertEqual(hand.pot, 40, "all in added wrong")
-        hand = self.build_run_hand(actions, [['bot_1',10]], callback=verify)
+        hand = self.build_run_hand(actions, [['bot_1', 10]], callback=verify)
 
     @unittest.skip("TODO")
     def test_all_in_blinds(self):
         """Tests that a partially posted blind counts as all-in"""
-        self.fail() # TODO :-)
+        self.fail()  # TODO :-)
 
     def test_min_raise(self):
         actions = [
-            ['bot_0', 'raise 10'], # pot 10
-            ["bot_1", "raise 20"], # pot 30
+            ['bot_0', 'raise 10'],  # pot 10
+            ["bot_1", "raise 20"],  # pot 30
             # smaller than minimum raise, gets bumped to raise 20
             ["bot_0", "raise 1"],  # call 20 + raise 20, pot = 80
-            ["bot_1", "call 20"], # pot = 100
+            ["bot_1", "call 20"],  # pot = 100
         ]
+
         def verify(args):
             ended, _ = args
             self.assertFalse(ended)
@@ -77,11 +82,12 @@ class BettingRoundTest(unittest.TestCase):
 
     def test_min_reraise(self):
         actions = [
-            ["bot_0", "raise 50"], # pot 50
-            ["bot_1", "raise 60"], # pot 160
-            ["bot_0", "raise 50"], # c60, raise 60, pot = 280
+            ["bot_0", "raise 50"],  # pot 50
+            ["bot_1", "raise 60"],  # pot 160
+            ["bot_0", "raise 50"],  # c60, raise 60, pot = 280
             ["bot_1", "call 60"]   # call, pot=340
         ]
+
         def verify(args):
             ended, remaining = args
             self.assertFalse(ended)
