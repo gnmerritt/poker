@@ -8,6 +8,7 @@ class GameAction(object):
     CHECK = 3
 
     NAMES = ['F', 'C', 'R', 'C']
+    LONG_NAMES = ['Fold', 'Call', 'Raise', 'Check']
 
     def __init__(self, action, amount=0):
         self.action = action
@@ -15,7 +16,7 @@ class GameAction(object):
 
     def __eq__(self, other):
         return self.action == other.action and \
-          self.amount == other.amount
+            self.amount == other.amount
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -35,6 +36,9 @@ class GameAction(object):
     def is_check(self):
         return self.__match(self.CHECK)
 
+    def name(self):
+        return self.LONG_NAMES[self.action]
+
     def __repr__(self):
         return "<GameAction type={}, amount={}>" \
-          .format(self.NAMES[self.action], self.amount)
+            .format(self.NAMES[self.action], self.amount)
