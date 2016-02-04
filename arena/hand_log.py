@@ -1,4 +1,5 @@
 import time
+import jsonpickle
 
 
 class HandLog(object):
@@ -12,8 +13,9 @@ class HandLog(object):
         self.initial_stacks = bot_stacks
         self.actions = []
 
-    def to_file(self, filename):
-        pass  # TODO
+    def to_file(self, output_file):
+        frozen = jsonpickle.encode(self, unpicklable=False)
+        output_file.write(frozen)
 
     def unix_epoch_s(self):
         return int(time.time())

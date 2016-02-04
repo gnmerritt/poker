@@ -1,4 +1,5 @@
 import unittest
+import tempfile
 
 from arena.hand_log import HandLog
 from pokeher.theaigame import CardBuilder
@@ -62,8 +63,10 @@ class HandLogTest(unittest.TestCase):
         }
         self.assertEqual([remaining], self.log.actions)
 
-
-class HandLogWritingTest(unittest.TestCase):
-    @unittest.skip("TODO")
     def test_write(self):
-        pass
+        self.log.action("bot_1", GameAction(GameAction.FOLD))
+        output = tempfile.SpooledTemporaryFile()
+        self.log.to_file(output)
+        output.seek(0)
+        written = output.read()
+        self.assertEqual(written, '{"initial_stacks": {}, "actions": [{"player": "bot_1", "data": 0, "event": "Fold", "ts": 10}]}')
