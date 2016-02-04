@@ -4,3 +4,4 @@ nose
 pyprof2calltree
 twisted
 coverage
+jsonpickle
