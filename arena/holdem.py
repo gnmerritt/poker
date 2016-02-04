@@ -73,6 +73,7 @@ class HoldemHand(PokerHand):
         self.hands = self.deal_hands(self.players)
         self.blinds_round = self.post_blinds()
         self.parent.say_hands(self.hands)
+        self.log.hands(self.hands)
         return self.on_hand_over, self.__hand_phase_tick
 
     def __hand_phase_tick(self):
@@ -156,5 +157,6 @@ class HoldemHand(PokerHand):
 
         # update the deck
         self.deck = [c for c in self.deck if c not in self.table_cards]
+        self.log.table_cards(self.table_cards)
         self.parent.say_table_cards(self.table_cards)
         return False, self.players

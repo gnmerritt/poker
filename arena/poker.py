@@ -1,6 +1,7 @@
 from twisted.internet import defer
 
 from betting import BettingRound
+from hand_log import HandLog
 from pokeher.actions import GameAction
 from pokeher.handscore import HandBuilder
 
@@ -17,6 +18,7 @@ class PokerHand(object):
         self.table_cards = []
         self.pot = 0
         self.phase = 0
+        self.log = HandLog(self.parent.bot_stacks())
         # fired when a hand finishes
         self.on_hand_over = defer.Deferred()
 
@@ -52,6 +54,8 @@ class PokerHand(object):
         br = self.br
         self.pot = br.pot
         remaining = br.remaining_players()
+        self.log.remaining(remaining)
+        self.log.pot(self.pot)
         # A hand ends if only one player remains after betting
         br.on_phase_over.callback((len(remaining) == 1, remaining))
 
@@ -95,6 +99,7 @@ class PokerHand(object):
             br.post_bet(current_better, 0)
 
         self.parent.say_action(current_better, action)
+        self.log.action(current_better, action)
 
     def __check_bet(self, br, better, action):
         posted = self.parent.post_bet(better, action.amount)
@@ -124,7 +129,7 @@ class PokerHand(object):
     def winner(self):
         """Method that runs at the end of a hand. Updates chips, blinds, etc"""
         self.parent.blind_manager.finish_hand()
-        self.on_hand_over.callback((self.players, self.pot))
+        self.on_hand_over.callback((self.players, self.pot, self.log))
 
 
 class Showdown(object):

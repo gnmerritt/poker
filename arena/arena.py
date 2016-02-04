@@ -3,11 +3,22 @@ from __future__ import print_function
 from twisted.internet import defer
 
 import math
+import os
+import errno
 
 import pokeher.cards as cards
 from pokeher.theaigame import TheAiGameActionBuilder
-
 from hand_stats import HandStats
+
+
+def mkdir_p(path):
+    try:
+        os.makedirs(path)
+    except OSError as exc:  # Python >2.5
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else:
+            raise
 
 
 class PyArena(object):
@@ -19,6 +30,8 @@ class PyArena(object):
         self.silent = silent
         self.bots = []  # [LoadedBot or similar]
         self.stats = HandStats()
+        self.output_directory = False
+        self.key = False
 
     def log(self, message, force=False):
         if not self.silent or force:
@@ -104,11 +117,13 @@ class PyArena(object):
     def play_hand(self):
         """Plays a hand of poker, updating chip counts at the end."""
         def after_hand(args):
-            winners, pot = args
+            winners, pot, log = args
+            self.write_hand_log(log)
             self.__update_chips(winners, pot)
             self.__remove_dead_players()
             self.check_stack_sizes()
             self.__hand_tick()
+
         hand = self.new_hand()
         on_hand_complete, start_func = hand.play_hand()
         on_hand_complete.addCallback(after_hand)
@@ -242,6 +257,21 @@ class PyArena(object):
         """Returns True if a bot is all in (has no chips left)"""
         bot = self.bot_from_name(bot_name)
         return bot.chips() == 0
+
+    def write_hand_log(self, hand_log):
+        if not self.output_directory or not self.key:
+            return
+        log_dir = os.path.join(self.output_directory, self.key)
+        mkdir_p(log_dir)
+        hand_file = "hand_{}.json".format(self.current_round)
+        try:
+            target = os.path.join(log_dir, hand_file)
+            log_file = open(target, 'w')
+            hand_log.to_file(log_file)
+        except IOError as e:
+            self.log("Error writing log file: {}".format(e))
+        finally:
+            log_file.close()
 
 
 class MatchResults(object):

@@ -1,5 +1,11 @@
 import unittest
+import tempfile
+import os
+import shutil
+
 from arena.local_arena import LocalIOArena
+from arena.hand_log import HandLog
+from pokeher.actions import GameAction
 
 
 class PyArenaTest(unittest.TestCase):
@@ -40,3 +46,22 @@ class PyArenaTest(unittest.TestCase):
         self.assertEqual(len(winnings), 2)
         self.assertIn(7, winnings)
         self.assertIn(8, winnings)
+
+    def test_hand_log_writing(self):
+        arena = LocalIOArena()
+        arena.key = "fake-uuid-woo-boom"
+        temp = tempfile.mkdtemp()
+        arena.output_directory = temp
+        arena.current_round = 0
+
+        log = HandLog({})
+        log.unix_epoch_s = lambda: 10
+        log.action("bot_1", GameAction(GameAction.FOLD))
+        arena.write_hand_log(log)
+
+        written_file = os.path.join(temp, arena.key, "hand_0.json")
+        written_handle = open(written_file, 'r')
+        contents = written_handle.read()
+        self.assertEquals(contents, '{"initial_stacks": {}, "actions": [{"player": "bot_1", "data": 0, "event": "Fold", "ts": 10}]}')
+
+        shutil.rmtree(temp)

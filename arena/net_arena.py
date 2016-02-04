@@ -52,7 +52,7 @@ class NetworkArena(PyArena):
         for bot in self.bots:
             bot.kill()
 
-        return args # for the rest of the deferred handlers
+        return args  # for the rest of the deferred handlers
 
     def get_action(self, bot_name, deferred):
         """Async version of get_action that waits on net input"""
