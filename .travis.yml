@@ -1,12 +1,15 @@
 language: python
 python:
-  - "2.7"
+- '2.7'
 before_install:
-  - "pip install codecov"
+- pip install codecov
 install:
-  - "pip install -r requirements.txt"
-  - "make"
-  - "wget -P data/ http://gnmerritt.net/data/preflop_wins_50000.pickle"
+- pip install -r requirements.txt
+- make
+- wget -P data/ http://gnmerritt.net/data/preflop_wins_50000.pickle
 script: make coverage
 after_success:
-  - "codecov"
+- codecov
+notifications:
+  slack:
+    secure: bB5CyRbdotoVKjjx69D4PlkQxsPQ21U4G8XIGoGoPB+XzaXvlVzipwlJ2/i/hINeu9ZmZzfHU8agnewYmtDeNMj7d7+Dyzzjd3P5TR7hRbhIbzilAxjClvx8HEUy6NZ0Gyy3DRPUZJkcdw5PpuV1414+KpcqC+BLTg0R1rLMdHrTaoE2UkPqrWSb9hFr3cqJRVgsloZNlQosrQ2xaqP4kzIhSPHPwGEfqm9EkbSwka+OMRt+Ah3MW4eq98i+uzZt7hEsRTZckchewXyuMivmdc3rvfNFy701aozPyMCaJbDC65WzA5lcHs72khBLvwcSkp9Dm+1noUWzM4Kopt3KjMqXm96hxWG8Tb9hwUOR7hfbh1Eyatd21mupk9T17br2qyTOsZSzvLdebLHs7APv6Emo8HP+KY2ZJ4vVFdM4dzoU5g5AVuEMYgNBFPvInYaIsE+cKSwssWspp6VgiVMvWR6vM2ohML7VknDuXVUlHWuwwb/U9WU31EjCxLJ4mg7NZjE37KW6ZMSbzA0fm+p4ZYbY+JOvIROGqCAr7sXzEzMQnLwTc6CwRzfVm68upNuOPSienA+nPUQiumdFT6ssgtoIrlsbLdcAYBx7K0ILgv1mjgfhEGrdrb/d+t3s4AoGEfjrLZhH/WoF1CVc7bFmUK1HM6BLrwVCDutPUNa6lF4=
