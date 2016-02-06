@@ -10,7 +10,6 @@ TODO list:
 
 Arena TODO:
 
-* hand logging
 * hand replay react app
 * wire in timing, automatically time out if responses take too long
 * robustness for > 2 players
