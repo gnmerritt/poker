@@ -25,7 +25,7 @@ class NetArenaTests(unittest.TestCase):
         bot = self.arena.bot_from_name("bot_0")
         self.assertTrue(bot)
         self.assertEqual(bot.state.source, "ABC_KEY")
-
+        self.assertEqual(self.arena.bot_keys.get("ABC_KEY"), "bot_0")
 
     def test_get_action(self):
         def callback(action):
@@ -40,13 +40,31 @@ class NetArenaTests(unittest.TestCase):
         self.arena.get_action("bot_0", d)
         self.assertEqual(self.arena.waiting_on, "bot_0")
         self.assertEqual(self.arena.action_deferred, d)
-        self.assertIn("Action bot_0 1000", self.protocol.lines)
+        self.assertIn("Action bot_0 7000", self.protocol.lines)
 
         self.arena.bot_said("bot_1", "Something we ignored")
         self.assertFalse(callback.fired)
 
         self.arena.bot_said("bot_0", "fold")
         self.assertTrue(callback.fired)
+
+    def test_time_for_move(self):
+        delay = self.arena.get_time_for_move("foasdfsof")
+        self.assertEqual(delay, self.arena.TIME_PER_MOVE)
+
+        nibbler_delay = self.arena.get_time_for_move("bot_0")
+        self.assertEqual(nibbler_delay, 7)
+
+    def test_bot_timed_out(self):
+        abc = self.arena.bot_from_name("bot_0")
+        self.assertEqual(abc.state.timeouts, 0, "no timeouts initially")
+        self.assertEqual(abc.state.timebank, 5, "full initial timebank")
+
+        self.arena.bot_timed_out("bot_0")
+
+        abc = self.arena.bot_from_name("bot_0")
+        self.assertEqual(abc.state.timeouts, 1, "timeout added")
+        self.assertEqual(abc.state.timebank, 0, "timebank exhausted")
 
 
 class NetArenaGameTest(trial_unit.TestCase):
@@ -63,3 +81,5 @@ class NetArenaGameTest(trial_unit.TestCase):
         self.assertIn("bot_0 seat 0", lines)
         self.assertIn("Settings your_bot bot_1", lines)
         self.assertIn("bot_0 post 10", lines)
+
+        self.arena.on_bot_timeout.cancel()  # placate twistd tests

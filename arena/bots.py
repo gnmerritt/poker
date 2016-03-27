@@ -61,19 +61,22 @@ class BotProcess(object):
 
 
 class BotState(object):
-    INITIAL_CHIPS = 1000 # TODO
+    INITIAL_CHIPS = 1000  # TODO
+    TIMEBANK = 5  # seconds
 
     """Stuff to remember about each bot"""
     def __init__(self, seat, source_file):
         self.source = source_file
         self.name = 'bot_{s}'.format(s=seat)  # name for communication
         self.seat = seat  # seat at table
-        self.stack = self.INITIAL_CHIPS # amount of chips
+        self.stack = self.INITIAL_CHIPS  # amount of chips
         self.stake = 0  # chips bet currently
+        self.timebank = self.TIMEBANK
+        self.timeouts = 0
 
     def __repr__(self):
         return "Bot<'{}'@'{}' stk={}>" \
-          .format(self.name, self.source, self.stack)
+            .format(self.name, self.source, self.stack)
 
 
 class LoadedBot(object):
@@ -85,21 +88,23 @@ class LoadedBot(object):
         self.start_bot(source_file, print_bot_output)
 
     def start_bot(self, source_file, print_bot_output):
-        self.process = BotProcess(source_file, print_bot_output=print_bot_output)
+        self.process = BotProcess(
+            source_file, print_bot_output=print_bot_output
+        )
 
     def tell(self, line):
         """Writes to the bot's STDIN"""
         assert type(line) is types.StringType, \
-          "can't tell non-string '{}'".format(line)
+            "can't tell non-string '{}'".format(line)
         try:
             self.process.put(line)
         except IOError as e:
             if not self.silent:
                 print "Error talking to bot {}: {}" \
-                  .format(self.state.source, e)
+                    .format(self.state.source, e)
 
-    def ask(self):
-        return self.process.get()
+    def ask(self, timeout=1):
+        return self.process.get(timeout)
 
     def change_chips(self, delta):
         self.state.stack += delta
@@ -132,8 +137,8 @@ class NetLoadedBot(LoadedBot):
         self.protocol.sendLine(line)
 
     def ask(self):
-        pass # no-op, we let bots write back to us
+        pass  # no-op, we let bots write back to us
 
-    def kill(self):
+    def kill(self, message="Match is over (killed)"):
         self.is_active = False
-        self.protocol.closeBecause("Match is over (killed)")
+        self.protocol.closeBecause(message)

@@ -1,6 +1,6 @@
 import time
 from twisted.python import log as twisted_log
-from twisted.internet import defer
+from twisted.internet import defer, reactor
 
 import utility
 utility.fix_paths()
@@ -16,7 +16,7 @@ class NetworkArena(PyArena):
     def __init__(self, silent=True):
         PyArena.__init__(self, silent)
         self.playing = False
-        self.bot_keys = {}
+        self.bot_keys = {}  # bot name => bot key
 
         self.after_match = defer.Deferred()
 
@@ -60,8 +60,19 @@ class NetworkArena(PyArena):
         self.waiting_on = bot_name
         self.action_deferred = deferred
         self.started_waiting = time.clock()
+        self.on_bot_timeout = reactor.callLater(
+            self.get_time_for_move(bot_name), self.bot_timed_out, bot_name)
 
-        # TODO: timeouts, clock time per bot
+    def bot_timed_out(self, bot_name):
+        self.log("Timed out waiting for {}".format(bot_name))
+        bot = self.bot_from_name(bot_name)
+        if not bot:
+            self.log("Bot {} doesn't exist, ignoring timeout".format(bot_name))
+            return
+        bot.state.timebank = 0
+        bot.state.timeouts += 1
+        if bot.state.timeouts > self.ALLOWED_TIMEOUTS:
+            bot.kill("Disconnected, too many timeouts")
 
     def bot_said(self, bot_name, line):
         bot = self.bot_keys.get(bot_name, None)
@@ -75,10 +86,12 @@ class NetworkArena(PyArena):
             self.log("ignoring empty line from {}".format(bot))
             return
 
+        self.on_bot_timeout.cancel()
         self.waiting_on = None
         if self.action_deferred:
             delay = time.clock() - self.started_waiting
             self.log("got response in {}s".format(delay))
+            #  TODO: hook time taken back in to bot state
             self.action_deferred.callback(self.get_parsed_action(line))
 
     def skipped(self, bot_name, deferred):

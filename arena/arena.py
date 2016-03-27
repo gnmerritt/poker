@@ -25,6 +25,8 @@ class PyArena(object):
     """Manages game state, communication, bot money
     Leaves I/O to subclasses
     """
+    TIME_PER_MOVE = 2  # seconds
+    ALLOWED_TIMEOUTS = 3
 
     def __init__(self, silent=False):
         self.silent = silent
@@ -205,8 +207,16 @@ class PyArena(object):
             'Match table {}'.format(cards.to_aigames_list(dealt_cards))
         self.tell_bots([table_list])
 
+    def get_time_for_move(self, bot_name):
+        bot = self.bot_from_name(bot_name)
+        timebank = bot.state.timebank if bot else 0
+        return timebank + self.TIME_PER_MOVE
+
     def notify_bots_turn(self, bot_name):
-        self.tell_bot(bot_name, ['Action {b} 1000'.format(b=bot_name)])
+        timebank = self.get_time_for_move(bot_name) * 1000
+        self.tell_bot(
+            bot_name, ['Action {b} {t}'.format(b=bot_name, t=timebank)]
+        )
 
     def get_parsed_action(self, line):
         return TheAiGameActionBuilder().from_string(line)

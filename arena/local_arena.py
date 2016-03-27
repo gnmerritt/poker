@@ -40,14 +40,15 @@ class LocalIOArena(PyArena):
 
     def get_action(self, bot_name, got_action):
         """Tells a bot to go, waits for a response"""
-        # TODO hook up to timing per bot
         self.notify_bots_turn(bot_name)
         bot = self.bot_from_name(bot_name)
-        answer = bot.ask()
+        timebank = self.get_time_for_move(bot_name)
+        answer = bot.ask(timebank)
         if not answer:
             return None
         time, response = answer
-        self.log("bot {b} submitted action {a} chips={c} time={t}"
+        #  TODO: hook time taken back in to bot state
+        self.log("bot {b} submitted action {a} chips={c} in {t}s"
                  .format(b=bot_name, a=response, c=bot.state.stack, t=time))
         action = self.get_parsed_action(response)
         reactor.callLater(0.001, got_action.callback, action)
