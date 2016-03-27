@@ -86,11 +86,10 @@ class PyArena(object):
         until there is only one player remaining"""
         self.current_round += 1
 
+        self.say_round_updates()
         if len(self.living_bots()) >= self.min_players():
-            self.say_round_updates()
             self.play_hand()
         else:
-            self.say_round_updates()
             self.declare_winners()
             self.on_match_complete.callback(MatchResults(self))
 
@@ -123,7 +122,6 @@ class PyArena(object):
             self.write_hand_log(log)
             self.__update_chips(winners, pot)
             self.__remove_dead_players()
-            self.check_stack_sizes()
             self.__hand_tick()
 
         hand = self.new_hand()

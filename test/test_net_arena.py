@@ -36,7 +36,7 @@ class NetArenaTests(unittest.TestCase):
         d = defer.Deferred()
         d.addCallback(callback)
 
-        self.arena.bot_keys['bot_0'] = "bot_0"
+        self.arena.bot_keys['bot_0_key'] = "bot_0"
         self.arena.get_action("bot_0", d)
         self.assertEqual(self.arena.waiting_on, "bot_0")
         self.assertEqual(self.arena.action_deferred, d)
@@ -45,7 +45,7 @@ class NetArenaTests(unittest.TestCase):
         self.arena.bot_said("bot_1", "Something we ignored")
         self.assertFalse(callback.fired)
 
-        self.arena.bot_said("bot_0", "fold")
+        self.arena.bot_said("bot_0_key", "fold")
         self.assertTrue(callback.fired)
 
     def test_time_for_move(self):

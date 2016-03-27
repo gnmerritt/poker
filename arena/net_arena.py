@@ -1,6 +1,7 @@
 import time
 from twisted.python import log as twisted_log
 from twisted.internet import defer, reactor
+from twisted.internet.error import AlreadyCalled
 
 import utility
 utility.fix_paths()
@@ -13,10 +14,10 @@ from timing import FiveSecondTurns
 
 
 class NetworkArena(PyArena):
-    def __init__(self, silent=True):
+    def __init__(self, silent=False):
         PyArena.__init__(self, silent)
         self.playing = False
-        self.bot_keys = {}  # bot name => bot key
+        self.bot_keys = {}  # bot key => bot name
 
         self.after_match = defer.Deferred()
 
@@ -72,25 +73,40 @@ class NetworkArena(PyArena):
         bot.state.timebank = 0
         bot.state.timeouts += 1
         if bot.state.timeouts > self.ALLOWED_TIMEOUTS:
+            self.log("Killing bot {} after timeout #{}"
+                     .format(bot_name, bot.state.timeouts))
+            action = "fold"
             bot.kill("Disconnected, too many timeouts")
+        else:
+            action = "check"
 
-    def bot_said(self, bot_name, line):
-        bot = self.bot_keys.get(bot_name, None)
+        bot_key = None
+        for k, name in self.bot_keys.items():
+            if name == bot_name:
+                bot_key = k
+
+        self.bot_said(bot_key, action)
+
+    def bot_said(self, bot_key, line):
+        bot_name = self.bot_keys.get(bot_key, None)
         if line.startswith("!"):
             self.log("ignoring server command line: {}".format(line))
             return
-        if not bot or bot != self.waiting_on:
-            self.log("ignoring input from {}".format(bot))
+        if not bot_name or bot_name != self.waiting_on:
+            self.log("ignoring input from {}, waiting on {}"
+                     .format(bot_name, self.waiting_on))
             return
         if not line:
-            self.log("ignoring empty line from {}".format(bot))
+            self.log("ignoring empty line from {}".format(bot_name))
             return
 
-        self.on_bot_timeout.cancel()
+        try:
+            self.on_bot_timeout.cancel()
+        except AlreadyCalled:
+            pass
         self.waiting_on = None
         if self.action_deferred:
-            delay = time.clock() - self.started_waiting
-            self.log("got response in {}s".format(delay))
+            #  delay = time.clock() - self.started_waiting
             #  TODO: hook time taken back in to bot state
             self.action_deferred.callback(self.get_parsed_action(line))
 
